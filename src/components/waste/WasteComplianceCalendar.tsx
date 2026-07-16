@@ -326,7 +326,7 @@ export default function WasteComplianceCalendar({
                             <button
                               type="button"
                               onClick={() => onSelectSiteDate?.(summary.site, date)}
-                              className="flex w-full flex-col items-center justify-center rounded-xl bg-green-50 px-3 py-3 text-green-800 transition hover:bg-green-100"
+                              className="flex w-full flex-col items-center justify-center rounded-xl bg-violet-50 px-3 py-3 text-violet-800 transition hover:bg-violet-100"
                               title={`View ${summary.site} waste for ${date}`}
                             >
                               <CheckCircle2 size={20} />
@@ -355,7 +355,7 @@ export default function WasteComplianceCalendar({
                       <div
                         className={`rounded-xl px-4 py-3 font-bold ${
                           summary.percentage === 100
-                            ? "bg-green-100 text-green-900"
+                            ? "bg-violet-100 text-violet-900"
                             : summary.percentage >= 80
                               ? "bg-orange-100 text-orange-900"
                               : "bg-red-100 text-red-900"
@@ -375,7 +375,7 @@ export default function WasteComplianceCalendar({
           </div>
 
           <div className="mt-5 flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-2 text-green-800">
+            <div className="flex items-center gap-2 text-violet-800">
               <CheckCircle2 size={18} />
               <span className="font-semibold">Waste recorded</span>
             </div>

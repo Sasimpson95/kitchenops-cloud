@@ -1,98 +1,48 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  useRouter,
-} from "next/navigation";
-
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import type { User } from "@/config/roles";
+import { getCachedCloudSession, getCloudSession } from "@/lib/cloudSession";
+import { getCurrentUser, setCurrentUser } from "@/lib/currentUser";
+import { hydrateCloudCatalog } from "@/lib/cloud/catalogSync";
 
-import type {
-  User,
-} from "@/config/roles";
+type ProtectedPageProps = { children: React.ReactNode };
 
-import {
-  getCloudSession,
-} from "@/lib/cloudSession";
-
-import {
-  setCurrentUser,
-} from "@/lib/currentUser";
-
-import {
-  hydrateCloudCatalog,
-} from "@/lib/cloud/catalogSync";
-
-type ProtectedPageProps = {
-  children: React.ReactNode;
-};
-
-export default function ProtectedPage({
-  children,
-}: ProtectedPageProps) {
+export default function ProtectedPage({ children }: ProtectedPageProps) {
   const router = useRouter();
-
-  const [currentUser, setUser] =
-    useState<User | null>(null);
+  const cachedUser = getCachedCloudSession()?.user ?? getCurrentUser();
+  const [currentUser, setUser] = useState<User | null>(cachedUser);
 
   useEffect(() => {
     let cancelled = false;
-
     async function loadSession() {
       try {
-        const session =
-          await getCloudSession();
-
+        const session = await getCloudSession();
         if (cancelled) return;
-
-        if (
-          !session.authenticated ||
-          !session.user
-        ) {
-          router.replace(
-            session.needsOnboarding
-              ? "/cloud-onboarding"
-              : "/login"
-          );
+        if (!session.authenticated || !session.user) {
+          router.replace(session.needsOnboarding ? "/cloud-onboarding" : "/login");
           return;
         }
-
-        // Compatibility bridge while operational modules are migrated.
         setCurrentUser(session.user);
         setUser(session.user);
-
-        await hydrateCloudCatalog();
+        void hydrateCloudCatalog();
       } catch {
-        if (!cancelled) {
-          router.replace("/login");
-        }
+        if (!cancelled) router.replace("/login");
       }
     }
-
     void loadSession();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [router]);
 
   if (!currentUser) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-100">
-        <p className="font-semibold text-gray-600">
-          Loading KitchenOps...
-        </p>
+        <div className="rounded-2xl bg-white px-5 py-4 font-semibold text-gray-600 shadow-sm">Opening KitchenOps…</div>
       </main>
     );
   }
 
-  return (
-    <AppShell currentUser={currentUser}>
-      {children}
-    </AppShell>
-  );
+  return <AppShell currentUser={currentUser}>{children}</AppShell>;
 }

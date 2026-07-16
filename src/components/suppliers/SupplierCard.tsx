@@ -41,7 +41,7 @@ export default function SupplierCard({ supplier }: SupplierCardProps) {
           </p>
         </div>
 
-        <p className="mt-5 font-semibold text-green-800">
+        <p className="mt-5 font-semibold text-violet-800">
           View Supplier →
         </p>
       </Card>

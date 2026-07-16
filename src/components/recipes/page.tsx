@@ -28,7 +28,7 @@ export default function RecipesPage() {
               </p>
             </div>
 
-            <button className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white hover:bg-green-900">
+            <button className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900">
               + New Recipe
             </button>
           </div>
@@ -37,7 +37,7 @@ export default function RecipesPage() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="🔍 Search recipes..."
-            className="mt-8 w-full rounded-2xl border border-gray-300 bg-white px-5 py-4 font-semibold shadow-sm outline-none focus:border-green-800"
+            className="mt-8 w-full rounded-2xl border border-gray-300 bg-white px-5 py-4 font-semibold shadow-sm outline-none focus:border-violet-800"
           />
 
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
@@ -69,7 +69,7 @@ export default function RecipesPage() {
                   </p>
                 </div>
 
-                <p className="mt-5 font-semibold text-green-800">
+                <p className="mt-5 font-semibold text-violet-800">
                   Open recipe →
                 </p>
               </button>

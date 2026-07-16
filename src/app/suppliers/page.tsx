@@ -275,7 +275,7 @@ export default function SuppliersPage() {
               <button
                 type="button"
                 onClick={openAddSupplier}
-                className="flex items-center justify-center gap-2 rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900"
+                className="flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900"
               >
                 <Plus size={20} />
                 New Supplier
@@ -360,7 +360,7 @@ export default function SuppliersPage() {
                   )
                 }
                 placeholder="Search suppliers, contacts or email..."
-                className="w-full rounded-xl border border-gray-300 py-3 pl-12 pr-12 outline-none transition focus:border-green-800"
+                className="w-full rounded-xl border border-gray-300 py-3 pl-12 pr-12 outline-none transition focus:border-violet-800"
               />
 
               {search && (
@@ -385,7 +385,7 @@ export default function SuppliersPage() {
                 }
                 className={`rounded-full px-5 py-2 font-semibold transition ${
                   view === "active"
-                    ? "bg-green-800 text-white"
+                    ? "bg-violet-800 text-white"
                     : "border border-gray-300 bg-white text-gray-700 hover:bg-slate-50"
                 }`}
               >
@@ -443,7 +443,7 @@ export default function SuppliersPage() {
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-semibold ${
                           supplier.active
-                            ? "bg-green-100 text-green-800"
+                            ? "bg-violet-100 text-violet-800"
                             : "bg-gray-200 text-gray-700"
                         }`}
                       >
@@ -512,7 +512,7 @@ export default function SuppliersPage() {
                     <div className="mt-6 grid gap-3 sm:grid-cols-2">
                       <Link
                         href={`/suppliers/${supplier.id}`}
-                        className={`rounded-xl bg-green-800 px-4 py-3 text-center font-semibold text-white transition hover:bg-green-900 ${
+                        className={`rounded-xl bg-violet-800 px-4 py-3 text-center font-semibold text-white transition hover:bg-violet-900 ${
                           !canManageSuppliers
                             ? "sm:col-span-2"
                             : ""
@@ -565,7 +565,7 @@ export default function SuppliersPage() {
                                 supplier
                               )
                             }
-                            className="flex items-center justify-center gap-2 rounded-xl bg-green-800 px-4 py-3 font-semibold text-white transition hover:bg-green-900 sm:col-span-2"
+                            className="flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-4 py-3 font-semibold text-white transition hover:bg-violet-900 sm:col-span-2"
                           >
                             <RotateCcw
                               size={18}

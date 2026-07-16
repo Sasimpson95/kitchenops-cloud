@@ -14,6 +14,7 @@ import {
   Building2,
   ClipboardList,
   History,
+  ReceiptText,
   PackageCheck,
   PoundSterling,
   ShoppingCart,
@@ -25,6 +26,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import Card from "@/components/ui/Card";
 import NewOrderModal from "@/components/purchasing/NewOrderModal";
 import RecentOrders from "@/components/purchasing/RecentOrders";
+import ReceiveInvoiceModal from "@/components/purchasing/ReceiveInvoiceModal";
 
 import type { PurchaseOrder } from "@/data/orders";
 
@@ -70,6 +72,9 @@ export default function PurchasingPage() {
 
   const [showNewOrder, setShowNewOrder] =
     useState(false);
+
+  const [showReceiveInvoice, setShowReceiveInvoice] = useState(false);
+  const [invoiceRefresh, setInvoiceRefresh] = useState(0);
 
   const [orderList, setOrderList] = useState<
     PurchaseOrder[]
@@ -179,6 +184,15 @@ export default function PurchasingPage() {
     setShowNewOrder(true);
   }
 
+  function openReceiveInvoice(): void {
+    if (selectedSiteId === "all-sites") {
+      setSiteError("Select a site before receiving an invoice.");
+      return;
+    }
+    setSiteError("");
+    setShowReceiveInvoice(true);
+  }
+
   function closeNewOrder(): void {
     setShowNewOrder(false);
     refreshPurchasing();
@@ -204,7 +218,7 @@ export default function PurchasingPage() {
                   );
                   setSiteError("");
                 }}
-                className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800"
+                className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
               >
                 {SITES.map((site) => (
                   <option
@@ -224,7 +238,7 @@ export default function PurchasingPage() {
             </div>
           )}
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             <button
               type="button"
               onClick={openNewOrder}
@@ -235,7 +249,7 @@ export default function PurchasingPage() {
               className="rounded-3xl bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-800">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-violet-800">
                   <ShoppingCart size={28} />
                 </div>
 
@@ -274,13 +288,27 @@ export default function PurchasingPage() {
               </Card>
             </Link>
 
+            <button
+              type="button"
+              onClick={openReceiveInvoice}
+              disabled={selectedSiteId === "all-sites"}
+              className="rounded-3xl bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <div className="flex items-center gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-violet-800">
+                  <ReceiptText size={28} />
+                </div>
+                <div><h2 className="text-xl font-bold text-gray-950">Receive Invoice</h2><p className="mt-1 text-gray-500">No KitchenOps order needed</p></div>
+              </div>
+            </button>
+
             <Link
               href="/suppliers"
               className="block"
             >
               <Card className="h-full transition hover:-translate-y-1 hover:shadow-md">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-800">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-violet-800">
                     <Building2 size={28} />
                   </div>
 
@@ -429,7 +457,7 @@ export default function PurchasingPage() {
 
                   <Link
                     href="/orders"
-                    className="text-sm font-semibold text-green-800 hover:underline"
+                    className="text-sm font-semibold text-violet-800 hover:underline"
                   >
                     View all
                   </Link>
@@ -529,12 +557,12 @@ export default function PurchasingPage() {
                   {overdueDeliveries.length ===
                     0 &&
                     draftOrders.length === 0 && (
-                      <div className="rounded-2xl bg-green-50 p-4">
-                        <p className="font-bold text-green-800">
+                      <div className="rounded-2xl bg-violet-50 p-4">
+                        <p className="font-bold text-violet-800">
                           Nothing needs attention
                         </p>
 
-                        <p className="text-sm text-green-700">
+                        <p className="text-sm text-violet-700">
                           Purchasing is up to date.
                         </p>
                       </div>
@@ -544,6 +572,16 @@ export default function PurchasingPage() {
             </div>
           </div>
         </div>
+
+        {showReceiveInvoice && currentUser && (
+          <ReceiveInvoiceModal
+            siteId={selectedSiteId}
+            siteName={SITES.find((site) => site.id === selectedSiteId)?.name ?? selectedSiteId}
+            receivedBy={currentUser.name}
+            onClose={() => setShowReceiveInvoice(false)}
+            onSaved={() => setInvoiceRefresh((value) => value + 1)}
+          />
+        )}
 
         {showNewOrder && (
           <NewOrderModal

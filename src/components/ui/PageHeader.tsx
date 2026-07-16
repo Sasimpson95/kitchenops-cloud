@@ -26,7 +26,7 @@ export default function PageHeader({
       {buttonText && (
         <button
           onClick={onButtonClick}
-          className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900"
+          className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900"
         >
           {buttonText}
         </button>

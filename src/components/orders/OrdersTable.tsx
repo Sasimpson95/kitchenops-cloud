@@ -217,7 +217,7 @@ export default function OrdersTable() {
                               order.id
                             )
                           }
-                          className="rounded-xl border border-green-800 px-4 py-2 font-semibold text-green-800 transition hover:bg-green-50"
+                          className="rounded-xl border border-violet-800 px-4 py-2 font-semibold text-violet-800 transition hover:bg-violet-50"
                         >
                           View
                         </button>

@@ -48,7 +48,7 @@ export default function StocktakeResults({
       <button
         type="button"
         onClick={onBack}
-        className="inline-flex items-center gap-2 font-semibold text-green-800 hover:underline"
+        className="inline-flex items-center gap-2 font-semibold text-violet-800 hover:underline"
       >
         <ArrowLeft size={18} />
         Back to Stocktakes
@@ -57,7 +57,7 @@ export default function StocktakeResults({
       <div className="mt-6 rounded-3xl bg-white p-8 shadow-sm">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
           <div>
-            <p className="text-sm font-semibold text-green-800">
+            <p className="text-sm font-semibold text-violet-800">
               {stocktake.stocktakeNumber}
             </p>
 
@@ -70,7 +70,7 @@ export default function StocktakeResults({
             </p>
           </div>
 
-          <div className="inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-3 font-semibold text-green-900">
+          <div className="inline-flex items-center gap-2 rounded-xl bg-violet-100 px-4 py-3 font-semibold text-violet-900">
             <CheckCircle2 size={20} />
             Completed
           </div>
@@ -97,12 +97,12 @@ export default function StocktakeResults({
             </p>
           </div>
 
-          <div className="rounded-2xl bg-green-50 p-5">
-            <p className="text-sm text-green-700">
+          <div className="rounded-2xl bg-violet-50 p-5">
+            <p className="text-sm text-violet-700">
               Completed By
             </p>
 
-            <p className="mt-1 text-xl font-bold text-green-900">
+            <p className="mt-1 text-xl font-bold text-violet-900">
               {stocktake.completedBy}
             </p>
           </div>
@@ -153,7 +153,7 @@ export default function StocktakeResults({
               <div
                 className={`rounded-xl px-4 py-2 text-center font-bold ${
                   item.difference > 0
-                    ? "bg-green-100 text-green-900"
+                    ? "bg-violet-100 text-violet-900"
                     : item.difference < 0
                     ? "bg-red-100 text-red-900"
                     : "bg-gray-200 text-gray-700"

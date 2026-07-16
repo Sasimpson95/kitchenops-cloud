@@ -81,11 +81,11 @@ export default function RecipeModal({
           </div>
         </div>
 
-        <div className="mt-6 rounded-2xl border border-green-200 bg-green-50 p-5">
+        <div className="mt-6 rounded-2xl border border-violet-200 bg-violet-50 p-5">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-green-900">Preparing</h3>
-              <p className="mt-1 text-sm text-green-700">
+              <h3 className="font-bold text-violet-900">Preparing</h3>
+              <p className="mt-1 text-sm text-violet-700">
                 Ingredient quantities update automatically.
               </p>
             </div>
@@ -93,21 +93,21 @@ export default function RecipeModal({
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setBatches(Math.max(1, batches - 1))}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-2xl font-bold text-green-900 shadow-sm"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-2xl font-bold text-violet-900 shadow-sm"
               >
                 -
               </button>
 
               <div className="w-20 text-center">
-                <p className="text-3xl font-bold text-green-900">{batches}</p>
-                <p className="text-xs font-semibold text-green-700">
+                <p className="text-3xl font-bold text-violet-900">{batches}</p>
+                <p className="text-xs font-semibold text-violet-700">
                   {batches === 1 ? "batch" : "batches"}
                 </p>
               </div>
 
               <button
                 onClick={() => setBatches(batches + 1)}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-2xl font-bold text-green-900 shadow-sm"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-2xl font-bold text-violet-900 shadow-sm"
               >
                 +
               </button>

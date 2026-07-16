@@ -72,7 +72,7 @@ export default function StocktakeReview({
         <button
           type="button"
           onClick={onExit}
-          className="inline-flex items-center gap-2 font-semibold text-green-800 hover:underline"
+          className="inline-flex items-center gap-2 font-semibold text-violet-800 hover:underline"
         >
           <ArrowLeft size={18} />
           Back to Stocktakes
@@ -86,7 +86,7 @@ export default function StocktakeReview({
       <div className="mt-6 rounded-3xl bg-white p-8 shadow-sm">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
           <div>
-            <p className="text-sm font-semibold text-green-800">
+            <p className="text-sm font-semibold text-violet-800">
               {stocktake.siteName}
             </p>
 
@@ -121,12 +121,12 @@ export default function StocktakeReview({
             </p>
           </div>
 
-          <div className="rounded-2xl bg-green-50 p-5">
-            <p className="text-sm text-green-700">
+          <div className="rounded-2xl bg-violet-50 p-5">
+            <p className="text-sm text-violet-700">
               Counted Higher
             </p>
 
-            <p className="mt-1 text-3xl font-bold text-green-900">
+            <p className="mt-1 text-3xl font-bold text-violet-900">
               {positiveVariances}
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function StocktakeReview({
         </div>
 
         {variances.length === 0 ? (
-          <div className="mt-7 flex items-center gap-4 rounded-2xl bg-green-50 p-6 text-green-900">
+          <div className="mt-7 flex items-center gap-4 rounded-2xl bg-violet-50 p-6 text-violet-900">
             <CheckCircle2 size={28} />
 
             <div>
@@ -151,7 +151,7 @@ export default function StocktakeReview({
                 No variances found
               </h2>
 
-              <p className="mt-1 text-sm text-green-800">
+              <p className="mt-1 text-sm text-violet-800">
                 Every counted quantity matches the expected stock.
               </p>
             </div>
@@ -215,7 +215,7 @@ export default function StocktakeReview({
                     <div
                       className={`rounded-xl px-4 py-2 text-lg font-bold ${
                         item.difference > 0
-                          ? "bg-green-100 text-green-900"
+                          ? "bg-violet-100 text-violet-900"
                           : "bg-red-100 text-red-900"
                       }`}
                     >
@@ -265,7 +265,7 @@ export default function StocktakeReview({
             type="button"
             onClick={onApply}
             disabled={applying}
-            className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {applying
               ? "Applying..."

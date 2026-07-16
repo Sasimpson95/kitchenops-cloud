@@ -561,7 +561,7 @@ function ProductsContent() {
               <button
                 type="button"
                 onClick={openAdd}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900"
               >
                 <PackagePlus size={20} />
                 New Product
@@ -577,7 +577,7 @@ function ProductsContent() {
               }
               className={`rounded-full px-5 py-2 font-semibold ${
                 view === "active"
-                  ? "bg-green-800 text-white"
+                  ? "bg-violet-800 text-white"
                   : "border border-gray-300 bg-white text-gray-700"
               }`}
             >
@@ -628,7 +628,7 @@ function ProductsContent() {
                     )
                   }
                   placeholder="Search products, suppliers or locations..."
-                  className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-11 outline-none focus:border-green-800"
+                  className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-11 outline-none focus:border-violet-800"
                 />
 
                 {search && (
@@ -651,7 +651,7 @@ function ProductsContent() {
                     event.target.value
                   )
                 }
-                className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800"
+                className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
               >
                 {categories.map(
                   (item) => (
@@ -674,7 +674,7 @@ function ProductsContent() {
                     event.target.value
                   )
                 }
-                className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800"
+                className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
               >
                 {supplierNames.map(
                   (item) => (
@@ -760,7 +760,7 @@ function ProductsContent() {
                           </p>
                         </div>
 
-                        <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
+                        <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800">
                           {product.supplierName}
                         </span>
                       </div>
@@ -777,12 +777,12 @@ function ProductsContent() {
                           </p>
                         </div>
 
-                        <div className="rounded-2xl bg-green-50 p-4">
-                          <p className="text-sm text-green-700">
+                        <div className="rounded-2xl bg-violet-50 p-4">
+                          <p className="text-sm text-violet-700">
                             Unit Cost
                           </p>
 
-                          <p className="mt-1 text-2xl font-bold text-green-950">
+                          <p className="mt-1 text-2xl font-bold text-violet-950">
                             {money(unitCost)}
                           </p>
                         </div>
@@ -845,7 +845,7 @@ function ProductsContent() {
                       <div className="mt-6 grid gap-3 sm:grid-cols-2">
                         <Link
                           href={`/products/${product.id}`}
-                          className={`rounded-xl bg-green-800 px-4 py-3 text-center font-semibold text-white transition hover:bg-green-900 ${
+                          className={`rounded-xl bg-violet-800 px-4 py-3 text-center font-semibold text-white transition hover:bg-violet-900 ${
                             canManageProducts
                               ? ""
                               : "sm:col-span-2"
@@ -894,7 +894,7 @@ function ProductsContent() {
                                     product.id
                                   )
                                 }
-                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-800 px-4 py-3 font-semibold text-white transition hover:bg-green-900"
+                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-4 py-3 font-semibold text-white transition hover:bg-violet-900"
                               >
                                 <RotateCcw
                                   size={18}

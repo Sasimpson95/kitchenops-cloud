@@ -183,7 +183,7 @@ export default function SupplierModal({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-green-800">
+            <p className="text-sm font-semibold text-violet-800">
               Operations
             </p>
 
@@ -223,7 +223,7 @@ export default function SupplierModal({
                 )
               }
               placeholder="Example: Brakes"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             />
           </div>
 
@@ -240,7 +240,7 @@ export default function SupplierModal({
                 )
               }
               placeholder="Example: Account Manager"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             />
           </div>
 
@@ -258,7 +258,7 @@ export default function SupplierModal({
                 )
               }
               placeholder="orders@company.co.uk"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             />
           </div>
 
@@ -275,7 +275,7 @@ export default function SupplierModal({
                 )
               }
               placeholder="0115 123 4567"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             />
           </div>
 
@@ -292,7 +292,7 @@ export default function SupplierModal({
                 )
               }
               placeholder="Example: Next day"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             />
           </div>
         </div>
@@ -321,7 +321,7 @@ export default function SupplierModal({
                   }
                   className={`flex items-center gap-2 rounded-xl border px-4 py-3 font-semibold transition ${
                     selected
-                      ? "border-green-800 bg-green-50 text-green-900"
+                      ? "border-violet-800 bg-violet-50 text-violet-900"
                       : "border-gray-300 bg-white text-gray-700 hover:bg-slate-50"
                   }`}
                 >
@@ -350,7 +350,7 @@ export default function SupplierModal({
             }
             rows={4}
             placeholder="Any useful supplier information..."
-            className="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+            className="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
           />
         </div>
 
@@ -373,7 +373,7 @@ export default function SupplierModal({
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saving
               ? "Saving Supplier..."

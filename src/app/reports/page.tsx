@@ -128,7 +128,7 @@ export default function ReportsPage() {
       <main className="min-h-screen bg-slate-100 p-8 print:bg-white print:p-0">
         <div className="mx-auto max-w-7xl">
           <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-800 text-white print:hidden">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-800 text-white print:hidden">
               <BarChart3 size={28} />
             </div>
             <div>

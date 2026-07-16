@@ -113,7 +113,7 @@ export default function TransfersPage() {
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div>
               <div className="flex items-center gap-3">
-                <ArrowLeftRight size={32} className="text-green-800" />
+                <ArrowLeftRight size={32} className="text-violet-800" />
                 <h1 className="text-4xl font-bold text-gray-950">Transfers</h1>
               </div>
 
@@ -125,7 +125,7 @@ export default function TransfersPage() {
             <button
               type="button"
               onClick={() => setShowTransferModal(true)}
-              className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900"
+              className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900"
             >
               + New Transfer
             </button>
@@ -139,9 +139,9 @@ export default function TransfersPage() {
               </p>
             </div>
 
-            <div className="rounded-3xl bg-green-50 p-5 shadow-sm">
-              <p className="text-sm text-green-700">Completed</p>
-              <p className="mt-1 text-3xl font-bold text-green-900">
+            <div className="rounded-3xl bg-violet-50 p-5 shadow-sm">
+              <p className="text-sm text-violet-700">Completed</p>
+              <p className="mt-1 text-3xl font-bold text-violet-900">
                 {visibleTransfers.filter((transfer) => transfer.status === "Completed").length}
               </p>
             </div>
@@ -166,7 +166,7 @@ export default function TransfersPage() {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search transfer number, product, site or user..."
-                className="w-full rounded-xl border border-gray-300 py-3 pl-12 pr-12 outline-none transition focus:border-green-800"
+                className="w-full rounded-xl border border-gray-300 py-3 pl-12 pr-12 outline-none transition focus:border-violet-800"
               />
 
               {search && (

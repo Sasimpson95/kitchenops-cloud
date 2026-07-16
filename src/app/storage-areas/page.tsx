@@ -240,7 +240,7 @@ function ProductPicker({
             )
           }
           placeholder="Search products..."
-          className="mt-6 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+          className="mt-6 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
         />
 
         <div className="mt-5 space-y-3">
@@ -265,7 +265,7 @@ function ProductPicker({
                   className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 ${
                     alreadyHere
                       ? "border-gray-200 bg-slate-50 opacity-60"
-                      : "border-gray-200 bg-white hover:bg-green-50"
+                      : "border-gray-200 bg-white hover:bg-violet-50"
                   }`}
                 >
                   <input
@@ -283,7 +283,7 @@ function ProductPicker({
                         product.id
                       )
                     }
-                    className="mt-1 h-5 w-5 accent-green-800"
+                    className="mt-1 h-5 w-5 accent-violet-800"
                   />
 
                   <div>
@@ -348,7 +348,7 @@ function ProductPicker({
               selectedIds.length ===
               0
             }
-            className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-5 py-3 font-semibold text-white hover:bg-green-900 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900 disabled:opacity-50"
           >
             <PackagePlus
               size={18}
@@ -782,7 +782,7 @@ export default function StorageAreasPage() {
                         .value
                     )
                   }
-                  className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800"
+                  className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
                 >
                   {SITES.map(
                     (site) => (
@@ -808,7 +808,7 @@ export default function StorageAreasPage() {
                 onClick={
                   openCreate
                 }
-                className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-5 py-3 font-semibold text-white hover:bg-green-900"
+                className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900"
               >
                 <Plus size={19} />
                 New Area
@@ -843,7 +843,7 @@ export default function StorageAreasPage() {
                       .checked
                   )
                 }
-                className="h-5 w-5 accent-green-800"
+                className="h-5 w-5 accent-violet-800"
               />
               Show archived
             </label>
@@ -885,7 +885,7 @@ export default function StorageAreasPage() {
                     >
                       <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
                         <div className="flex items-start gap-4">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
                             <MapPin
                               size={23}
                             />
@@ -979,7 +979,7 @@ export default function StorageAreasPage() {
                                     area
                                   )
                                 }
-                                className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-4 py-2 font-semibold text-white hover:bg-green-900"
+                                className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-4 py-2 font-semibold text-white hover:bg-violet-900"
                               >
                                 <PackagePlus
                                   size={17}
@@ -1042,7 +1042,7 @@ export default function StorageAreasPage() {
                                   area.id
                                 )
                               }
-                              className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-4 py-2 font-semibold text-white hover:bg-green-900"
+                              className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-4 py-2 font-semibold text-white hover:bg-violet-900"
                             >
                               <RotateCcw
                                 size={17}
@@ -1167,7 +1167,7 @@ export default function StorageAreasPage() {
                         .value
                     )
                   }
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
               </label>
 
@@ -1189,7 +1189,7 @@ export default function StorageAreasPage() {
                     )
                   }
                   rows={4}
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
               </label>
 
@@ -1215,7 +1215,7 @@ export default function StorageAreasPage() {
                   onClick={
                     saveArea
                   }
-                  className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-5 py-3 font-semibold text-white hover:bg-green-900"
+                  className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900"
                 >
                   <Save
                     size={18}

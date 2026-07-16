@@ -61,7 +61,7 @@ function InformationCard({
   return (
     <section className="rounded-3xl bg-white p-6 shadow-sm">
       <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
           {icon}
         </div>
 
@@ -123,7 +123,7 @@ export default function ProductInformation({
         <Detail
           label={`Cost Per ${product.inventoryUnit}`}
           value={
-            <span className="text-green-800">
+            <span className="text-violet-800">
               {money(unitCost, 4)}
             </span>
           }
@@ -266,7 +266,7 @@ export default function ProductInformation({
 
       <section className="rounded-3xl bg-white p-6 shadow-sm lg:col-span-2">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
             <StickyNote size={22} />
           </div>
 

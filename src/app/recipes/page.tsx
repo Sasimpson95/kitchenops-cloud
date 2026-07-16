@@ -348,7 +348,7 @@ function RecipeSettingsModal({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="font-semibold text-green-800">
+            <p className="font-semibold text-violet-800">
               Recipe Costing
             </p>
 
@@ -411,7 +411,7 @@ function RecipeSettingsModal({
                   );
                 }
               }}
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             >
               <option value="preparation">
                 Preparation / Component
@@ -451,7 +451,7 @@ function RecipeSettingsModal({
                   )
                 )
               }
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             />
           </label>
 
@@ -474,7 +474,7 @@ function RecipeSettingsModal({
                   ? "Batch"
                   : "Portion"
               }
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             />
           </label>
 
@@ -497,7 +497,7 @@ function RecipeSettingsModal({
                   ? "Example: 1 tub or 2 litres"
                   : "Example: 1 serving"
               }
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             />
           </label>
 
@@ -517,7 +517,7 @@ function RecipeSettingsModal({
                     )
                   }
                   placeholder="Example: PAN001 or POS item ID"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
 
                 <p className="mt-2 text-xs text-gray-500">
@@ -545,7 +545,7 @@ function RecipeSettingsModal({
                       )
                     )
                   }
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
               </label>
 
@@ -568,17 +568,17 @@ function RecipeSettingsModal({
                       )
                     )
                   }
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
               </label>
             </>
           ) : (
-            <div className="rounded-2xl bg-green-50 p-4 sm:col-span-2">
-              <p className="font-semibold text-green-950">
+            <div className="rounded-2xl bg-violet-50 p-4 sm:col-span-2">
+              <p className="font-semibold text-violet-950">
                 No selling price needed
               </p>
 
-              <p className="mt-1 text-sm text-green-800">
+              <p className="mt-1 text-sm text-violet-800">
                 KitchenOps will calculate the total recipe cost and cost per {yieldUnit || "batch"}. Selling price and GP belong on the finished menu item that uses this preparation.
               </p>
             </div>
@@ -657,7 +657,7 @@ function RecipeSettingsModal({
                             })
                           )
                         }
-                        className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-green-800"
+                        className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
                       />
                     </label>
 
@@ -676,7 +676,7 @@ function RecipeSettingsModal({
                             })
                           )
                         }
-                        className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-green-800"
+                        className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
                       >
                         {RECIPE_UNITS.map(
                           (unit) => (
@@ -719,7 +719,7 @@ function RecipeSettingsModal({
                   ]
                 )
               }
-              className="rounded-xl border border-green-800 px-4 py-2 text-sm font-semibold text-green-800 hover:bg-green-50"
+              className="rounded-xl border border-violet-800 px-4 py-2 text-sm font-semibold text-violet-800 hover:bg-violet-50"
             >
               Add Step
             </button>
@@ -732,7 +732,7 @@ function RecipeSettingsModal({
                   key={index}
                   className="flex items-start gap-3"
                 >
-                  <span className="mt-3 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-900">
+                  <span className="mt-3 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-900">
                     {index + 1}
                   </span>
 
@@ -750,7 +750,7 @@ function RecipeSettingsModal({
                       )
                     }
                     rows={2}
-                    className="min-w-0 flex-1 rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                    className="min-w-0 flex-1 rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                   />
 
                   <button
@@ -803,7 +803,7 @@ function RecipeSettingsModal({
                         allergen
                       )
                     }
-                    className="h-5 w-5 accent-green-800"
+                    className="h-5 w-5 accent-violet-800"
                   />
 
                   <span className="text-sm font-semibold text-gray-700">
@@ -835,7 +835,7 @@ function RecipeSettingsModal({
                   .checked
               )
             }
-            className="h-6 w-6 accent-green-800"
+            className="h-6 w-6 accent-violet-800"
           />
         </label>
 
@@ -857,7 +857,7 @@ function RecipeSettingsModal({
           <button
             type="button"
             onClick={save}
-            className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white hover:bg-green-900"
+            className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900"
           >
             Save Costing
           </button>
@@ -1109,7 +1109,7 @@ function RecipesContent() {
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
-              <p className="font-semibold text-green-800">
+              <p className="font-semibold text-violet-800">
                 Recipe Costing
               </p>
 
@@ -1130,7 +1130,7 @@ function RecipesContent() {
                     true
                   )
                 }
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-800 px-5 py-3 font-semibold text-white hover:bg-green-900"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900"
               >
                 <Plus size={19} />
                 New Recipe
@@ -1155,7 +1155,7 @@ function RecipesContent() {
                     )
                   }
                   placeholder="Search recipes..."
-                  className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-green-800"
+                  className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-violet-800"
                 />
               </div>
 
@@ -1172,7 +1172,7 @@ function RecipesContent() {
                           .checked
                       )
                     }
-                    className="h-5 w-5 accent-green-800"
+                    className="h-5 w-5 accent-violet-800"
                   />
 
                   Show archived
@@ -1211,8 +1211,8 @@ function RecipesContent() {
                         }
                         className={`w-full rounded-2xl p-4 text-left transition ${
                           selected
-                            ? "bg-green-100 text-green-950"
-                            : "bg-slate-50 text-gray-900 hover:bg-green-50"
+                            ? "bg-violet-100 text-violet-950"
+                            : "bg-slate-50 text-gray-900 hover:bg-violet-50"
                         }`}
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -1343,7 +1343,7 @@ function RecipesContent() {
                             selectedRecipe
                           )
                         }
-                        className="inline-flex items-center gap-2 rounded-xl border border-green-800 px-5 py-3 font-semibold text-green-800 hover:bg-green-50"
+                        className="inline-flex items-center gap-2 rounded-xl border border-violet-800 px-5 py-3 font-semibold text-violet-800 hover:bg-violet-50"
                       >
                         <Edit3
                           size={18}
@@ -1385,7 +1385,7 @@ function RecipesContent() {
 
                     {costing.allergens
                       .length === 0 ? (
-                      <div className="mt-5 rounded-2xl bg-green-50 p-6 text-green-800">
+                      <div className="mt-5 rounded-2xl bg-violet-50 p-6 text-violet-800">
                         No allergens are currently listed.
                       </div>
                     ) : (
@@ -1429,7 +1429,7 @@ function RecipesContent() {
                               key={`${selectedRecipe.name}-${index}`}
                               className="flex gap-3 rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-gray-700"
                             >
-                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-900">
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-900">
                                 {index +
                                   1}
                               </span>

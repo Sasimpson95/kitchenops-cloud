@@ -11,7 +11,7 @@ type ReportFiltersProps = {
   onReset: () => void;
 };
 
-const control = "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-green-800";
+const control = "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-violet-800";
 
 export default function ReportFilters({
   filters,
@@ -26,7 +26,7 @@ export default function ReportFilters({
     <section className="mt-6 rounded-3xl bg-white p-6 shadow-sm print:hidden">
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
             <CalendarDays size={22} />
           </div>
           <div>

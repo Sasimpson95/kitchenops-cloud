@@ -85,7 +85,7 @@ export default function NotificationPopover({
           <div className="max-h-[60vh] overflow-y-auto p-3">
             {notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <Bell size={30} className="mx-auto text-green-700" />
+                <Bell size={30} className="mx-auto text-violet-700" />
                 <p className="mt-3 font-bold text-gray-950">All clear</p>
                 <p className="mt-1 text-sm text-gray-500">
                   Nothing needs your attention right now.
@@ -120,7 +120,7 @@ export default function NotificationPopover({
             <Link
               href="/notifications"
               onClick={() => setOpen(false)}
-              className="block rounded-xl bg-green-800 px-4 py-3 text-center font-semibold text-white hover:bg-green-900"
+              className="block rounded-xl bg-violet-800 px-4 py-3 text-center font-semibold text-white hover:bg-violet-900"
             >
               Open Notification Centre
             </Link>

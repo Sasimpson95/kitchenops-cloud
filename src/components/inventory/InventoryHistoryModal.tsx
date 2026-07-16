@@ -82,7 +82,7 @@ export default function InventoryHistoryModal({
       >
         <div className="flex items-start justify-between gap-4 border-b p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
               <History size={24} />
             </div>
 
@@ -158,7 +158,7 @@ export default function InventoryHistoryModal({
                     <div
                       className={`flex h-11 w-11 items-center justify-center rounded-2xl ${
                         movement.quantity >= 0
-                          ? "bg-green-100 text-green-800"
+                          ? "bg-violet-100 text-violet-800"
                           : "bg-red-100 text-red-800"
                       }`}
                     >
@@ -199,7 +199,7 @@ export default function InventoryHistoryModal({
                     <p
                       className={`text-xl font-bold ${
                         movement.quantity >= 0
-                          ? "text-green-800"
+                          ? "text-violet-800"
                           : "text-red-700"
                       }`}
                     >

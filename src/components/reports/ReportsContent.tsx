@@ -81,7 +81,7 @@ function matchesSite(filterSite: string, recordSite: string): boolean {
 function statusBadge(status: string): React.ReactNode {
   const style =
     status === "Completed" || status === "Healthy"
-      ? "bg-green-100 text-green-800"
+      ? "bg-violet-100 text-violet-800"
       : status === "Sent" || status === "In Progress"
         ? "bg-blue-100 text-blue-800"
         : status === "Draft" || status === "Low Stock"
@@ -319,7 +319,7 @@ export default function ReportsContent({
           { key: "site", label: "Site", render: (row) => siteName(row.siteId) },
           { key: "product", label: "Product", render: (row) => <strong>{row.productName}</strong> },
           { key: "type", label: "Movement", render: (row) => row.movementType },
-          { key: "quantity", label: "Quantity", align: "right", render: (row) => <span className={row.quantity >= 0 ? "font-bold text-green-800" : "font-bold text-red-700"}>{row.quantity >= 0 ? "+" : ""}{number(row.quantity)}</span> },
+          { key: "quantity", label: "Quantity", align: "right", render: (row) => <span className={row.quantity >= 0 ? "font-bold text-violet-800" : "font-bold text-red-700"}>{row.quantity >= 0 ? "+" : ""}{number(row.quantity)}</span> },
           { key: "reference", label: "Reference", render: (row) => row.referenceNumber },
         ]} />
       </ReportSection>

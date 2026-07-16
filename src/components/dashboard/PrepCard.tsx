@@ -7,7 +7,7 @@ export default function PrepCard() {
           Tomorrow's Prep
         </h2>
 
-        <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-800">
+        <span className="rounded-full bg-violet-100 px-3 py-1 text-sm font-semibold text-violet-800">
           2 Items
         </span>
       </div>
@@ -26,7 +26,7 @@ export default function PrepCard() {
 
       </div>
 
-      <button className="mt-6 w-full rounded-xl bg-green-800 py-3 font-semibold text-white hover:bg-green-900">
+      <button className="mt-6 w-full rounded-xl bg-violet-800 py-3 font-semibold text-white hover:bg-violet-900">
         Open Prep Planner
       </button>
 

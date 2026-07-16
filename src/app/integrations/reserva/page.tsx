@@ -116,7 +116,7 @@ export default function ReservaIntegrationPage() {
       <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-5xl">
           <div>
-            <p className="font-semibold text-green-800">Integration</p>
+            <p className="font-semibold text-violet-800">Integration</p>
             <h1 className="mt-1 text-4xl font-bold text-gray-950">
               Reserva
             </h1>
@@ -127,7 +127,7 @@ export default function ReservaIntegrationPage() {
 
           <section className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
                 <Link2 size={24} />
               </div>
 
@@ -155,7 +155,7 @@ export default function ReservaIntegrationPage() {
                 type="checkbox"
                 checked={settings.enabled}
                 onChange={(event) => update("enabled", event.target.checked)}
-                className="h-6 w-6 accent-green-800"
+                className="h-6 w-6 accent-violet-800"
               />
             </label>
 
@@ -170,7 +170,7 @@ export default function ReservaIntegrationPage() {
                     update("apiBaseUrl", event.target.value)
                   }
                   placeholder="https://api.reserva.example"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
               </label>
 
@@ -184,7 +184,7 @@ export default function ReservaIntegrationPage() {
                     update("venueId", event.target.value)
                   }
                   placeholder="Venue identifier"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
               </label>
 
@@ -197,7 +197,7 @@ export default function ReservaIntegrationPage() {
                   value={settings.apiKey}
                   onChange={(event) => update("apiKey", event.target.value)}
                   placeholder="Paste API key"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
               </label>
 
@@ -212,7 +212,7 @@ export default function ReservaIntegrationPage() {
                   onChange={(event) =>
                     update("syncDaysAhead", Number(event.target.value))
                   }
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
               </label>
 
@@ -231,7 +231,7 @@ export default function ReservaIntegrationPage() {
 
             <div className="mt-8 flex flex-wrap items-center justify-end gap-3 border-t pt-6">
               {saved && (
-                <span className="inline-flex items-center gap-2 font-semibold text-green-800">
+                <span className="inline-flex items-center gap-2 font-semibold text-violet-800">
                   <CheckCircle2 size={18} />
                   Saved
                 </span>
@@ -250,7 +250,7 @@ export default function ReservaIntegrationPage() {
               <button
                 type="button"
                 onClick={save}
-                className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-6 py-3 font-semibold text-white hover:bg-green-900"
+                className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900"
               >
                 <Save size={18} />
                 Save Settings

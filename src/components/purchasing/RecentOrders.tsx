@@ -163,7 +163,7 @@ export default function RecentOrders({
 
           <Link
             href="/orders"
-            className="font-semibold text-green-800 hover:underline"
+            className="font-semibold text-violet-800 hover:underline"
           >
             View all orders
           </Link>
@@ -278,7 +278,7 @@ export default function RecentOrders({
                             order.id
                           );
                         }}
-                        className="mt-3 rounded-xl border border-green-800 px-5 py-2 font-semibold text-green-800 transition hover:bg-green-50"
+                        className="mt-3 rounded-xl border border-violet-800 px-5 py-2 font-semibold text-violet-800 transition hover:bg-violet-50"
                       >
                         {actionText}
                       </button>

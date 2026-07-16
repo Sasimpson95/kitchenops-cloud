@@ -247,7 +247,7 @@ function Field({
 }
 
 const inputClass =
-  "w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800";
+  "w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800";
 
 export default function ProductFormModal({
   form,
@@ -367,7 +367,7 @@ export default function ProductFormModal({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-green-800">
+            <p className="text-sm font-semibold text-violet-800">
               Operations
             </p>
 
@@ -463,7 +463,7 @@ export default function ProductFormModal({
                   onClick={() =>
                     setShowCategoryManager(true)
                   }
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-green-800 px-4 py-3 font-semibold text-green-800 hover:bg-green-50"
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-violet-800 px-4 py-3 font-semibold text-violet-800 hover:bg-violet-50"
                   title="Add, rename or archive categories"
                 >
                   <Settings2 size={18} />
@@ -599,7 +599,7 @@ export default function ProductFormModal({
                               supplier.id
                             )
                           }
-                          className="h-5 w-5 accent-green-800"
+                          className="h-5 w-5 accent-violet-800"
                         />
 
                         <span className="font-semibold text-gray-800">
@@ -715,7 +715,7 @@ export default function ProductFormModal({
                         form.deliveryDays.includes(
                           day
                         )
-                          ? "bg-green-800 text-white"
+                          ? "bg-violet-800 text-white"
                           : "border border-gray-300 bg-white text-gray-700 hover:bg-slate-50"
                       }`}
                     >
@@ -730,7 +730,7 @@ export default function ProductFormModal({
               label="Calculated Unit Cost"
               fullWidth
             >
-              <div className="rounded-xl bg-green-50 px-4 py-3 font-semibold text-green-900">
+              <div className="rounded-xl bg-violet-50 px-4 py-3 font-semibold text-violet-900">
                 £
                 {unitCost.toFixed(4)} per{" "}
                 {form.inventoryUnit ||
@@ -960,7 +960,7 @@ export default function ProductFormModal({
             type="button"
             onClick={onSave}
             disabled={saving}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {editingProduct ? (
               <Save size={19} />

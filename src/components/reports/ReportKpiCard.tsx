@@ -9,7 +9,7 @@ type ReportKpiCardProps = {
 };
 
 const tones = {
-  green: "bg-green-50 text-green-950",
+  green: "bg-violet-50 text-violet-950",
   blue: "bg-blue-50 text-blue-950",
   orange: "bg-orange-50 text-orange-950",
   red: "bg-red-50 text-red-950",
@@ -18,7 +18,7 @@ const tones = {
 };
 
 const iconTones = {
-  green: "bg-green-100 text-green-800",
+  green: "bg-violet-100 text-violet-800",
   blue: "bg-blue-100 text-blue-800",
   orange: "bg-orange-100 text-orange-800",
   red: "bg-red-100 text-red-800",

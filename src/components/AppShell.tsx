@@ -27,6 +27,8 @@ import {
   clearCurrentUser,
 } from "@/lib/currentUser";
 
+import { clearCloudSessionCache } from "@/lib/cloudSession";
+
 import {
   requestStaffSwitch,
 } from "@/lib/sharedDevice";
@@ -177,7 +179,7 @@ function Brand({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-800 font-bold text-white">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-800 font-bold text-white">
         K
       </div>
 
@@ -257,6 +259,7 @@ export default function AppShell({
     });
 
     clearCurrentUser();
+    clearCloudSessionCache();
     setMobileMenuOpen(false);
     router.replace("/login");
     router.refresh();
@@ -271,6 +274,7 @@ export default function AppShell({
     });
 
     clearCurrentUser();
+    clearCloudSessionCache();
     setMobileMenuOpen(false);
     router.replace("/login");
     router.refresh();
@@ -316,6 +320,7 @@ export default function AppShell({
               <Link
                 key={`${currentUser.role}-${item.href}-${mobile ? "mobile" : "desktop"}`}
                 href={item.href}
+                prefetch
                 onClick={() => {
                   if (mobile) {
                     setMobileMenuOpen(false);
@@ -323,8 +328,8 @@ export default function AppShell({
                 }}
                 className={`block w-full rounded-xl px-4 py-3 text-left font-semibold transition ${
                   active
-                    ? "bg-green-100 text-green-900"
-                    : "text-gray-700 hover:bg-green-50 hover:text-green-800"
+                    ? "bg-violet-100 text-violet-900"
+                    : "text-gray-700 hover:bg-violet-50 hover:text-violet-800"
                 }`}
               >
                 {item.label}
@@ -366,7 +371,7 @@ export default function AppShell({
             <button
               type="button"
               onClick={switchUser}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-green-800 px-4 py-3 font-semibold text-green-800 transition hover:bg-green-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-violet-800 px-4 py-3 font-semibold text-violet-800 transition hover:bg-violet-50"
             >
               <RefreshCw size={18} />
               Switch User
@@ -436,7 +441,7 @@ export default function AppShell({
                 <button
                   type="button"
                   onClick={switchUser}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-green-800 px-4 py-3 font-semibold text-green-800 transition hover:bg-green-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-violet-800 px-4 py-3 font-semibold text-violet-800 transition hover:bg-violet-50"
                 >
                   <RefreshCw size={18} />
                   Switch User
@@ -516,7 +521,7 @@ export default function AppShell({
                 <button
                   type="button"
                   onClick={switchUser}
-                  className="hidden rounded-xl border border-green-800 px-4 py-2 text-sm font-semibold text-green-800 transition hover:bg-green-50 md:block"
+                  className="hidden rounded-xl border border-violet-800 px-4 py-2 text-sm font-semibold text-violet-800 transition hover:bg-violet-50 md:block"
                 >
                   Switch User
                 </button>

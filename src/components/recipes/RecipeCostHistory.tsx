@@ -42,7 +42,7 @@ export default function RecipeCostHistory({
       <div className="flex items-center gap-3">
         <History
           size={22}
-          className="text-green-800"
+          className="text-violet-800"
         />
 
         <div>
@@ -104,7 +104,7 @@ export default function RecipeCostHistory({
                     GP
                   </p>
 
-                  <p className="font-bold text-green-800">
+                  <p className="font-bold text-violet-800">
                     {record.sellingPrice >
                     0
                       ? `${record.grossProfitPercentage.toFixed(

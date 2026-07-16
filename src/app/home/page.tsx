@@ -466,7 +466,7 @@ function PrepItemCard({
             className={`mt-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
               item.status ===
               "approved"
-                ? "bg-green-100 text-green-800"
+                ? "bg-violet-100 text-violet-800"
                 : item.status ===
                     "awaitingApproval"
                   ? "bg-orange-100 text-orange-800"
@@ -488,7 +488,7 @@ function PrepItemCard({
             href={`/recipes?recipe=${encodeURIComponent(
               item.name
             )}`}
-            className="rounded-xl border border-green-800 px-4 py-2 text-sm font-semibold text-green-800 transition hover:bg-green-50"
+            className="rounded-xl border border-violet-800 px-4 py-2 text-sm font-semibold text-violet-800 transition hover:bg-violet-50"
           >
             Recipe
           </Link>
@@ -501,7 +501,7 @@ function PrepItemCard({
                 openComplete
               }
               disabled={busy}
-              className="rounded-xl bg-green-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-900 disabled:opacity-50"
+              className="rounded-xl bg-violet-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-900 disabled:opacity-50"
             >
               {actionLabel}
             </button>
@@ -546,7 +546,7 @@ function PrepItemCard({
                   )
                 )
               }
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             />
           </label>
 
@@ -568,7 +568,7 @@ function PrepItemCard({
                         .checked
                     )
                   }
-                  className="h-5 w-5 accent-green-800"
+                  className="h-5 w-5 accent-violet-800"
                 />
 
                 <span className="text-sm font-semibold text-gray-700">
@@ -602,7 +602,7 @@ function PrepItemCard({
                 confirmAmount
               }
               disabled={busy}
-              className="rounded-xl bg-green-800 px-4 py-2 font-semibold text-white hover:bg-green-900 disabled:opacity-50"
+              className="rounded-xl bg-violet-800 px-4 py-2 font-semibold text-white hover:bg-violet-900 disabled:opacity-50"
             >
               {currentUser.role ===
               "chef"
@@ -645,7 +645,7 @@ function PrepListCard({
       <div className="flex items-center gap-3">
         <UtensilsCrossed
           size={22}
-          className="text-green-800"
+          className="text-violet-800"
         />
 
         <h2 className="text-xl font-bold text-gray-950">
@@ -705,7 +705,7 @@ function HandoverCard({
 
         <Link
           href={href}
-          className="font-semibold text-green-800 hover:underline"
+          className="font-semibold text-violet-800 hover:underline"
         >
           Open
         </Link>
@@ -809,7 +809,7 @@ function OrdersToReceiveCard({
 
         <Link
           href="/purchasing"
-          className="font-semibold text-green-800 hover:underline"
+          className="font-semibold text-violet-800 hover:underline"
         >
           Open
         </Link>
@@ -889,7 +889,7 @@ function StocktakeComparisonCard({
 
         <PoundSterling
           size={22}
-          className="text-green-800"
+          className="text-violet-800"
         />
       </div>
 
@@ -900,18 +900,18 @@ function StocktakeComparisonCard({
       ) : (
         <>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl bg-green-50 p-4">
-              <p className="text-sm text-green-700">
+            <div className="rounded-2xl bg-violet-50 p-4">
+              <p className="text-sm text-violet-700">
                 Latest Value
               </p>
 
-              <p className="mt-1 text-2xl font-bold text-green-950">
+              <p className="mt-1 text-2xl font-bold text-violet-950">
                 {formatMoney(
                   comparison.latestValue
                 )}
               </p>
 
-              <p className="mt-2 text-xs text-green-700">
+              <p className="mt-2 text-xs text-violet-700">
                 {formatDate(
                   comparison.latest
                     .completedAt
@@ -959,7 +959,7 @@ function StocktakeComparisonCard({
 
             <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-white">
               <div
-                className="h-full rounded-full bg-green-700"
+                className="h-full rounded-full bg-violet-700"
                 style={{
                   width: `${comparison.completion}%`,
                 }}
@@ -1004,7 +1004,7 @@ function StocktakeComparisonCard({
               ) : (
                 <CheckCircle2
                   size={24}
-                  className="text-green-700"
+                  className="text-violet-700"
                 />
               ))}
           </div>
@@ -1049,7 +1049,7 @@ function SiteOperationsCard({
     <article className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-green-800">
+          <p className="text-sm font-semibold text-violet-800">
             Site
           </p>
 
@@ -1060,21 +1060,21 @@ function SiteOperationsCard({
 
         <CalendarDays
           size={24}
-          className="text-green-800"
+          className="text-violet-800"
         />
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-        <div className="rounded-2xl bg-green-50 p-4">
-          <p className="text-sm font-semibold text-green-800">
+        <div className="rounded-2xl bg-violet-50 p-4">
+          <p className="text-sm font-semibold text-violet-800">
             Today&apos;s Prep
           </p>
 
-          <p className="mt-2 text-2xl font-bold text-green-950">
+          <p className="mt-2 text-2xl font-bold text-violet-950">
             {completed}/{todaysPrep.length}
           </p>
 
-          <p className="mt-1 text-xs text-green-700">
+          <p className="mt-1 text-xs text-violet-700">
             {awaitingApproval > 0
               ? `${awaitingApproval} awaiting approval`
               : "Completed"}
@@ -1127,7 +1127,7 @@ function SiteOperationsCard({
       <button
         type="button"
         onClick={onOpenSite}
-        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-green-800 px-5 py-3 font-semibold text-green-800 transition hover:bg-green-50"
+        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-800 px-5 py-3 font-semibold text-violet-800 transition hover:bg-violet-50"
       >
         Open {siteName}
         <ArrowRight size={17} />
@@ -1535,7 +1535,7 @@ export default function DashboardPage() {
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
             <div>
-              <p className="font-semibold text-green-800">
+              <p className="font-semibold text-violet-800">
                 {getGreeting()}
                 {currentUser.name
                   ? `, ${currentUser.name}`
@@ -1567,7 +1567,7 @@ export default function DashboardPage() {
                         .value
                     )
                   }
-                  className="mt-5 rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800"
+                  className="mt-5 rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
                 >
                   {SITE_OPTIONS.map(
                     (site) => (
@@ -1603,7 +1603,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <CalendarDays
                     size={25}
-                    className="text-green-800"
+                    className="text-violet-800"
                   />
 
                   <h2 className="text-2xl font-bold text-gray-950">
@@ -1648,7 +1648,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <ClipboardCheck
                     size={25}
-                    className="text-green-800"
+                    className="text-violet-800"
                   />
 
                   <h2 className="text-2xl font-bold text-gray-950">
@@ -1705,7 +1705,7 @@ export default function DashboardPage() {
                               )}
                             </p>
 
-                            <p className="text-sm font-semibold text-green-800">
+                            <p className="text-sm font-semibold text-violet-800">
                               {
                                 item.siteName
                               }
@@ -1727,7 +1727,7 @@ export default function DashboardPage() {
 
                             <ArrowRight
                               size={18}
-                              className="text-green-800"
+                              className="text-violet-800"
                             />
                           </Link>
                         )
@@ -1839,7 +1839,7 @@ export default function DashboardPage() {
 
                   <Link
                     href="/notifications"
-                    className="font-semibold text-green-800 hover:underline"
+                    className="font-semibold text-violet-800 hover:underline"
                   >
                     Open
                   </Link>
@@ -1847,7 +1847,7 @@ export default function DashboardPage() {
 
                 {data.notifications
                   .length === 0 ? (
-                  <div className="mt-5 rounded-2xl bg-green-50 p-8 text-center font-semibold text-green-800">
+                  <div className="mt-5 rounded-2xl bg-violet-50 p-8 text-center font-semibold text-violet-800">
                     Nothing currently needs attention.
                   </div>
                 ) : (
@@ -1913,18 +1913,18 @@ export default function DashboardPage() {
               <div className="space-y-6">
                 <Link
                   href="/recipes"
-                  className="block rounded-3xl bg-green-50 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                  className="block rounded-3xl bg-violet-50 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                 >
                   <UtensilsCrossed
                     size={26}
-                    className="text-green-800"
+                    className="text-violet-800"
                   />
 
-                  <h2 className="mt-4 text-2xl font-bold text-green-950">
+                  <h2 className="mt-4 text-2xl font-bold text-violet-950">
                     Recipes
                   </h2>
 
-                  <p className="mt-2 text-sm text-green-800">
+                  <p className="mt-2 text-sm text-violet-800">
                     Open the recipe library and cooking methods.
                   </p>
                 </Link>

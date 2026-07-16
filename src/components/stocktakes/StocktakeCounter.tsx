@@ -198,7 +198,7 @@ export default function StocktakeCounter({
         <button
           type="button"
           onClick={onBackToAreas}
-          className="inline-flex items-center gap-2 font-semibold text-green-800 hover:underline"
+          className="inline-flex items-center gap-2 font-semibold text-violet-800 hover:underline"
         >
           <ArrowLeft size={18} />
           Back to Storage Areas
@@ -212,7 +212,7 @@ export default function StocktakeCounter({
       <div className="mt-6 rounded-3xl bg-white p-8 shadow-sm">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
           <div>
-            <p className="text-sm font-semibold text-green-800">
+            <p className="text-sm font-semibold text-violet-800">
               {stocktake.siteName}
             </p>
 
@@ -225,12 +225,12 @@ export default function StocktakeCounter({
             </p>
           </div>
 
-          <div className="rounded-2xl bg-green-50 px-5 py-4 text-right">
-            <p className="text-sm text-green-700">
+          <div className="rounded-2xl bg-violet-50 px-5 py-4 text-right">
+            <p className="text-sm text-violet-700">
               Area Progress
             </p>
 
-            <p className="mt-1 text-2xl font-bold text-green-900">
+            <p className="mt-1 text-2xl font-bold text-violet-900">
               {countedCount}/{areaItems.length}
             </p>
           </div>
@@ -238,7 +238,7 @@ export default function StocktakeCounter({
 
         <div className="mt-6 h-3 overflow-hidden rounded-full bg-slate-200">
           <div
-            className="h-full rounded-full bg-green-700 transition-all"
+            className="h-full rounded-full bg-violet-700 transition-all"
             style={{
               width: `${
                 areaItems.length === 0
@@ -278,7 +278,7 @@ export default function StocktakeCounter({
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder={`Search ${areaName}...`}
-                className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-11 outline-none focus:border-green-800"
+                className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-11 outline-none focus:border-violet-800"
               />
 
               {search && (
@@ -314,7 +314,7 @@ export default function StocktakeCounter({
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${
                       item.countedQuantity !== null
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-violet-100 text-violet-800"
                         : "bg-gray-200 text-gray-700"
                     }`}
                   >
@@ -383,7 +383,7 @@ export default function StocktakeCounter({
                 }
                 onKeyDown={handleKeyDown}
                 placeholder="0"
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-4 text-center text-3xl font-bold outline-none focus:border-green-800"
+                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-4 text-center text-3xl font-bold outline-none focus:border-violet-800"
               />
 
               <p className="mt-2 text-sm text-gray-500">
@@ -396,7 +396,7 @@ export default function StocktakeCounter({
                 liveDifference === null || liveDifference === 0
                   ? "bg-white"
                   : liveDifference > 0
-                    ? "bg-green-50"
+                    ? "bg-violet-50"
                     : "bg-red-50"
               }`}
             >
@@ -409,7 +409,7 @@ export default function StocktakeCounter({
                   liveDifference === null || liveDifference === 0
                     ? "text-gray-950"
                     : liveDifference > 0
-                      ? "text-green-900"
+                      ? "text-violet-900"
                       : "text-red-900"
                 }`}
               >
@@ -447,7 +447,7 @@ export default function StocktakeCounter({
             type="button"
             onClick={saveAndContinue}
             disabled={countValue.trim() === ""}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {areaComplete ? (
               <CheckCircle2 size={18} />

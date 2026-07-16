@@ -495,7 +495,7 @@ export default function NewRecipeModal({
       <div className="max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white p-7 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="font-semibold text-green-800">
+            <p className="font-semibold text-violet-800">
               Recipe Management
             </p>
 
@@ -527,7 +527,7 @@ export default function NewRecipeModal({
                     event.target.value
                   )
                 }
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
               />
             </label>
 
@@ -544,7 +544,7 @@ export default function NewRecipeModal({
                   )
                 }
                 placeholder="Example: Wet Mix"
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
               />
             </label>
 
@@ -581,7 +581,7 @@ export default function NewRecipeModal({
                     );
                   }
                 }}
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
               >
                 <option value="preparation">
                   Preparation / Component
@@ -613,7 +613,7 @@ export default function NewRecipeModal({
                     )
                   )
                 }
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
               />
             </label>
 
@@ -630,7 +630,7 @@ export default function NewRecipeModal({
                   )
                 }
                 placeholder="Batch"
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
               />
             </label>
 
@@ -647,7 +647,7 @@ export default function NewRecipeModal({
                   )
                 }
                 placeholder="20 minutes"
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
               />
             </label>
 
@@ -664,7 +664,7 @@ export default function NewRecipeModal({
                   )
                 }
                 placeholder="3 days chilled"
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
               />
             </label>
           </div>
@@ -682,7 +682,7 @@ export default function NewRecipeModal({
                 )
               }
               placeholder="Example: 1 tub or 1 serving"
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             />
           </label>
 
@@ -702,7 +702,7 @@ export default function NewRecipeModal({
                     )
                   }
                   placeholder="Example: PAN001 or POS item ID"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
 
                 <p className="mt-2 text-xs text-gray-500">
@@ -728,7 +728,7 @@ export default function NewRecipeModal({
                       )
                     )
                   }
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
               </label>
 
@@ -751,7 +751,7 @@ export default function NewRecipeModal({
                       )
                     )
                   }
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                 />
               </label>
             </div>
@@ -773,7 +773,7 @@ export default function NewRecipeModal({
             <button
               type="button"
               onClick={addIngredient}
-              className="inline-flex items-center gap-2 rounded-xl border border-green-800 px-4 py-2 font-semibold text-green-800 hover:bg-green-50"
+              className="inline-flex items-center gap-2 rounded-xl border border-violet-800 px-4 py-2 font-semibold text-violet-800 hover:bg-violet-50"
             >
               <Plus size={17} />
               Add Ingredient
@@ -841,7 +841,7 @@ export default function NewRecipeModal({
                                 )
                             );
                           }}
-                          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-green-800"
+                          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
                         >
                           {products.map(
                             (item) => (
@@ -890,7 +890,7 @@ export default function NewRecipeModal({
                                 )
                             )
                           }
-                          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-green-800"
+                          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
                         />
                       </label>
 
@@ -917,7 +917,7 @@ export default function NewRecipeModal({
                                 )
                             )
                           }
-                          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-green-800"
+                          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
                         >
                           {RECIPE_UNITS.map(
                             (unit) => (
@@ -973,7 +973,7 @@ export default function NewRecipeModal({
               <button
                 type="button"
                 onClick={addComponent}
-                className="inline-flex items-center gap-2 rounded-xl border border-green-800 px-4 py-2 font-semibold text-green-800 hover:bg-green-50"
+                className="inline-flex items-center gap-2 rounded-xl border border-violet-800 px-4 py-2 font-semibold text-violet-800 hover:bg-violet-50"
               >
                 <Plus size={17} />
                 Add Preparation
@@ -1016,7 +1016,7 @@ export default function NewRecipeModal({
                                 )
                             )
                           }
-                          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-green-800"
+                          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
                         >
                           {preparationRecipes.map(
                             (recipe) => (
@@ -1059,7 +1059,7 @@ export default function NewRecipeModal({
                                 )
                             )
                           }
-                          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-green-800"
+                          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
                         />
                       </label>
 
@@ -1109,7 +1109,7 @@ export default function NewRecipeModal({
                   ]
                 )
               }
-              className="rounded-xl border border-green-800 px-4 py-2 text-sm font-semibold text-green-800 hover:bg-green-50"
+              className="rounded-xl border border-violet-800 px-4 py-2 text-sm font-semibold text-violet-800 hover:bg-violet-50"
             >
               Add Step
             </button>
@@ -1122,7 +1122,7 @@ export default function NewRecipeModal({
                   key={index}
                   className="flex items-start gap-3"
                 >
-                  <span className="mt-3 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-900">
+                  <span className="mt-3 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-900">
                     {index + 1}
                   </span>
 
@@ -1140,7 +1140,7 @@ export default function NewRecipeModal({
                       )
                     }
                     rows={2}
-                    className="min-w-0 flex-1 rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                    className="min-w-0 flex-1 rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                   />
 
                   <button
@@ -1188,7 +1188,7 @@ export default function NewRecipeModal({
                         allergen
                       )
                     }
-                    className="h-5 w-5 accent-green-800"
+                    className="h-5 w-5 accent-violet-800"
                   />
 
                   <span className="text-sm font-semibold text-gray-700">
@@ -1218,7 +1218,7 @@ export default function NewRecipeModal({
           <button
             type="button"
             onClick={save}
-            className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white hover:bg-green-900"
+            className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900"
           >
             Save Recipe
           </button>

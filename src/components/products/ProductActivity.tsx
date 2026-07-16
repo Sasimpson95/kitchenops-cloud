@@ -190,7 +190,7 @@ export default function ProductActivity({
             icon={
               <PackageCheck
                 size={17}
-                className="text-green-700"
+                className="text-violet-700"
               />
             }
           />
@@ -282,7 +282,7 @@ export default function ProductActivity({
                   <div
                     className={`flex h-11 w-11 items-center justify-center rounded-2xl ${
                       movement.quantity >= 0
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-violet-100 text-violet-800"
                         : "bg-red-100 text-red-800"
                     }`}
                   >
@@ -327,7 +327,7 @@ export default function ProductActivity({
                   <p
                     className={`text-xl font-bold ${
                       movement.quantity >= 0
-                        ? "text-green-800"
+                        ? "text-violet-800"
                         : "text-red-700"
                     }`}
                   >
@@ -407,7 +407,7 @@ export default function ProductActivity({
                       className={`rounded-full px-4 py-2 text-center text-sm font-semibold ${
                         order.status ===
                         "Completed"
-                          ? "bg-green-100 text-green-800"
+                          ? "bg-violet-100 text-violet-800"
                           : order.status ===
                             "Cancelled"
                             ? "bg-gray-200 text-gray-700"

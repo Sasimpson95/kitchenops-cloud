@@ -17,7 +17,7 @@ export default function SiteOverviewCard({
           {site}
         </h2>
 
-        <span className="text-2xl text-green-800">
+        <span className="text-2xl text-violet-800">
           →
         </span>
       </div>

@@ -315,7 +315,7 @@ export default function SettingsPage() {
     <ProtectedPage>
       <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-6xl">
-          <p className="font-semibold text-green-800">
+          <p className="font-semibold text-violet-800">
             Operations
           </p>
 
@@ -334,7 +334,7 @@ export default function SettingsPage() {
           )}
 
           {success && (
-            <p className="mt-6 rounded-2xl bg-green-50 p-4 font-semibold text-green-800">
+            <p className="mt-6 rounded-2xl bg-violet-50 p-4 font-semibold text-violet-800">
               {success}
             </p>
           )}
@@ -343,7 +343,7 @@ export default function SettingsPage() {
             <>
               <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
                     <Building2 size={24} />
                   </div>
 
@@ -367,7 +367,7 @@ export default function SettingsPage() {
                       onChange={(event) =>
                         setBusinessName(event.target.value)
                       }
-                      className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                      className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                     />
                   </label>
 
@@ -382,7 +382,7 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={copyBusinessCode}
-                        className="inline-flex items-center gap-2 rounded-xl border border-green-800 px-4 py-3 font-semibold text-green-800 hover:bg-green-50"
+                        className="inline-flex items-center gap-2 rounded-xl border border-violet-800 px-4 py-3 font-semibold text-violet-800 hover:bg-violet-50"
                       >
                         {copied ? <Check size={18} /> : <Copy size={18} />}
                         {copied ? "Copied" : "Copy"}
@@ -398,7 +398,7 @@ export default function SettingsPage() {
                   type="button"
                   onClick={saveBusiness}
                   disabled={savingBusiness}
-                  className="mt-6 inline-flex items-center gap-2 rounded-xl bg-green-800 px-5 py-3 font-semibold text-white hover:bg-green-900 disabled:opacity-60"
+                  className="mt-6 inline-flex items-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900 disabled:opacity-60"
                 >
                   {savingBusiness ? (
                     <Loader2 className="animate-spin" size={18} />
@@ -410,22 +410,22 @@ export default function SettingsPage() {
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <div className="rounded-2xl bg-slate-50 p-5">
-                    <Store className="text-green-800" size={21} />
+                    <Store className="text-violet-800" size={21} />
                     <p className="mt-3 text-2xl font-bold">{siteCount}</p>
                     <p className="mt-1 text-sm text-gray-500">Active sites</p>
                   </div>
                   <div className="rounded-2xl bg-slate-50 p-5">
-                    <UsersRound className="text-green-800" size={21} />
+                    <UsersRound className="text-violet-800" size={21} />
                     <p className="mt-3 text-2xl font-bold">{staffCount}</p>
                     <p className="mt-1 text-sm text-gray-500">Active staff</p>
                   </div>
                   <div className="rounded-2xl bg-slate-50 p-5">
-                    <ShieldCheck className="text-green-800" size={21} />
+                    <ShieldCheck className="text-violet-800" size={21} />
                     <p className="mt-3 text-2xl font-bold">{operationsUsers.length}</p>
                     <p className="mt-1 text-sm text-gray-500">Operations users</p>
                   </div>
                   <div className="rounded-2xl bg-slate-50 p-5">
-                    <CalendarClock className="text-green-800" size={21} />
+                    <CalendarClock className="text-violet-800" size={21} />
                     <p className="mt-3 font-bold">{formatDate(business.created_at)}</p>
                     <p className="mt-1 text-sm text-gray-500">Business created</p>
                   </div>
@@ -454,7 +454,7 @@ export default function SettingsPage() {
                           {member.role}
                         </p>
                       </div>
-                      <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
+                      <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800">
                         Active
                       </span>
                     </div>
@@ -464,7 +464,7 @@ export default function SettingsPage() {
 
               <section className="mt-6 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
                     <CalendarClock size={24} />
                   </div>
                   <div>
@@ -483,7 +483,7 @@ export default function SettingsPage() {
                       key={option.value}
                       className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-5 transition ${
                         frequency === option.value
-                          ? "border-green-700 bg-green-50"
+                          ? "border-violet-700 bg-violet-50"
                           : "border-gray-200 hover:bg-slate-50"
                       }`}
                     >
@@ -492,7 +492,7 @@ export default function SettingsPage() {
                         name="stocktake-frequency"
                         checked={frequency === option.value}
                         onChange={() => setFrequency(option.value)}
-                        className="mt-1 h-5 w-5 accent-green-800"
+                        className="mt-1 h-5 w-5 accent-violet-800"
                       />
                       <div>
                         <p className="font-bold text-gray-950">{option.label}</p>
@@ -524,7 +524,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={saveSchedule}
-                  className="mt-6 inline-flex items-center gap-2 rounded-xl border border-green-800 px-5 py-3 font-semibold text-green-800 hover:bg-green-50"
+                  className="mt-6 inline-flex items-center gap-2 rounded-xl border border-violet-800 px-5 py-3 font-semibold text-violet-800 hover:bg-violet-50"
                 >
                   {scheduleSaved ? <Check size={18} /> : <Save size={18} />}
                   {scheduleSaved ? "Saved" : "Save Schedule"}

@@ -227,17 +227,17 @@ export default function UsersPage() {
     <ProtectedPage>
       <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-6xl">
-          <p className="font-semibold text-green-800">Operations</p>
+          <p className="font-semibold text-violet-800">Operations</p>
           <h1 className="mt-1 text-4xl font-bold">Users</h1>
           <p className="mt-2 text-gray-600">
             Create Manager and Chef PIN accounts for shared kitchen devices.
           </p>
 
-          <section className="mt-8 flex flex-col justify-between gap-4 rounded-3xl bg-green-950 p-6 text-white shadow-sm sm:flex-row sm:items-center">
+          <section className="mt-8 flex flex-col justify-between gap-4 rounded-3xl bg-violet-950 p-6 text-white shadow-sm sm:flex-row sm:items-center">
             <div>
-              <p className="text-sm font-semibold text-green-200">{businessName}</p>
+              <p className="text-sm font-semibold text-violet-200">{businessName}</p>
               <h2 className="mt-1 text-2xl font-bold">Business Code</h2>
-              <p className="mt-2 text-sm text-green-100">
+              <p className="mt-2 text-sm text-violet-100">
                 Staff enter this before choosing their site and name.
               </p>
             </div>
@@ -249,7 +249,7 @@ export default function UsersPage() {
               <button
                 type="button"
                 onClick={copyCode}
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 font-semibold text-green-950"
+                className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 font-semibold text-violet-950"
               >
                 {copied ? <Check size={18} /> : <Copy size={18} />}
                 {copied ? "Copied" : "Copy"}
@@ -299,7 +299,7 @@ export default function UsersPage() {
                 type="button"
                 onClick={createStaff}
                 disabled={saving}
-                className="flex items-center justify-center gap-2 rounded-xl bg-green-800 px-5 py-3 font-semibold text-white disabled:opacity-60"
+                className="flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white disabled:opacity-60"
               >
                 {saving ? (
                   <Loader2 className="animate-spin" size={18} />
@@ -335,7 +335,7 @@ export default function UsersPage() {
                   >
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                       <div className="flex items-center gap-4">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100 text-green-800">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-100 text-violet-800">
                           <UserRound size={20} />
                         </div>
                         <div>
@@ -349,7 +349,7 @@ export default function UsersPage() {
                       <div className="flex flex-wrap gap-2">
                         <span className={`rounded-full px-3 py-2 text-xs font-semibold ${
                           item.active
-                            ? "bg-green-100 text-green-800"
+                            ? "bg-violet-100 text-violet-800"
                             : "bg-gray-200 text-gray-700"
                         }`}>
                           {item.active ? "Active" : "Disabled"}

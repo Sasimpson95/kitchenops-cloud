@@ -44,7 +44,7 @@ function Metric({
     slate:
       "bg-slate-50 text-gray-950",
     green:
-      "bg-green-50 text-green-950",
+      "bg-violet-50 text-violet-950",
     orange:
       "bg-orange-50 text-orange-950",
     blue:
@@ -251,7 +251,7 @@ export default function RecipeCostSummary({
           costing.warnings.length >
           0
             ? "bg-orange-50"
-            : "bg-green-50"
+            : "bg-violet-50"
         }`}
       >
         <div className="flex items-start gap-3">
@@ -264,7 +264,7 @@ export default function RecipeCostSummary({
           ) : (
             <CheckCircle2
               size={22}
-              className="mt-0.5 shrink-0 text-green-700"
+              className="mt-0.5 shrink-0 text-violet-700"
             />
           )}
 
@@ -274,7 +274,7 @@ export default function RecipeCostSummary({
                 costing.warnings
                   .length > 0
                   ? "text-orange-950"
-                  : "text-green-950"
+                  : "text-violet-950"
               }`}
             >
               {costing.warnings.length >
@@ -297,7 +297,7 @@ export default function RecipeCostSummary({
                 )}
               </ul>
             ) : (
-              <p className="mt-2 text-sm text-green-800">
+              <p className="mt-2 text-sm text-violet-800">
                 {isPreparation
                   ? `This preparation costs ${money(
                       costing.costPerYieldUnit

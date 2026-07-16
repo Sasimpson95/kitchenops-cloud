@@ -41,7 +41,7 @@ export default function StartStocktakeModal({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-green-800">
+            <p className="text-sm font-semibold text-violet-800">
               {siteName}
             </p>
 
@@ -65,7 +65,7 @@ export default function StartStocktakeModal({
         </div>
 
         <div className="mt-7 flex items-center gap-4 rounded-2xl bg-slate-50 p-5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
             <ClipboardList size={24} />
           </div>
 
@@ -106,7 +106,7 @@ export default function StartStocktakeModal({
               starting ||
               productCount === 0
             }
-            className="flex-1 rounded-xl bg-green-800 px-5 py-3 font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex-1 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {starting
               ? "Starting..."

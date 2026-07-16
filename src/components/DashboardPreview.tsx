@@ -8,7 +8,7 @@ export default function DashboardPreview() {
             <h3 className="text-xl font-bold text-gray-950">Dashboard</h3>
           </div>
 
-          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
+          <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800">
             All sites
           </span>
         </div>
@@ -30,7 +30,7 @@ export default function DashboardPreview() {
         <div className="mt-4 rounded-xl bg-white p-4 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <p className="font-semibold text-gray-900">Action Centre</p>
-            <p className="text-xs text-green-800">View all</p>
+            <p className="text-xs text-violet-800">View all</p>
           </div>
 
           <div className="space-y-3 text-sm">

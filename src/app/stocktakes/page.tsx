@@ -668,7 +668,7 @@ export default function StocktakesPage() {
                 setShowStartModal(true);
               }}
               disabled={!canStart}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
             >
               <Plus size={20} />
               New Stocktake
@@ -689,7 +689,7 @@ export default function StocktakesPage() {
                       event.target.value
                     )
                   }
-                  className="mt-2 block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-900 outline-none focus:border-green-800"
+                  className="mt-2 block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-900 outline-none focus:border-violet-800"
                 >
                   {SITE_OPTIONS.map(
                     (site) => (
@@ -706,7 +706,7 @@ export default function StocktakesPage() {
                 <div className="mt-2 flex items-center gap-3 rounded-xl border border-gray-200 bg-slate-50 px-4 py-3">
                   <Building2
                     size={20}
-                    className="text-green-800"
+                    className="text-violet-800"
                   />
 
                   <span className="font-semibold text-gray-900">
@@ -724,7 +724,7 @@ export default function StocktakesPage() {
               <div className="flex items-center gap-3">
                 <CalendarClock
                   size={22}
-                  className="text-green-800"
+                  className="text-violet-800"
                 />
 
                 <div>
@@ -775,7 +775,7 @@ export default function StocktakesPage() {
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
                             <ClipboardCheck
                               size={24}
                             />
@@ -786,7 +786,7 @@ export default function StocktakesPage() {
                           </h3>
                         </div>
 
-                        <span className="text-2xl text-green-800">
+                        <span className="text-2xl text-violet-800">
                           →
                         </span>
                       </div>
@@ -798,7 +798,7 @@ export default function StocktakesPage() {
                               ? "bg-blue-50"
                               : summary.current?.status ===
                                 "Completed"
-                              ? "bg-green-50"
+                              ? "bg-violet-50"
                               : "bg-red-50"
                           }`}
                         >
@@ -859,19 +859,19 @@ export default function StocktakesPage() {
               ) : currentPeriodStocktake &&
                 settings.stocktakeFrequency !==
                   "manual" ? (
-                <div className="mt-8 rounded-3xl bg-green-50 p-8">
+                <div className="mt-8 rounded-3xl bg-violet-50 p-8">
                   <div className="flex items-center gap-4">
                     <ClipboardCheck
                       size={34}
-                      className="text-green-800"
+                      className="text-violet-800"
                     />
 
                     <div>
-                      <h2 className="text-2xl font-bold text-green-950">
+                      <h2 className="text-2xl font-bold text-violet-950">
                         Current stocktake complete
                       </h2>
 
-                      <p className="mt-2 text-green-800">
+                      <p className="mt-2 text-violet-800">
                         {currentPeriodStocktake.periodLabel}
                       </p>
                     </div>
@@ -884,7 +884,7 @@ export default function StocktakesPage() {
                         currentPeriodStocktake.id
                       )
                     }
-                    className="mt-5 rounded-xl border border-green-800 px-5 py-3 font-semibold text-green-800 transition hover:bg-green-100"
+                    className="mt-5 rounded-xl border border-violet-800 px-5 py-3 font-semibold text-violet-800 transition hover:bg-violet-100"
                   >
                     View Results
                   </button>
@@ -914,7 +914,7 @@ export default function StocktakesPage() {
                         true
                       )
                     }
-                    className="mt-5 inline-flex items-center gap-2 rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900"
+                    className="mt-5 inline-flex items-center gap-2 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900"
                   >
                     <Plus size={19} />
                     New Stocktake

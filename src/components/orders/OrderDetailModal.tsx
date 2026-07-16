@@ -21,7 +21,7 @@ export default function OrderDetailsModal({
       <div className="h-full w-full max-w-2xl overflow-y-auto bg-slate-100 p-6 shadow-2xl">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm font-semibold text-green-800">
+            <p className="text-sm font-semibold text-violet-800">
               Purchase Order
             </p>
 

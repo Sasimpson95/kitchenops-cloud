@@ -198,9 +198,9 @@ export default function CommandPalette({
                 type="button"
                 key={item.id}
                 onClick={() => openItem(item)}
-                className="flex w-full items-center gap-4 rounded-2xl p-4 text-left transition hover:bg-green-50"
+                className="flex w-full items-center gap-4 rounded-2xl p-4 text-left transition hover:bg-violet-50"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-green-800">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-violet-800">
                   {item.icon}
                 </div>
 

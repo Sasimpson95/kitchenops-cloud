@@ -310,7 +310,7 @@ export default function NewOrderModal({
               key={value}
               className={`rounded-full px-4 py-2 ${
                 step === value
-                  ? "bg-green-800 text-white"
+                  ? "bg-violet-800 text-white"
                   : "bg-slate-100 text-gray-600"
               }`}
             >
@@ -334,7 +334,7 @@ export default function NewOrderModal({
                 value={supplierSearch}
                 onChange={(event) => setSupplierSearch(event.target.value)}
                 placeholder="Search suppliers..."
-                className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-green-800"
+                className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-violet-800"
               />
             </div>
 
@@ -344,7 +344,7 @@ export default function NewOrderModal({
                   type="button"
                   key={supplier.id}
                   onClick={() => chooseSupplier(supplier)}
-                  className="rounded-3xl bg-slate-50 p-6 text-left transition hover:-translate-y-1 hover:bg-green-50 hover:shadow-md"
+                  className="rounded-3xl bg-slate-50 p-6 text-left transition hover:-translate-y-1 hover:bg-violet-50 hover:shadow-md"
                 >
                   <h4 className="text-xl font-bold text-gray-950">
                     {supplier.name}
@@ -352,7 +352,7 @@ export default function NewOrderModal({
                   <p className="mt-2 text-sm text-gray-500">
                     {supplier.leadTime}
                   </p>
-                  <p className="mt-5 font-semibold text-green-800">
+                  <p className="mt-5 font-semibold text-violet-800">
                     Select →
                   </p>
                 </button>
@@ -363,12 +363,12 @@ export default function NewOrderModal({
 
         {step === "products" && selectedSupplier && (
           <section className="mt-8">
-            <div className="flex items-center justify-between rounded-2xl bg-green-50 p-5">
+            <div className="flex items-center justify-between rounded-2xl bg-violet-50 p-5">
               <div>
-                <p className="text-sm font-semibold text-green-700">
+                <p className="text-sm font-semibold text-violet-700">
                   Selected Supplier
                 </p>
-                <p className="text-2xl font-bold text-green-950">
+                <p className="text-2xl font-bold text-violet-950">
                   {selectedSupplier.name}
                 </p>
               </div>
@@ -394,7 +394,7 @@ export default function NewOrderModal({
                     value={productSearch}
                     onChange={(event) => setProductSearch(event.target.value)}
                     placeholder="Search supplier items..."
-                    className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-green-800"
+                    className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-violet-800"
                   />
                 </div>
 
@@ -461,7 +461,7 @@ export default function NewOrderModal({
                             <button
                               type="button"
                               onClick={() => increase(product.id)}
-                              className="flex h-10 w-10 items-center justify-center rounded-full bg-green-800 text-white shadow-sm"
+                              className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-800 text-white shadow-sm"
                             >
                               <Plus size={18} />
                             </button>
@@ -523,7 +523,7 @@ export default function NewOrderModal({
                     type="button"
                     onClick={openReview}
                     disabled={basketItems.length === 0}
-                    className="mt-5 w-full rounded-xl bg-green-800 px-5 py-3 font-semibold text-white disabled:bg-gray-300 disabled:text-gray-600"
+                    className="mt-5 w-full rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white disabled:bg-gray-300 disabled:text-gray-600"
                   >
                     Review Order
                   </button>
@@ -543,9 +543,9 @@ export default function NewOrderModal({
                 Check the order before sending.
               </p>
 
-              <div className="mt-6 rounded-2xl bg-green-50 p-5">
-                <p className="text-sm text-green-700">Supplier</p>
-                <p className="mt-1 text-xl font-bold text-green-950">
+              <div className="mt-6 rounded-2xl bg-violet-50 p-5">
+                <p className="text-sm text-violet-700">Supplier</p>
+                <p className="mt-1 text-xl font-bold text-violet-950">
                   {selectedSupplier.name}
                 </p>
               </div>
@@ -559,7 +559,7 @@ export default function NewOrderModal({
                     type="date"
                     value={deliveryDate}
                     onChange={(event) => setDeliveryDate(event.target.value)}
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                   />
                 </div>
 
@@ -572,7 +572,7 @@ export default function NewOrderModal({
                     onChange={(event) => setNotes(event.target.value)}
                     rows={4}
                     placeholder="Optional notes..."
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                   />
                 </div>
               </div>
@@ -595,7 +595,7 @@ export default function NewOrderModal({
                   type="button"
                   onClick={saveOrder}
                   disabled={saving}
-                  className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white disabled:opacity-50"
+                  className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white disabled:opacity-50"
                 >
                   {saving ? "Sending..." : "Send Order"}
                 </button>

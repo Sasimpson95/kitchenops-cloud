@@ -22,7 +22,7 @@ export default function Textarea({
         value={value}
         onChange={(event) => onChange?.(event.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-gray-300 p-3 outline-none focus:border-green-800"
+        className="w-full rounded-xl border border-gray-300 p-3 outline-none focus:border-violet-800"
       />
     </div>
   );

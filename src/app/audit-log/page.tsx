@@ -102,7 +102,7 @@ export default function AuditLogPage() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search audit records..."
-              className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 outline-none focus:border-green-800"
+              className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 outline-none focus:border-violet-800"
             />
           </div>
 
@@ -126,7 +126,7 @@ export default function AuditLogPage() {
                   <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
+                        <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800">
                           {record.area}
                         </span>
                         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-gray-700">

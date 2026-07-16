@@ -158,7 +158,7 @@ export default function EditOrderModal({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-green-800">
+            <p className="text-sm font-semibold text-violet-800">
               Edit Draft Order
             </p>
 
@@ -254,7 +254,7 @@ export default function EditOrderModal({
                           onClick={() =>
                             increase(product.id)
                           }
-                          className="flex h-10 w-10 items-center justify-center rounded-full bg-green-800 text-2xl font-bold text-white shadow-sm hover:bg-green-900"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-800 text-2xl font-bold text-white shadow-sm hover:bg-violet-900"
                         >
                           +
                         </button>

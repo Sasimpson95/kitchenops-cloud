@@ -287,7 +287,7 @@ export default function WastePage() {
               <select
                 value={selectedSite}
                 onChange={(event) => changeSite(event.target.value)}
-                className="mt-2 block w-full max-w-sm rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-900 outline-none focus:border-green-800"
+                className="mt-2 block w-full max-w-sm rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-900 outline-none focus:border-violet-800"
               >
                 {SITE_OPTIONS.map((site) => (
                   <option key={site} value={site}>
@@ -297,7 +297,7 @@ export default function WastePage() {
               </select>
             ) : (
               <div className="mt-2 flex max-w-sm items-center gap-3 rounded-xl border border-gray-200 bg-slate-50 px-4 py-3">
-                <Building2 size={20} className="text-green-800" />
+                <Building2 size={20} className="text-violet-800" />
 
                 <span className="font-semibold text-gray-900">
                   {selectedSite}

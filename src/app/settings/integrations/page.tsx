@@ -37,13 +37,13 @@ export default function SettingsIntegrationsPage() {
         <div className="mx-auto max-w-6xl">
           <Link
             href="/settings"
-            className="text-sm font-semibold text-green-800 hover:underline"
+            className="text-sm font-semibold text-violet-800 hover:underline"
           >
             Settings
           </Link>
 
           <div className="mt-4 flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
               <PlugZap size={24} />
             </div>
 
@@ -66,10 +66,10 @@ export default function SettingsIntegrationsPage() {
                 <Link
                   key={integration.href}
                   href={integration.href}
-                  className="group rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md"
+                  className="group rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md"
                 >
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-50 text-green-800">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-800">
                       <Icon size={23} />
                     </div>
 
@@ -91,7 +91,7 @@ export default function SettingsIntegrationsPage() {
 
                     <ChevronRight
                       size={21}
-                      className="shrink-0 text-gray-400 transition group-hover:translate-x-1 group-hover:text-green-800"
+                      className="shrink-0 text-gray-400 transition group-hover:translate-x-1 group-hover:text-violet-800"
                     />
                   </div>
                 </Link>

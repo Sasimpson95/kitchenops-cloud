@@ -329,7 +329,7 @@ export default function Dashboard() {
                           <p
                             className={`mt-1 text-2xl font-bold ${
                               difference >= 0
-                                ? "text-green-800"
+                                ? "text-violet-800"
                                 : "text-red-700"
                             }`}
                           >
@@ -357,7 +357,7 @@ export default function Dashboard() {
 
                             <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-200">
                               <div
-                                className="h-full rounded-full bg-green-700"
+                                className="h-full rounded-full bg-violet-700"
                                 style={{
                                   width: `${stocktake.completion}%`,
                                 }}
@@ -382,7 +382,7 @@ export default function Dashboard() {
 
               {awaitingApproval.length ===
               0 ? (
-                <p className="mt-5 rounded-2xl bg-green-50 p-5 font-semibold text-green-800">
+                <p className="mt-5 rounded-2xl bg-violet-50 p-5 font-semibold text-violet-800">
                   ✅ Nothing awaiting
                   approval.
                 </p>
@@ -428,7 +428,7 @@ export default function Dashboard() {
                                 item
                               )
                             }
-                            className="rounded-xl bg-green-800 px-4 py-2 font-semibold text-white hover:bg-green-900"
+                            className="rounded-xl bg-violet-800 px-4 py-2 font-semibold text-white hover:bg-violet-900"
                           >
                             Review
                           </button>
@@ -465,7 +465,7 @@ export default function Dashboard() {
 
                 <button
                   type="button"
-                  className="mt-4 rounded-xl border border-green-800 px-5 py-3 font-semibold text-green-800 hover:bg-green-50"
+                  className="mt-4 rounded-xl border border-violet-800 px-5 py-3 font-semibold text-violet-800 hover:bg-violet-50"
                 >
                   Prepare Tomorrow
                 </button>
@@ -480,7 +480,7 @@ export default function Dashboard() {
 
               <div className="mt-5 space-y-4">
                 {todaysPrep.length === 0 ? (
-                  <p className="rounded-2xl bg-green-50 p-5 font-semibold text-green-800">
+                  <p className="rounded-2xl bg-violet-50 p-5 font-semibold text-violet-800">
                     ✅ All prep complete.
                   </p>
                 ) : (
@@ -578,7 +578,7 @@ export default function Dashboard() {
                             onClick={() =>
                               openRecipe(item)
                             }
-                            className="rounded-xl border border-green-800 px-3 py-2 text-sm font-semibold text-green-800"
+                            className="rounded-xl border border-violet-800 px-3 py-2 text-sm font-semibold text-violet-800"
                           >
                             📖 Recipe
                           </button>
@@ -590,7 +590,7 @@ export default function Dashboard() {
 
                 <Link
                   href="/production"
-                  className="mt-4 inline-block rounded-xl border border-green-800 px-5 py-3 font-semibold text-green-800 hover:bg-green-50"
+                  className="mt-4 inline-block rounded-xl border border-violet-800 px-5 py-3 font-semibold text-violet-800 hover:bg-violet-50"
                 >
                   + Add to Tomorrow
                 </Link>
@@ -625,7 +625,7 @@ export default function Dashboard() {
 
                       <Link
                         href="/purchasing"
-                        className="mt-4 inline-block rounded-xl bg-green-800 px-5 py-3 font-semibold text-white"
+                        className="mt-4 inline-block rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white"
                       >
                         Receive Order
                       </Link>
@@ -730,7 +730,7 @@ export default function Dashboard() {
                         )
                       )
                     }
-                    className="w-24 rounded-xl border border-gray-300 px-3 py-3 text-center text-3xl font-bold outline-none focus:border-green-800"
+                    className="w-24 rounded-xl border border-gray-300 px-3 py-3 text-center text-3xl font-bold outline-none focus:border-violet-800"
                   />
 
                   <button
@@ -792,7 +792,7 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={approvePrep}
-                  className="flex-1 rounded-xl bg-green-800 px-4 py-3 font-semibold text-white hover:bg-green-900"
+                  className="flex-1 rounded-xl bg-violet-800 px-4 py-3 font-semibold text-white hover:bg-violet-900"
                 >
                   Approve Prep
                 </button>

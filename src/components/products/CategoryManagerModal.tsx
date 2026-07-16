@@ -25,7 +25,7 @@ import {
 } from "@/lib/productOptions";
 
 const inputClass =
-  "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-green-800";
+  "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-violet-800";
 
 type CategoryManagerModalProps = {
   selectedCategory?: string;
@@ -218,7 +218,7 @@ export default function CategoryManagerModal({
       <section className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="font-semibold text-green-800">
+            <p className="font-semibold text-violet-800">
               Product Setup
             </p>
 
@@ -259,7 +259,7 @@ export default function CategoryManagerModal({
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-green-800 px-5 py-3 font-semibold text-white hover:bg-green-900 disabled:opacity-50"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900 disabled:opacity-50"
           >
             {saving ? (
               <Loader2
@@ -313,7 +313,7 @@ export default function CategoryManagerModal({
                     key={category.id}
                     className={`rounded-2xl border p-4 ${
                       selected
-                        ? "border-green-300 bg-green-50"
+                        ? "border-green-300 bg-violet-50"
                         : "border-gray-200 bg-white"
                     }`}
                   >
@@ -337,7 +337,7 @@ export default function CategoryManagerModal({
                             </p>
 
                             {selected && (
-                              <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800">
+                              <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-800">
                                 Selected
                               </span>
                             )}
@@ -362,7 +362,7 @@ export default function CategoryManagerModal({
                                 )
                               }
                               disabled={saving}
-                              className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-4 py-2 text-sm font-semibold text-white"
+                              className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-4 py-2 text-sm font-semibold text-white"
                             >
                               <Save size={16} />
                               Save
@@ -390,7 +390,7 @@ export default function CategoryManagerModal({
                                       category.name
                                     )
                                   }
-                                  className="inline-flex items-center gap-2 rounded-xl border border-green-700 px-4 py-2 text-sm font-semibold text-green-800 hover:bg-green-50"
+                                  className="inline-flex items-center gap-2 rounded-xl border border-violet-700 px-4 py-2 text-sm font-semibold text-violet-800 hover:bg-violet-50"
                                 >
                                   <Check size={16} />
                                   Use
@@ -421,7 +421,7 @@ export default function CategoryManagerModal({
                               className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold ${
                                 category.active
                                   ? "border border-red-200 text-red-700 hover:bg-red-50"
-                                  : "bg-green-800 text-white hover:bg-green-900"
+                                  : "bg-violet-800 text-white hover:bg-violet-900"
                               }`}
                             >
                               {category.active ? (

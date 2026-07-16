@@ -78,7 +78,7 @@ export default function NotificationsPage() {
 
           {notifications.length === 0 ? (
             <div className="mt-8 rounded-3xl bg-white p-12 text-center shadow-sm">
-              <Bell size={42} className="mx-auto text-green-700" />
+              <Bell size={42} className="mx-auto text-violet-700" />
               <h2 className="mt-4 text-2xl font-bold text-gray-950">
                 Everything is up to date
               </h2>
@@ -106,7 +106,7 @@ export default function NotificationsPage() {
                       {notification.description}
                     </p>
                     {notification.siteName && (
-                      <p className="mt-2 text-xs font-semibold text-green-800">
+                      <p className="mt-2 text-xs font-semibold text-violet-800">
                         {notification.siteName}
                       </p>
                     )}

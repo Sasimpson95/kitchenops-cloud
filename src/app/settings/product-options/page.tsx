@@ -34,7 +34,7 @@ import {
 } from "@/lib/productOptions";
 
 const inputClass =
-  "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-green-800";
+  "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-violet-800";
 
 async function sendUnit(
   method: "POST" | "PATCH",
@@ -302,19 +302,19 @@ export default function ProductOptionsPage() {
         <div className="mx-auto max-w-6xl">
           <Link
             href="/settings"
-            className="inline-flex items-center gap-2 font-semibold text-green-800 hover:underline"
+            className="inline-flex items-center gap-2 font-semibold text-violet-800 hover:underline"
           >
             <ArrowLeft size={18} />
             Settings
           </Link>
 
           <div className="mt-5 flex items-start gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
               <Tags size={24} />
             </div>
 
             <div>
-              <p className="font-semibold text-green-800">
+              <p className="font-semibold text-violet-800">
                 Product Setup
               </p>
 
@@ -335,7 +335,7 @@ export default function ProductOptionsPage() {
           )}
 
           {message && (
-            <p className="mt-6 flex items-center gap-2 rounded-2xl bg-green-50 p-4 font-semibold text-green-800">
+            <p className="mt-6 flex items-center gap-2 rounded-2xl bg-violet-50 p-4 font-semibold text-violet-800">
               <CheckCircle2 size={18} />
               {message}
             </p>
@@ -369,7 +369,7 @@ export default function ProductOptionsPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-green-800 px-4 py-3 font-semibold text-white disabled:opacity-50"
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-800 px-4 py-3 font-semibold text-white disabled:opacity-50"
                 >
                   <Plus size={18} />
                   Add
@@ -444,7 +444,7 @@ export default function ProductOptionsPage() {
                                         category
                                       )
                                     }
-                                    className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-4 py-2 text-sm font-semibold text-white"
+                                    className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-4 py-2 text-sm font-semibold text-white"
                                   >
                                     <Save size={16} />
                                     Save
@@ -490,7 +490,7 @@ export default function ProductOptionsPage() {
                                     className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold ${
                                       category.active
                                         ? "border border-red-200 text-red-700 hover:bg-red-50"
-                                        : "bg-green-800 text-white hover:bg-green-900"
+                                        : "bg-violet-800 text-white hover:bg-violet-900"
                                     }`}
                                   >
                                     {category.active ? (
@@ -568,7 +568,7 @@ export default function ProductOptionsPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-800 px-4 py-3 font-semibold text-white disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-4 py-3 font-semibold text-white disabled:opacity-50"
                 >
                   <Plus size={18} />
                   Add Unit
@@ -598,7 +598,7 @@ export default function ProductOptionsPage() {
                       className={`rounded-xl px-4 py-2 text-sm font-semibold ${
                         unit.active
                           ? "border border-red-200 text-red-700 hover:bg-red-50"
-                          : "bg-green-800 text-white hover:bg-green-900"
+                          : "bg-violet-800 text-white hover:bg-violet-900"
                       }`}
                     >
                       {unit.active

@@ -395,7 +395,7 @@ export default function SupplierPage({
 
             <Link
               href="/suppliers"
-              className="mt-6 inline-flex items-center gap-2 font-semibold text-green-800 hover:underline"
+              className="mt-6 inline-flex items-center gap-2 font-semibold text-violet-800 hover:underline"
             >
               <ArrowLeft size={18} />
               Back to Suppliers
@@ -413,7 +413,7 @@ export default function SupplierPage({
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <Link
               href="/suppliers"
-              className="inline-flex items-center gap-2 font-semibold text-green-800 hover:underline"
+              className="inline-flex items-center gap-2 font-semibold text-violet-800 hover:underline"
             >
               <ArrowLeft size={18} />
               Back to Suppliers
@@ -453,7 +453,7 @@ export default function SupplierPage({
                     onClick={
                       handleRestore
                     }
-                    className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-4 py-2 font-semibold text-white transition hover:bg-green-900"
+                    className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-4 py-2 font-semibold text-white transition hover:bg-violet-900"
                   >
                     <RotateCcw
                       size={18}
@@ -481,7 +481,7 @@ export default function SupplierPage({
                   <span
                     className={`rounded-full px-3 py-1 text-sm font-semibold ${
                       supplier.active
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-violet-100 text-violet-800"
                         : "bg-gray-200 text-gray-700"
                     }`}
                   >
@@ -498,12 +498,12 @@ export default function SupplierPage({
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-green-50 px-5 py-4 text-right">
-                <p className="text-sm text-green-700">
+              <div className="rounded-2xl bg-violet-50 px-5 py-4 text-right">
+                <p className="text-sm text-violet-700">
                   Products Supplied
                 </p>
 
-                <p className="mt-1 text-3xl font-bold text-green-900">
+                <p className="mt-1 text-3xl font-bold text-violet-900">
                   {
                     activeSupplierProducts.length
                   }
@@ -585,7 +585,7 @@ export default function SupplierPage({
 
                     <a
                       href={`mailto:${supplier.email}`}
-                      className="font-semibold text-green-800 hover:underline"
+                      className="font-semibold text-violet-800 hover:underline"
                     >
                       {supplier.email}
                     </a>
@@ -646,7 +646,7 @@ export default function SupplierPage({
                 <div className="flex items-center gap-3">
                   <Package
                     size={23}
-                    className="text-green-800"
+                    className="text-violet-800"
                   />
 
                   <div>
@@ -674,7 +674,7 @@ export default function SupplierPage({
                         <Link
                           key={product.id}
                           href={`/products/${product.id}`}
-                          className="flex items-center justify-between gap-4 rounded-xl bg-slate-50 p-4 transition hover:bg-green-50"
+                          className="flex items-center justify-between gap-4 rounded-xl bg-slate-50 p-4 transition hover:bg-violet-50"
                         >
                           <div>
                             <p className="font-semibold text-gray-950">
@@ -698,7 +698,7 @@ export default function SupplierPage({
                             <span
                               className={`rounded-full px-3 py-1 text-xs font-semibold ${
                                 product.active
-                                  ? "bg-green-100 text-green-800"
+                                  ? "bg-violet-100 text-violet-800"
                                   : "bg-gray-200 text-gray-700"
                               }`}
                             >
@@ -707,7 +707,7 @@ export default function SupplierPage({
                                 : "Archived"}
                             </span>
 
-                            <p className="mt-2 text-green-800">
+                            <p className="mt-2 text-violet-800">
                               →
                             </p>
                           </div>
@@ -724,7 +724,7 @@ export default function SupplierPage({
                 <div className="flex items-center gap-3">
                   <ShoppingCart
                     size={23}
-                    className="text-green-800"
+                    className="text-violet-800"
                   />
 
                   <div>
@@ -742,7 +742,7 @@ export default function SupplierPage({
 
                 <Link
                   href="/purchasing"
-                  className="font-semibold text-green-800 hover:underline"
+                  className="font-semibold text-violet-800 hover:underline"
                 >
                   View Purchasing →
                 </Link>
@@ -786,7 +786,7 @@ export default function SupplierPage({
                           className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${
                             order.status ===
                             "Completed"
-                              ? "bg-green-100 text-green-800"
+                              ? "bg-violet-100 text-violet-800"
                               : order.status ===
                                 "Cancelled"
                               ? "bg-red-100 text-red-800"

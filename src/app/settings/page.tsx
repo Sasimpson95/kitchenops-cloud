@@ -66,12 +66,12 @@ export default function SettingsPage() {
       <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-6xl">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
               <Settings2 size={24} />
             </div>
 
             <div>
-              <p className="font-semibold text-green-800">
+              <p className="font-semibold text-violet-800">
                 Operations
               </p>
 
@@ -93,9 +93,9 @@ export default function SettingsPage() {
                 <Link
                   key={section.href}
                   href={section.href}
-                  className="group flex items-center gap-5 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md"
+                  className="group flex items-center gap-5 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md"
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-green-50 text-green-800 transition group-hover:bg-green-100">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-50 text-violet-800 transition group-hover:bg-violet-100">
                     <Icon size={23} />
                   </div>
 
@@ -111,7 +111,7 @@ export default function SettingsPage() {
 
                   <ChevronRight
                     size={21}
-                    className="shrink-0 text-gray-400 transition group-hover:translate-x-1 group-hover:text-green-800"
+                    className="shrink-0 text-gray-400 transition group-hover:translate-x-1 group-hover:text-violet-800"
                   />
                 </Link>
               );

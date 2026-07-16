@@ -76,7 +76,7 @@ export default function StocktakeAreas({
         <button
           type="button"
           onClick={onExit}
-          className="inline-flex items-center gap-2 font-semibold text-green-800 hover:underline"
+          className="inline-flex items-center gap-2 font-semibold text-violet-800 hover:underline"
         >
           <ArrowLeft size={18} />
           Save and Exit
@@ -90,7 +90,7 @@ export default function StocktakeAreas({
       <div className="mt-6 rounded-3xl bg-white p-8 shadow-sm">
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-start">
           <div>
-            <p className="text-sm font-semibold text-green-800">
+            <p className="text-sm font-semibold text-violet-800">
               {stocktake.siteName}
             </p>
 
@@ -101,10 +101,10 @@ export default function StocktakeAreas({
             <p className="mt-2 text-gray-600">{stocktake.periodLabel}</p>
           </div>
 
-          <div className="rounded-2xl bg-green-50 px-5 py-4 text-right">
-            <p className="text-sm text-green-700">Overall Progress</p>
+          <div className="rounded-2xl bg-violet-50 px-5 py-4 text-right">
+            <p className="text-sm text-violet-700">Overall Progress</p>
 
-            <p className="mt-1 text-2xl font-bold text-green-900">
+            <p className="mt-1 text-2xl font-bold text-violet-900">
               {totalCounted}/{stocktake.items.length}
             </p>
           </div>
@@ -112,7 +112,7 @@ export default function StocktakeAreas({
 
         <div className="mt-6 h-3 overflow-hidden rounded-full bg-slate-200">
           <div
-            className="h-full rounded-full bg-green-700 transition-all"
+            className="h-full rounded-full bg-violet-700 transition-all"
             style={{
               width: `${
                 stocktake.items.length === 0
@@ -140,7 +140,7 @@ export default function StocktakeAreas({
                 onClick={() => onSelectArea(area.name)}
                 className={`rounded-3xl border p-6 text-left transition hover:-translate-y-1 hover:shadow-md ${
                   complete
-                    ? "border-green-200 bg-green-50"
+                    ? "border-violet-200 bg-violet-50"
                     : area.counted > 0
                       ? "border-orange-200 bg-orange-50"
                       : "border-gray-200 bg-white"
@@ -151,7 +151,7 @@ export default function StocktakeAreas({
                     <div
                       className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
                         complete
-                          ? "bg-green-100 text-green-800"
+                          ? "bg-violet-100 text-violet-800"
                           : area.counted > 0
                             ? "bg-orange-100 text-orange-800"
                             : "bg-slate-100 text-gray-600"
@@ -178,7 +178,7 @@ export default function StocktakeAreas({
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${
                       complete
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-violet-100 text-violet-800"
                         : area.counted > 0
                           ? "bg-orange-100 text-orange-800"
                           : "bg-gray-200 text-gray-700"
@@ -195,7 +195,7 @@ export default function StocktakeAreas({
                 <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/80">
                   <div
                     className={`h-full rounded-full ${
-                      complete ? "bg-green-700" : "bg-orange-600"
+                      complete ? "bg-violet-700" : "bg-orange-600"
                     }`}
                     style={{ width: `${percentage}%` }}
                   />
@@ -206,7 +206,7 @@ export default function StocktakeAreas({
                     {percentage}% complete
                   </p>
 
-                  <span className="inline-flex items-center gap-2 font-semibold text-green-800">
+                  <span className="inline-flex items-center gap-2 font-semibold text-violet-800">
                     <PlayCircle size={18} />
                     {complete ? "Review Area" : area.counted > 0 ? "Continue" : "Start"}
                   </span>
@@ -227,7 +227,7 @@ export default function StocktakeAreas({
             type="button"
             onClick={onFinish}
             disabled={!allCounted || finishing}
-            className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
+            className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
           >
             {finishing ? "Finishing..." : "Finish Stocktake"}
           </button>

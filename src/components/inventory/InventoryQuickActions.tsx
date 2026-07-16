@@ -58,9 +58,9 @@ export default function InventoryQuickActions({
             <Link
               key={action.label}
               href={action.href}
-              className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-slate-50 p-4 font-semibold text-gray-800 transition hover:-translate-y-0.5 hover:border-green-300 hover:bg-green-50 hover:text-green-900"
+              className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-slate-50 p-4 font-semibold text-gray-800 transition hover:-translate-y-0.5 hover:border-green-300 hover:bg-violet-50 hover:text-violet-900"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-green-800 shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-violet-800 shadow-sm">
                 <Icon size={20} />
               </div>
 

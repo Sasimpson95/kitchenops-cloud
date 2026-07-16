@@ -121,7 +121,7 @@ function getTimelineIcon(
     return (
       <CheckCircle2
         size={20}
-        className="text-green-700"
+        className="text-violet-700"
       />
     );
   }
@@ -149,7 +149,7 @@ function getTimelineBackground(
   }
 
   if (event.type === "completed") {
-    return "bg-green-100";
+    return "bg-violet-100";
   }
 
   return "bg-red-100";
@@ -195,7 +195,7 @@ export default function OrderDetailsModal({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-green-800">
+            <p className="text-sm font-semibold text-violet-800">
               Purchase Order
             </p>
 
@@ -286,7 +286,7 @@ export default function OrderDetailsModal({
                   totalDifference > 0
                     ? "bg-red-50"
                     : totalDifference < 0
-                    ? "bg-green-50"
+                    ? "bg-violet-50"
                     : "bg-slate-50"
                 }`}
               >
@@ -299,7 +299,7 @@ export default function OrderDetailsModal({
                     totalDifference > 0
                       ? "text-red-900"
                       : totalDifference < 0
-                      ? "text-green-900"
+                      ? "text-violet-900"
                       : "text-gray-950"
                   }`}
                 >
@@ -442,7 +442,7 @@ export default function OrderDetailsModal({
                             unitPriceDifference >
                             0
                               ? "bg-red-100 text-red-800"
-                              : "bg-green-100 text-green-800"
+                              : "bg-violet-100 text-violet-800"
                           }`}
                         >
                           Price{" "}
@@ -460,7 +460,7 @@ export default function OrderDetailsModal({
                       {shortQuantity === 0 &&
                         unitPriceDifference ===
                           0 && (
-                          <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-800">
+                          <span className="rounded-full bg-violet-100 px-3 py-1 text-sm font-semibold text-violet-800">
                             Matches order
                           </span>
                         )}
@@ -486,7 +486,7 @@ export default function OrderDetailsModal({
         <Card className="mt-6">
           <div className="flex items-center gap-3">
             <Clock3
-              className="text-green-800"
+              className="text-violet-800"
               size={24}
             />
 

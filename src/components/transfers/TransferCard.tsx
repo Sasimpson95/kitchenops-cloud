@@ -36,7 +36,7 @@ export default function TransferCard({ transfer }: TransferCardProps) {
               {transfer.transferNumber}
             </h2>
 
-            <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
+            <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800">
               <CheckCircle2 size={14} />
               {transfer.status}
             </span>
@@ -68,7 +68,7 @@ export default function TransferCard({ transfer }: TransferCardProps) {
             </p>
           </div>
 
-          <ArrowRight className="mx-auto shrink-0 text-green-800" size={24} />
+          <ArrowRight className="mx-auto shrink-0 text-violet-800" size={24} />
 
           <div className="flex-1 rounded-xl bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">

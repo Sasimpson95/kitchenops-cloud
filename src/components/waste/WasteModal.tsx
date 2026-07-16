@@ -181,7 +181,7 @@ export default function WasteModal({
             <select
               value={siteName}
               onChange={(event) => changeSite(event.target.value)}
-              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800"
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
             >
               {SITE_OPTIONS.map((site) => (
                 <option key={site} value={site}>
@@ -212,7 +212,7 @@ export default function WasteModal({
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search products..."
-              className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-11 outline-none focus:border-green-800"
+              className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-11 outline-none focus:border-violet-800"
             />
 
             {search && (

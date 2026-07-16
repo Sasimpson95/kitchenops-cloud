@@ -118,7 +118,7 @@ export default function TransferModal({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-green-800">Inventory</p>
+            <p className="text-sm font-semibold text-violet-800">Inventory</p>
             <h2 className="mt-1 text-3xl font-bold text-gray-950">
               Transfer Stock
             </h2>
@@ -147,7 +147,7 @@ export default function TransferModal({
               <select
                 value={fromSiteId}
                 onChange={(event) => setFromSiteId(event.target.value)}
-                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800"
+                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
               >
                 {TRANSFER_SITES.map((site) => (
                   <option key={site.id} value={site.id}>
@@ -162,7 +162,7 @@ export default function TransferModal({
             )}
           </div>
 
-          <ArrowRight className="mx-auto mb-3 text-green-800" size={24} />
+          <ArrowRight className="mx-auto mb-3 text-violet-800" size={24} />
 
           <div>
             <label className="mb-2 block text-sm font-semibold text-gray-700">
@@ -172,7 +172,7 @@ export default function TransferModal({
             <select
               value={toSiteId}
               onChange={(event) => setToSiteId(event.target.value)}
-              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800"
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
             >
               <option value="">Select destination</option>
               {destinationSites.map((site) => (
@@ -199,7 +199,7 @@ export default function TransferModal({
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search products..."
-              className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-green-800"
+              className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-violet-800"
             />
           </div>
 
@@ -209,7 +209,7 @@ export default function TransferModal({
               setProductId(Number(event.target.value));
               setQuantity(1);
             }}
-            className="mt-3 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-green-800"
+            className="mt-3 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-violet-800"
           >
             <option value={0}>Select product</option>
             {filteredProducts.map((product) => (
@@ -259,13 +259,13 @@ export default function TransferModal({
                 onChange={(event) =>
                   setQuantity(Math.max(0, Number(event.target.value) || 0))
                 }
-                className="w-28 rounded-xl border border-gray-300 px-3 py-3 text-center text-2xl font-bold outline-none focus:border-green-800"
+                className="w-28 rounded-xl border border-gray-300 px-3 py-3 text-center text-2xl font-bold outline-none focus:border-violet-800"
               />
 
               <button
                 type="button"
                 onClick={() => setQuantity(quantity + 1)}
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-green-800 text-white transition hover:bg-green-900"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-800 text-white transition hover:bg-violet-900"
               >
                 <Plus size={22} />
               </button>
@@ -282,7 +282,7 @@ export default function TransferModal({
               onChange={(event) => setReason(event.target.value)}
               rows={4}
               placeholder="Example: Weekend support"
-              className="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+              className="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
             />
           </div>
         </div>
@@ -306,7 +306,7 @@ export default function TransferModal({
             type="button"
             onClick={handleTransfer}
             disabled={saving || !toSiteId || !productId || quantity <= 0}
-            className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saving ? "Transferring..." : "Complete Transfer"}
           </button>

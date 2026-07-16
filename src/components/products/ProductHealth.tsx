@@ -111,7 +111,7 @@ export default function ProductHealth({
         <div
           className={`rounded-2xl px-4 py-3 text-center ${
             percentage === 100
-              ? "bg-green-100 text-green-900"
+              ? "bg-violet-100 text-violet-900"
               : "bg-orange-100 text-orange-900"
           }`}
         >
@@ -129,7 +129,7 @@ export default function ProductHealth({
         <div
           className={`h-full rounded-full ${
             percentage === 100
-              ? "bg-green-700"
+              ? "bg-violet-700"
               : "bg-orange-600"
           }`}
           style={{
@@ -147,7 +147,7 @@ export default function ProductHealth({
             {check.complete ? (
               <CheckCircle2
                 size={19}
-                className="shrink-0 text-green-700"
+                className="shrink-0 text-violet-700"
               />
             ) : check.optional ? (
               <Circle

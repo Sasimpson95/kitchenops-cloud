@@ -405,7 +405,7 @@ export default function ReceiveDeliveryPage({
           <Card className="mt-6">
             <div className="flex items-start gap-3">
               <PackageCheck
-                className="mt-1 text-green-800"
+                className="mt-1 text-violet-800"
                 size={28}
               />
 
@@ -562,7 +562,7 @@ export default function ReceiveDeliveryPage({
                                 )
                               )
                             }
-                            className="min-w-0 flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-center text-xl font-bold outline-none focus:border-green-800 disabled:bg-slate-100"
+                            className="min-w-0 flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-center text-xl font-bold outline-none focus:border-violet-800 disabled:bg-slate-100"
                           />
 
                           <button
@@ -579,7 +579,7 @@ export default function ReceiveDeliveryPage({
                                   1
                               )
                             }
-                            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-800 text-xl font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
+                            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-800 text-xl font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             +
                           </button>
@@ -625,7 +625,7 @@ export default function ReceiveDeliveryPage({
                                 )
                               )
                             }
-                            className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-9 pr-4 text-xl font-bold outline-none focus:border-green-800 disabled:bg-slate-100"
+                            className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-9 pr-4 text-xl font-bold outline-none focus:border-violet-800 disabled:bg-slate-100"
                           />
                         </div>
                       </div>
@@ -636,14 +636,14 @@ export default function ReceiveDeliveryPage({
                         className={`rounded-2xl p-4 ${
                           shortQuantity > 0
                             ? "bg-red-50"
-                            : "bg-green-50"
+                            : "bg-violet-50"
                         }`}
                       >
                         <p
                           className={`text-sm ${
                             shortQuantity > 0
                               ? "text-red-700"
-                              : "text-green-700"
+                              : "text-violet-700"
                           }`}
                         >
                           Short delivered
@@ -653,7 +653,7 @@ export default function ReceiveDeliveryPage({
                           className={`mt-1 text-xl font-bold ${
                             shortQuantity > 0
                               ? "text-red-900"
-                              : "text-green-900"
+                              : "text-violet-900"
                           }`}
                         >
                           {shortQuantity}
@@ -664,14 +664,14 @@ export default function ReceiveDeliveryPage({
                         className={`rounded-2xl p-4 ${
                           hasPriceChange
                             ? "bg-orange-50"
-                            : "bg-green-50"
+                            : "bg-violet-50"
                         }`}
                       >
                         <p
                           className={`text-sm ${
                             hasPriceChange
                               ? "text-orange-700"
-                              : "text-green-700"
+                              : "text-violet-700"
                           }`}
                         >
                           Unit price change
@@ -688,14 +688,14 @@ export default function ReceiveDeliveryPage({
                           {priceDifference < 0 && (
                             <ArrowDown
                               size={18}
-                              className="text-green-700"
+                              className="text-violet-700"
                             />
                           )}
 
                           {priceDifference === 0 && (
                             <Minus
                               size={18}
-                              className="text-green-700"
+                              className="text-violet-700"
                             />
                           )}
 
@@ -703,7 +703,7 @@ export default function ReceiveDeliveryPage({
                             className={`text-xl font-bold ${
                               priceDifference > 0
                                 ? "text-red-900"
-                                : "text-green-900"
+                                : "text-violet-900"
                             }`}
                           >
                             {priceDifference > 0
@@ -732,7 +732,7 @@ export default function ReceiveDeliveryPage({
                             className={`mt-1 text-sm font-semibold ${
                               lineDifference > 0
                                 ? "text-red-700"
-                                : "text-green-700"
+                                : "text-violet-700"
                             }`}
                           >
                             {lineDifference > 0
@@ -749,7 +749,7 @@ export default function ReceiveDeliveryPage({
 
                     {!hasPriceChange &&
                       !hasQuantityChange && (
-                        <div className="mt-5 flex items-center gap-2 rounded-xl bg-green-50 p-3 text-sm font-semibold text-green-800">
+                        <div className="mt-5 flex items-center gap-2 rounded-xl bg-violet-50 p-3 text-sm font-semibold text-violet-800">
                           <CheckCircle2
                             size={18}
                           />
@@ -798,7 +798,7 @@ export default function ReceiveDeliveryPage({
                   totals.difference > 0
                     ? "bg-red-50"
                     : totals.difference < 0
-                    ? "bg-green-50"
+                    ? "bg-violet-50"
                     : "bg-slate-50"
                 }`}
               >
@@ -811,7 +811,7 @@ export default function ReceiveDeliveryPage({
                     totals.difference > 0
                       ? "text-red-900"
                       : totals.difference < 0
-                      ? "text-green-900"
+                      ? "text-violet-900"
                       : "text-gray-950"
                   }`}
                 >
@@ -844,12 +844,12 @@ export default function ReceiveDeliveryPage({
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-green-50 p-4">
-                <p className="text-sm text-green-700">
+              <div className="rounded-2xl bg-violet-50 p-4">
+                <p className="text-sm text-violet-700">
                   Quantity Received
                 </p>
 
-                <p className="mt-1 text-xl font-bold text-green-900">
+                <p className="mt-1 text-xl font-bold text-violet-900">
                   {
                     totals.receivedQuantity
                   }

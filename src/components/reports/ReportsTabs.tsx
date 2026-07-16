@@ -45,8 +45,8 @@ export default function ReportsTabs({ activeTab, onChange }: ReportsTabsProps) {
               onClick={() => onChange(tab.id)}
               className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition ${
                 active
-                  ? "bg-green-800 text-white"
-                  : "text-gray-600 hover:bg-green-50 hover:text-green-800"
+                  ? "bg-violet-800 text-white"
+                  : "text-gray-600 hover:bg-violet-50 hover:text-violet-800"
               }`}
             >
               <Icon size={18} />

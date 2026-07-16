@@ -205,7 +205,7 @@ function SummaryCard({
           </p>
         </div>
 
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-green-50 text-green-800">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50 text-violet-800">
           {icon}
         </div>
       </div>
@@ -424,7 +424,7 @@ export default function PosIntegrationPage() {
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
-              <p className="font-semibold text-green-800">
+              <p className="font-semibold text-violet-800">
                 Operations Only
               </p>
 
@@ -439,7 +439,7 @@ export default function PosIntegrationPage() {
 
             <div className="flex items-center gap-3">
               {savedMessage && (
-                <span className="text-sm font-semibold text-green-800">
+                <span className="text-sm font-semibold text-violet-800">
                   {savedMessage}
                 </span>
               )}
@@ -447,7 +447,7 @@ export default function PosIntegrationPage() {
               <button
                 type="button"
                 onClick={save}
-                className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-5 py-3 font-semibold text-white hover:bg-green-900"
+                className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900"
               >
                 <Save size={18} />
                 Save Settings
@@ -524,7 +524,7 @@ export default function PosIntegrationPage() {
               <div className="flex items-center gap-3">
                 <Plug
                   size={22}
-                  className="text-green-800"
+                  className="text-violet-800"
                 />
 
                 <div>
@@ -567,7 +567,7 @@ export default function PosIntegrationPage() {
                         }
                         className={`rounded-2xl border p-4 text-left transition ${
                           selected
-                            ? "border-green-700 bg-green-50"
+                            ? "border-violet-700 bg-violet-50"
                             : "border-gray-200 hover:bg-slate-50"
                         }`}
                       >
@@ -618,7 +618,7 @@ export default function PosIntegrationPage() {
                           )
                         }
                         placeholder="Add when API access is available"
-                        className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                        className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                       />
                     </label>
 
@@ -647,7 +647,7 @@ export default function PosIntegrationPage() {
                           )
                         }
                         placeholder="Added during integration"
-                        className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-green-800"
+                        className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
                       />
                     </label>
 
@@ -684,7 +684,7 @@ export default function PosIntegrationPage() {
               <div className="flex items-center gap-3">
                 <Settings2
                   size={22}
-                  className="text-green-800"
+                  className="text-violet-800"
                 />
 
                 <div>
@@ -699,7 +699,7 @@ export default function PosIntegrationPage() {
               </div>
 
               <div className="mt-5 space-y-3">
-                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-green-200 bg-green-50 p-4">
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-violet-200 bg-violet-50 p-4">
                   <input
                     type="radio"
                     name="importMode"
@@ -717,15 +717,15 @@ export default function PosIntegrationPage() {
                         })
                       )
                     }
-                    className="mt-1 h-5 w-5 accent-green-800"
+                    className="mt-1 h-5 w-5 accent-violet-800"
                   />
 
                   <div>
-                    <p className="font-bold text-green-950">
+                    <p className="font-bold text-violet-950">
                       Reporting Only
                     </p>
 
-                    <p className="mt-1 text-sm leading-6 text-green-800">
+                    <p className="mt-1 text-sm leading-6 text-violet-800">
                       Import sales for reports and validation without changing inventory.
                     </p>
                   </div>
@@ -758,7 +758,7 @@ export default function PosIntegrationPage() {
             <div className="flex items-center gap-3">
               <MapPin
                 size={22}
-                className="text-green-800"
+                className="text-violet-800"
               />
 
               <div>
@@ -834,7 +834,7 @@ export default function PosIntegrationPage() {
                           )
                         }
                         placeholder="Example: Beeston Store"
-                        className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-green-800"
+                        className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-violet-800"
                       />
                     </label>
 
@@ -876,7 +876,7 @@ export default function PosIntegrationPage() {
                           )
                         }
                         placeholder="Added when connected"
-                        className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-green-800"
+                        className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-violet-800"
                       />
                     </label>
                   </div>
@@ -890,7 +890,7 @@ export default function PosIntegrationPage() {
               <div className="flex items-start gap-3">
                 <Link2
                   size={22}
-                  className="mt-0.5 text-green-800"
+                  className="mt-0.5 text-violet-800"
                 />
 
                 <div>
@@ -981,7 +981,7 @@ export default function PosIntegrationPage() {
                               <span
                                 className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
                                   ready
-                                    ? "bg-green-100 text-green-800"
+                                    ? "bg-violet-100 text-violet-800"
                                     : "bg-orange-100 text-orange-800"
                                 }`}
                               >
@@ -1006,7 +1006,7 @@ export default function PosIntegrationPage() {
                                 href={`/recipes?recipe=${encodeURIComponent(
                                   recipe.name
                                 )}`}
-                                className="font-semibold text-green-800 hover:underline"
+                                className="font-semibold text-violet-800 hover:underline"
                               >
                                 Open Recipe
                               </Link>
@@ -1026,7 +1026,7 @@ export default function PosIntegrationPage() {
               <div className="flex items-center gap-3">
                 <Database
                   size={22}
-                  className="text-green-800"
+                  className="text-violet-800"
                 />
 
                 <div>
@@ -1105,7 +1105,7 @@ export default function PosIntegrationPage() {
                 <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center">
                   <CheckCircle2
                     size={31}
-                    className="mx-auto text-green-700"
+                    className="mx-auto text-violet-700"
                   />
 
                   <p className="mt-3 font-semibold text-gray-700">

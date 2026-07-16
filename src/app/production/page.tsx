@@ -597,7 +597,7 @@ export default function PrepPlannerPage() {
               type="button"
               onClick={openAddPrep}
               disabled={!canEdit}
-              className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
+              className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
             >
               + Add Prep
             </button>
@@ -618,7 +618,7 @@ export default function PrepPlannerPage() {
                         event.target.value
                       )
                     }
-                    className="mt-2 block w-full min-w-64 rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-900 outline-none focus:border-green-800"
+                    className="mt-2 block w-full min-w-64 rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-900 outline-none focus:border-violet-800"
                   >
                     {SITES.map((site) => (
                       <option
@@ -633,7 +633,7 @@ export default function PrepPlannerPage() {
                   <div className="mt-2 flex min-w-64 items-center gap-3 rounded-xl border border-gray-200 bg-slate-50 px-4 py-3">
                     <Building2
                       size={20}
-                      className="text-green-800"
+                      className="text-violet-800"
                     />
 
                     <span className="font-semibold text-gray-900">
@@ -659,7 +659,7 @@ export default function PrepPlannerPage() {
               )}
 
               {hasSelectedSpecificSite && (
-                <div className="rounded-2xl bg-green-50 px-5 py-4 text-sm text-green-800">
+                <div className="rounded-2xl bg-violet-50 px-5 py-4 text-sm text-violet-800">
                   Editing{" "}
                   <strong>
                     {selectedSite}
@@ -699,7 +699,7 @@ export default function PrepPlannerPage() {
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-800">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
                             <Building2
                               size={24}
                             />
@@ -710,7 +710,7 @@ export default function PrepPlannerPage() {
                           </h3>
                         </div>
 
-                        <span className="text-2xl text-green-800">
+                        <span className="text-2xl text-violet-800">
                           →
                         </span>
                       </div>
@@ -752,12 +752,12 @@ export default function PrepPlannerPage() {
                           </p>
                         </div>
 
-                        <div className="rounded-2xl bg-green-50 p-4">
-                          <p className="text-sm text-green-700">
+                        <div className="rounded-2xl bg-violet-50 p-4">
+                          <p className="text-sm text-violet-700">
                             Approved Today
                           </p>
 
-                          <p className="mt-1 text-2xl font-bold text-green-900">
+                          <p className="mt-1 text-2xl font-bold text-violet-900">
                             {
                               summary.approvedCount
                             }
@@ -782,12 +782,12 @@ export default function PrepPlannerPage() {
                   </p>
                 </div>
 
-                <div className="rounded-3xl bg-green-50 p-5 shadow-sm">
-                  <p className="text-sm text-green-700">
+                <div className="rounded-3xl bg-violet-50 p-5 shadow-sm">
+                  <p className="text-sm text-violet-700">
                     Approved Today
                   </p>
 
-                  <p className="mt-1 text-3xl font-bold text-green-900">
+                  <p className="mt-1 text-3xl font-bold text-violet-900">
                     {approvedTodayCount}
                   </p>
                 </div>
@@ -816,7 +816,7 @@ export default function PrepPlannerPage() {
                       className={`rounded-xl px-5 py-3 font-semibold transition ${
                         selectedDay ===
                         "today"
-                          ? "bg-green-800 text-white"
+                          ? "bg-violet-800 text-white"
                           : "border border-gray-300 bg-white text-gray-700 hover:bg-slate-50"
                       }`}
                     >
@@ -856,7 +856,7 @@ export default function PrepPlannerPage() {
                         )
                       }
                       placeholder={`Search ${selectedSite} ${selectedDay} prep...`}
-                      className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-11 outline-none transition focus:border-green-800"
+                      className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-11 outline-none transition focus:border-violet-800"
                     />
 
                     {search && (
@@ -880,7 +880,7 @@ export default function PrepPlannerPage() {
                     className={
                       selectedDay ===
                       "today"
-                        ? "text-green-800"
+                        ? "text-violet-800"
                         : "text-blue-700"
                     }
                   />
@@ -920,7 +920,7 @@ export default function PrepPlannerPage() {
                       <button
                         type="button"
                         onClick={openAddPrep}
-                        className="mt-5 rounded-xl bg-green-800 px-5 py-3 font-semibold text-white transition hover:bg-green-900"
+                        className="mt-5 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white transition hover:bg-violet-900"
                       >
                         + Add Prep
                       </button>
@@ -958,7 +958,7 @@ export default function PrepPlannerPage() {
                               className={`h-2 ${
                                 item.status ===
                                 "approved"
-                                  ? "bg-green-700"
+                                  ? "bg-violet-700"
                                   : item.status ===
                                     "awaitingApproval"
                                   ? "bg-yellow-500"
@@ -1006,7 +1006,7 @@ export default function PrepPlannerPage() {
 
                                   {item.status ===
                                     "approved" && (
-                                    <p className="mt-2 font-semibold text-green-700">
+                                    <p className="mt-2 font-semibold text-violet-700">
                                       Approved:{" "}
                                       {
                                         item.produced
@@ -1019,7 +1019,7 @@ export default function PrepPlannerPage() {
                                   className={`rounded-full px-3 py-1 text-sm font-semibold ${
                                     item.status ===
                                     "approved"
-                                      ? "bg-green-100 text-green-800"
+                                      ? "bg-violet-100 text-violet-800"
                                       : item.status ===
                                         "awaitingApproval"
                                       ? "bg-yellow-100 text-yellow-800"
@@ -1060,7 +1060,7 @@ export default function PrepPlannerPage() {
                                             item
                                           )
                                         }
-                                        className="flex-1 rounded-xl border border-green-800 px-4 py-3 font-semibold text-green-800 transition hover:bg-green-50"
+                                        className="flex-1 rounded-xl border border-violet-800 px-4 py-3 font-semibold text-violet-800 transition hover:bg-violet-50"
                                       >
                                         Change
                                         Quantity
@@ -1087,7 +1087,7 @@ export default function PrepPlannerPage() {
 
                                 {item.status ===
                                   "approved" && (
-                                  <div className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-green-50 px-4 py-3 font-semibold text-green-800">
+                                  <div className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-violet-50 px-4 py-3 font-semibold text-violet-800">
                                     <CheckCircle2
                                       size={19}
                                     />
@@ -1112,7 +1112,7 @@ export default function PrepPlannerPage() {
             <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-green-800">
+                  <p className="text-sm font-semibold text-violet-800">
                     {selectedSite}
                   </p>
 
@@ -1159,7 +1159,7 @@ export default function PrepPlannerPage() {
                     )
                   }
                   placeholder="Search Recipe Library..."
-                  className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-green-800"
+                  className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-violet-800"
                 />
               </div>
 
@@ -1190,7 +1190,7 @@ export default function PrepPlannerPage() {
                         className={`w-full rounded-xl border p-4 text-left transition ${
                           selectedRecipe?.name ===
                           recipe.name
-                            ? "border-green-800 bg-green-50"
+                            ? "border-violet-800 bg-violet-50"
                             : "border-gray-200 bg-white hover:bg-slate-50"
                         }`}
                       >
@@ -1245,7 +1245,7 @@ export default function PrepPlannerPage() {
                         )
                       )
                     }
-                    className="w-24 rounded-xl border border-gray-300 px-3 py-3 text-center text-3xl font-bold outline-none focus:border-green-800"
+                    className="w-24 rounded-xl border border-gray-300 px-3 py-3 text-center text-3xl font-bold outline-none focus:border-violet-800"
                   />
 
                   <button
@@ -1255,7 +1255,7 @@ export default function PrepPlannerPage() {
                         quantity + 1
                       )
                     }
-                    className="flex h-14 w-14 items-center justify-center rounded-full bg-green-800 text-white transition hover:bg-green-900"
+                    className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-800 text-white transition hover:bg-violet-900"
                   >
                     <Plus size={26} />
                   </button>
@@ -1281,7 +1281,7 @@ export default function PrepPlannerPage() {
                   type="button"
                   onClick={addPrep}
                   disabled={!selectedRecipe}
-                  className="flex-1 rounded-xl bg-green-800 py-3 font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex-1 rounded-xl bg-violet-800 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Add to{" "}
                   {selectedDay === "today"
@@ -1296,7 +1296,7 @@ export default function PrepPlannerPage() {
         {editingItem && canEdit && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
-              <p className="text-center text-sm font-semibold text-green-800">
+              <p className="text-center text-sm font-semibold text-violet-800">
                 {editingItem.site}
               </p>
 
@@ -1340,7 +1340,7 @@ export default function PrepPlannerPage() {
                       )
                     )
                   }
-                  className="w-24 rounded-xl border border-gray-300 px-3 py-3 text-center text-3xl font-bold outline-none focus:border-green-800"
+                  className="w-24 rounded-xl border border-gray-300 px-3 py-3 text-center text-3xl font-bold outline-none focus:border-violet-800"
                 />
 
                 <button
@@ -1350,7 +1350,7 @@ export default function PrepPlannerPage() {
                       editingQuantity + 1
                     )
                   }
-                  className="flex h-14 w-14 items-center justify-center rounded-full bg-green-800 text-white transition hover:bg-green-900"
+                  className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-800 text-white transition hover:bg-violet-900"
                 >
                   <Plus size={26} />
                 </button>
@@ -1376,7 +1376,7 @@ export default function PrepPlannerPage() {
                   onClick={
                     saveEditedQuantity
                   }
-                  className="flex-1 rounded-xl bg-green-800 py-3 font-semibold text-white transition hover:bg-green-900"
+                  className="flex-1 rounded-xl bg-violet-800 py-3 font-semibold text-white transition hover:bg-violet-900"
                 >
                   Save Quantity
                 </button>

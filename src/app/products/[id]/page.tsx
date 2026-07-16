@@ -490,7 +490,7 @@ export default function ProductPage({
 
             <Link
               href="/products"
-              className="mt-6 inline-flex items-center gap-2 font-semibold text-green-800 hover:underline"
+              className="mt-6 inline-flex items-center gap-2 font-semibold text-violet-800 hover:underline"
             >
               <ArrowLeft size={18} />
               Back to Products
@@ -535,7 +535,7 @@ export default function ProductPage({
                 label:
                   "Healthy",
                 className:
-                  "bg-green-100 text-green-800",
+                  "bg-violet-100 text-violet-800",
               };
 
   return (
@@ -545,7 +545,7 @@ export default function ProductPage({
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 font-semibold text-green-800 hover:underline"
+              className="inline-flex items-center gap-2 font-semibold text-violet-800 hover:underline"
             >
               <ArrowLeft size={18} />
               Back to Products
@@ -579,7 +579,7 @@ export default function ProductPage({
                     onClick={
                       handleRestore
                     }
-                    className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-4 py-2 font-semibold text-white transition hover:bg-green-900"
+                    className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-4 py-2 font-semibold text-white transition hover:bg-violet-900"
                   >
                     <RotateCcw
                       size={18}
@@ -726,7 +726,7 @@ export default function ProductPage({
               className={`rounded-xl px-5 py-3 font-semibold transition ${
                 tab ===
                 "information"
-                  ? "bg-green-800 text-white"
+                  ? "bg-violet-800 text-white"
                   : "border border-gray-300 bg-white text-gray-700 hover:bg-slate-50"
               }`}
             >
@@ -740,7 +740,7 @@ export default function ProductPage({
               }
               className={`rounded-xl px-5 py-3 font-semibold transition ${
                 tab === "activity"
-                  ? "bg-green-800 text-white"
+                  ? "bg-violet-800 text-white"
                   : "border border-gray-300 bg-white text-gray-700 hover:bg-slate-50"
               }`}
             >
@@ -785,7 +785,7 @@ export default function ProductPage({
                 <div className="flex items-center gap-3">
                   <Boxes
                     size={22}
-                    className="text-green-800"
+                    className="text-violet-800"
                   />
 
                   <h2 className="text-xl font-bold text-gray-950">
@@ -793,19 +793,19 @@ export default function ProductPage({
                   </h2>
                 </div>
 
-                <div className="mt-5 rounded-2xl bg-green-50 p-5 text-center">
-                  <p className="text-sm text-green-700">
+                <div className="mt-5 rounded-2xl bg-violet-50 p-5 text-center">
+                  <p className="text-sm text-violet-700">
                     1{" "}
                     {
                       product.orderUnit
                     }
                   </p>
 
-                  <p className="my-2 text-2xl font-bold text-green-950">
+                  <p className="my-2 text-2xl font-bold text-violet-950">
                     =
                   </p>
 
-                  <p className="text-2xl font-bold text-green-950">
+                  <p className="text-2xl font-bold text-violet-950">
                     {
                       product.purchaseQuantity
                     }{" "}

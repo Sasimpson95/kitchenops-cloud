@@ -68,9 +68,9 @@ export default function InventorySparkline({
           label: "Stock increased",
           icon: ArrowUpRight,
           className:
-            "text-green-800",
+            "text-violet-800",
           lineClass:
-            "stroke-green-700",
+            "stroke-violet-700",
         }
       : direction === "down"
         ? {

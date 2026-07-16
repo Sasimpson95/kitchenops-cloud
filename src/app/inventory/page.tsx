@@ -97,7 +97,7 @@ function formatDateTime(value: string): string {
 
 function movementStyle(type: InventoryMovementType) {
   switch (type) {
-    case "Delivery": return { label: "Delivery", className: "bg-green-100 text-green-800", icon: <Truck size={18} /> };
+    case "Delivery": return { label: "Delivery", className: "bg-violet-100 text-violet-800", icon: <Truck size={18} /> };
     case "Production": return { label: "Prep", className: "bg-blue-100 text-blue-800", icon: <Package size={18} /> };
     case "Waste": return { label: "Waste", className: "bg-red-100 text-red-800", icon: <Trash2 size={18} /> };
     case "Stocktake": return { label: "Stocktake", className: "bg-purple-100 text-purple-800", icon: <ClipboardCheck size={18} /> };
@@ -432,12 +432,12 @@ export default function InventoryPage() {
           <div className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
             <label className="text-sm font-semibold text-gray-600">Viewing Site</label>
             {isOperations ? (
-              <select value={selectedSite} onChange={(event) => changeSite(event.target.value)} className="mt-2 block w-full max-w-sm rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800">
+              <select value={selectedSite} onChange={(event) => changeSite(event.target.value)} className="mt-2 block w-full max-w-sm rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800">
                 {SITE_OPTIONS.map((site) => <option key={site}>{site}</option>)}
               </select>
             ) : (
               <div className="mt-2 flex max-w-sm items-center gap-3 rounded-xl border border-gray-200 bg-slate-50 px-4 py-3">
-                <Building2 size={20} className="text-green-800" />
+                <Building2 size={20} className="text-violet-800" />
                 <span className="font-semibold">{selectedSite}</span>
                 <span className="ml-auto text-xs font-semibold text-gray-500">Assigned site</span>
               </div>
@@ -452,8 +452,8 @@ export default function InventoryPage() {
                 {siteSummaries.map((summary) => (
                   <button key={summary.site} type="button" onClick={() => changeSite(summary.site)} className="rounded-3xl border border-gray-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:border-green-300 hover:shadow-md">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-800"><Building2 size={24} /></div><h3 className="text-2xl font-bold">{summary.site}</h3></div>
-                      <span className="text-2xl text-green-800">→</span>
+                      <div className="flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-800"><Building2 size={24} /></div><h3 className="text-2xl font-bold">{summary.site}</h3></div>
+                      <span className="text-2xl text-violet-800">→</span>
                     </div>
                     <div className="mt-6 rounded-2xl bg-emerald-50 p-4"><p className="text-sm text-emerald-700">Inventory Value</p><p className="mt-1 text-3xl font-bold text-emerald-950">{money(summary.inventoryValue)}</p></div>
                     <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
@@ -495,19 +495,19 @@ export default function InventoryPage() {
                   <div><h2 className="text-2xl font-bold">{selectedSite} Stock</h2><p className="mt-1 text-gray-500">Search, filter and sort live inventory.</p></div>
                   <div className="relative w-full lg:w-96">
                     <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search product, supplier, code or area..." className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-11 outline-none focus:border-green-800" />
+                    <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search product, supplier, code or area..." className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-11 outline-none focus:border-violet-800" />
                     {search && <button type="button" onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 hover:bg-slate-100"><X size={17} /></button>}
                   </div>
                 </div>
 
                 <div className="mt-5 grid gap-3 md:grid-cols-3">
-                  <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as "All" | InventoryStatus)} className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800">
+                  <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as "All" | InventoryStatus)} className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800">
                     {STATUS_OPTIONS.map((status) => <option key={status}>{status === "All" ? "All statuses" : status}</option>)}
                   </select>
-                  <select value={areaFilter} onChange={(event) => setAreaFilter(event.target.value)} className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800">
+                  <select value={areaFilter} onChange={(event) => setAreaFilter(event.target.value)} className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800">
                     {areas.map((area) => <option key={area}>{area}</option>)}
                   </select>
-                  <select value={sort} onChange={(event) => setSort(event.target.value as SortOption)} className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-green-800">
+                  <select value={sort} onChange={(event) => setSort(event.target.value as SortOption)} className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800">
                     {(["Name", "Highest Value", "Lowest Value", "Lowest Stock", "Highest Stock", "Location"] as SortOption[]).map((option) => <option key={option}>{option}</option>)}
                   </select>
                 </div>
@@ -523,8 +523,8 @@ export default function InventoryPage() {
 
               <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-                  <div className="flex items-center gap-3"><History size={24} className="text-green-800" /><div><h2 className="text-2xl font-bold">Recent Activity</h2><p className="mt-1 text-gray-500">Every delivery, prep, waste, transfer and stocktake movement.</p></div></div>
-                  <select value={movementFilter} onChange={(event) => setMovementFilter(event.target.value as "All" | InventoryMovementType)} className="rounded-xl border border-gray-300 px-4 py-3 font-semibold outline-none focus:border-green-800">
+                  <div className="flex items-center gap-3"><History size={24} className="text-violet-800" /><div><h2 className="text-2xl font-bold">Recent Activity</h2><p className="mt-1 text-gray-500">Every delivery, prep, waste, transfer and stocktake movement.</p></div></div>
+                  <select value={movementFilter} onChange={(event) => setMovementFilter(event.target.value as "All" | InventoryMovementType)} className="rounded-xl border border-gray-300 px-4 py-3 font-semibold outline-none focus:border-violet-800">
                     {MOVEMENT_FILTERS.map((filter) => <option key={filter} value={filter}>{filter === "Production" ? "Prep" : filter}</option>)}
                   </select>
                 </div>
@@ -540,13 +540,13 @@ export default function InventoryPage() {
                         <div key={movement.id} className="grid gap-4 rounded-2xl bg-slate-50 p-5 sm:grid-cols-[auto_1fr_auto] sm:items-center">
                           <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${style.className}`}>{style.icon}</div>
                           <div><div className="flex flex-wrap items-center gap-2"><p className="font-bold">{movement.productName}</p><span className={`rounded-full px-3 py-1 text-xs font-semibold ${style.className}`}>{style.label}</span></div><p className="mt-1 text-sm text-gray-500">{movement.referenceNumber}</p><p className="mt-1 text-xs text-gray-400">{formatDateTime(movement.createdAt)}</p></div>
-                          <p className={`text-xl font-bold ${movement.quantity >= 0 ? "text-green-800" : "text-red-700"}`}>{movement.quantity >= 0 ? "+" : ""}{number(movement.quantity)} {product?.inventoryUnit ?? ""}</p>
+                          <p className={`text-xl font-bold ${movement.quantity >= 0 ? "text-violet-800" : "text-red-700"}`}>{movement.quantity >= 0 ? "+" : ""}{number(movement.quantity)} {product?.inventoryUnit ?? ""}</p>
                         </div>
                       );
                     })}
                   </div>
                 )}
-                {siteMovements.length > 8 && <button type="button" onClick={() => setShowAllMovements((current) => !current)} className="mt-6 w-full rounded-xl border border-green-800 px-5 py-3 font-semibold text-green-800 hover:bg-green-50">{showAllMovements ? "Show Recent Only" : `View All ${siteMovements.length} Movements`}</button>}
+                {siteMovements.length > 8 && <button type="button" onClick={() => setShowAllMovements((current) => !current)} className="mt-6 w-full rounded-xl border border-violet-800 px-5 py-3 font-semibold text-violet-800 hover:bg-violet-50">{showAllMovements ? "Show Recent Only" : `View All ${siteMovements.length} Movements`}</button>}
               </section>
             </>
           )}

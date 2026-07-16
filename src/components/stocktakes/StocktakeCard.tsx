@@ -58,7 +58,7 @@ export default function StocktakeCard({
     <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-green-800">
+          <p className="text-sm font-semibold text-violet-800">
             {stocktake.stocktakeNumber}
           </p>
 
@@ -74,7 +74,7 @@ export default function StocktakeCard({
         <span
           className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
             stocktake.status === "Completed"
-              ? "bg-green-100 text-green-800"
+              ? "bg-violet-100 text-violet-800"
               : "bg-blue-100 text-blue-800"
           }`}
         >
@@ -126,7 +126,7 @@ export default function StocktakeCard({
         <button
           type="button"
           onClick={onOpen}
-          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-green-800 px-5 py-3 font-semibold text-white transition hover:bg-green-900"
+          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white transition hover:bg-violet-900"
         >
           <RotateCcw size={18} />
 

@@ -129,14 +129,14 @@ export default function PrepPlannerPage() {
                       {item.status !== "completed" && (
                         <button
                           onClick={() => openConfirmModal(item)}
-                          className="rounded-xl bg-green-800 px-4 py-2 font-semibold text-white hover:bg-green-900"
+                          className="rounded-xl bg-violet-800 px-4 py-2 font-semibold text-white hover:bg-violet-900"
                         >
                           Confirm Production
                         </button>
                       )}
 
                       {item.status === "completed" && (
-                        <span className="rounded-xl bg-green-100 px-4 py-2 font-semibold text-green-800">
+                        <span className="rounded-xl bg-violet-100 px-4 py-2 font-semibold text-violet-800">
                           Produced {item.produced}
                         </span>
                       )}
@@ -144,7 +144,7 @@ export default function PrepPlannerPage() {
                   </div>
 
                   {item.status === "completed" && (
-                    <div className="mt-4 rounded-xl bg-green-50 p-4 text-sm text-green-900">
+                    <div className="mt-4 rounded-xl bg-violet-50 p-4 text-sm text-violet-900">
                       ✅ {item.name} x{item.produced} produced. Inventory would
                       now update using the recipe ingredients.
                     </div>
@@ -188,7 +188,7 @@ export default function PrepPlannerPage() {
       {selectedItem && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 px-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
-            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-2xl">
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-2xl">
               ✅
             </div>
 
@@ -264,7 +264,7 @@ export default function PrepPlannerPage() {
 
               <button
                 onClick={confirmProduction}
-                className="flex-1 rounded-xl bg-green-800 px-4 py-3 font-semibold text-white hover:bg-green-900"
+                className="flex-1 rounded-xl bg-violet-800 px-4 py-3 font-semibold text-white hover:bg-violet-900"
               >
                 ✅ Confirm Production
               </button>

@@ -30,9 +30,9 @@ const money = (
 const statusStyles = {
   Healthy: {
     badge:
-      "bg-green-100 text-green-800",
-    border: "border-t-green-600",
-    bar: "bg-green-600",
+      "bg-violet-100 text-violet-800",
+    border: "border-t-violet-600",
+    bar: "bg-violet-600",
   },
   "Low Stock": {
     badge:
@@ -303,7 +303,7 @@ export default function InventoryCard({
         onClick={() =>
           onViewHistory(record)
         }
-        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-green-800 px-5 py-3 font-semibold text-green-800 transition hover:bg-green-50"
+        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-800 px-5 py-3 font-semibold text-violet-800 transition hover:bg-violet-50"
       >
         <History size={18} />
         View History ({movementCount})
