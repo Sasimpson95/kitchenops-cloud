@@ -10,6 +10,7 @@ import {
 import {
   LogOut,
   Menu,
+  RefreshCw,
   X,
 } from "lucide-react";
 
@@ -25,6 +26,10 @@ import type {
 import {
   clearCurrentUser,
 } from "@/lib/currentUser";
+
+import {
+  requestStaffSwitch,
+} from "@/lib/sharedDevice";
 
 import CommandPalette from "@/components/CommandPalette";
 import NotificationPopover from "@/components/NotificationPopover";
@@ -257,6 +262,20 @@ export default function AppShell({
     router.refresh();
   }
 
+
+  async function switchUser(): Promise<void> {
+    requestStaffSwitch();
+
+    await fetch("/api/auth/logout", {
+      method: "POST",
+    });
+
+    clearCurrentUser();
+    setMobileMenuOpen(false);
+    router.replace("/login");
+    router.refresh();
+  }
+
   function isActive(
     href: string
   ): boolean {
@@ -330,14 +349,29 @@ export default function AppShell({
           <NavigationLinks />
         </div>
 
-        <div className="rounded-2xl bg-slate-50 p-4">
-          <p className="text-sm text-gray-500">
-            Site
-          </p>
+        <div className="space-y-3">
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="truncate font-semibold text-gray-950">
+              {currentUser.name}
+            </p>
 
-          <p className="truncate font-bold text-gray-900">
-            {currentUser.site}
-          </p>
+            <p className="mt-1 truncate text-sm capitalize text-gray-500">
+              {currentUser.role}
+              {" • "}
+              {currentUser.site}
+            </p>
+          </div>
+
+          {currentUser.role !== "operations" && (
+            <button
+              type="button"
+              onClick={switchUser}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-green-800 px-4 py-3 font-semibold text-green-800 transition hover:bg-green-50"
+            >
+              <RefreshCw size={18} />
+              Switch User
+            </button>
+          )}
         </div>
       </aside>
 
@@ -397,6 +431,17 @@ export default function AppShell({
                   {currentUser.site}
                 </p>
               </div>
+
+              {currentUser.role !== "operations" && (
+                <button
+                  type="button"
+                  onClick={switchUser}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-green-800 px-4 py-3 font-semibold text-green-800 transition hover:bg-green-50"
+                >
+                  <RefreshCw size={18} />
+                  Switch User
+                </button>
+              )}
 
               <button
                 type="button"
@@ -466,6 +511,16 @@ export default function AppShell({
                   {currentUser.site}
                 </p>
               </div>
+
+              {currentUser.role !== "operations" && (
+                <button
+                  type="button"
+                  onClick={switchUser}
+                  className="hidden rounded-xl border border-green-800 px-4 py-2 text-sm font-semibold text-green-800 transition hover:bg-green-50 md:block"
+                >
+                  Switch User
+                </button>
+              )}
 
               <button
                 type="button"

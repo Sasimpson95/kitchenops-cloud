@@ -38,6 +38,13 @@ import {
   createClient,
 } from "@/lib/supabase/client";
 
+import {
+  clearRememberedStaffDevice,
+  consumeStaffSwitchRequest,
+  getRememberedStaffDevice,
+  rememberStaffDevice,
+} from "@/lib/sharedDevice";
+
 type LoginMode =
   | "operations"
   | "staff";
@@ -86,6 +93,13 @@ export default function LoginPage() {
     useState(true);
   const [error, setError] =
     useState("");
+  const [rememberedStaffName, setRememberedStaffName] =
+    useState("");
+  const [rememberedStaffRole, setRememberedStaffRole] =
+    useState<"manager" | "chef" | "">("");
+  const [rememberedSiteName, setRememberedSiteName] =
+    useState("");
+
 
   const selectedSite = useMemo(
     () =>
@@ -94,6 +108,96 @@ export default function LoginPage() {
       ) ?? null,
     [siteId, sites]
   );
+
+  async function loadRememberedStaff(): Promise<void> {
+    const remembered =
+      getRememberedStaffDevice();
+
+    if (!remembered) {
+      return;
+    }
+
+    setMode("staff");
+    setBusinessCode(
+      remembered.businessCode
+    );
+    setRememberedStaffName(
+      remembered.staffName
+    );
+    setRememberedStaffRole(
+      remembered.staffRole
+    );
+    setRememberedSiteName(
+      remembered.siteName
+    );
+
+    try {
+      const response = await fetch(
+        "/api/staff/lookup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            businessCode:
+              remembered.businessCode,
+          }),
+        }
+      );
+
+      const data = await response.json() as {
+        error?: string;
+        businessName?: string;
+        sites?: StaffSite[];
+      };
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ??
+            "Business not found."
+        );
+      }
+
+      const nextSites =
+        data.sites ?? [];
+
+      setBusinessName(
+        data.businessName ??
+          remembered.businessName
+      );
+      setSites(nextSites);
+
+      const matchingSite =
+        nextSites.find(
+          (site) =>
+            site.id ===
+            remembered.siteId
+        ) ?? nextSites[0];
+
+      setSiteId(
+        matchingSite?.id ?? ""
+      );
+
+      const matchingStaff =
+        matchingSite?.staff.find(
+          (staff) =>
+            staff.id ===
+            remembered.staffId
+        );
+
+      setStaffId(
+        matchingStaff?.id ?? ""
+      );
+    } catch {
+      clearRememberedStaffDevice();
+      setRememberedStaffName("");
+      setRememberedStaffRole("");
+      setRememberedSiteName("");
+    }
+  }
+
 
   useEffect(() => {
     let cancelled = false;
@@ -119,7 +223,15 @@ export default function LoginPage() {
       }
     }
 
-    void check();
+    const switchingUser =
+      consumeStaffSwitchRequest();
+
+    if (switchingUser) {
+      setCheckingSession(false);
+      void loadRememberedStaff();
+    } else {
+      void check();
+    }
 
     return () => {
       cancelled = true;
@@ -274,6 +386,35 @@ export default function LoginPage() {
         );
       }
 
+      const selectedStaff =
+        selectedSite?.staff.find(
+          (staff) =>
+            staff.id === staffId
+        );
+
+      if (
+        selectedSite &&
+        selectedStaff
+      ) {
+        rememberStaffDevice({
+          businessCode:
+            businessCode
+              .trim()
+              .toUpperCase(),
+          businessName,
+          siteId:
+            selectedSite.id,
+          siteName:
+            selectedSite.name,
+          staffId:
+            selectedStaff.id,
+          staffName:
+            selectedStaff.name,
+          staffRole:
+            selectedStaff.role,
+        });
+      }
+
       setCurrentUser(data.user);
       router.replace("/home");
       router.refresh();
@@ -344,6 +485,12 @@ export default function LoginPage() {
                 onClick={() => {
                   setMode("staff");
                   setError("");
+
+                  if (
+                    sites.length === 0
+                  ) {
+                    void loadRememberedStaff();
+                  }
                 }}
                 className={`rounded-lg px-3 py-2 text-sm font-semibold ${
                   mode === "staff"
@@ -387,6 +534,42 @@ export default function LoginPage() {
               </form>
             ) : (
               <form onSubmit={staffLogin} className="mt-6 space-y-5">
+                {rememberedStaffName && (
+                  <div className="rounded-2xl border border-green-200 bg-green-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-green-700">
+                      Remembered on this device
+                    </p>
+
+                    <p className="mt-2 font-bold text-green-950">
+                      {rememberedStaffName}
+                    </p>
+
+                    <p className="mt-1 text-sm capitalize text-green-800">
+                      {rememberedStaffRole}
+                      {" • "}
+                      {rememberedSiteName}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearRememberedStaffDevice();
+                        setRememberedStaffName("");
+                        setRememberedStaffRole("");
+                        setRememberedSiteName("");
+                        setBusinessCode("");
+                        setBusinessName("");
+                        setSites([]);
+                        setSiteId("");
+                        setStaffId("");
+                        setPin("");
+                      }}
+                      className="mt-3 text-sm font-semibold text-green-900 underline underline-offset-2"
+                    >
+                      Use a different business
+                    </button>
+                  </div>
+                )}
                 <label className="block">
                   <span className="text-sm font-semibold text-gray-700">Business Code</span>
                   <div className="mt-2 flex gap-2">
