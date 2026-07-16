@@ -1,5 +1,6 @@
 import { starterProducts } from "@/data/products";
 import { getProducts } from "@/lib/productStore";
+import { scheduleCloudCatalogSave } from "@/lib/cloud/catalogSync";
 
 const STOCK_STORAGE_KEY = "kitchenops-inventory-stock";
 const MOVEMENT_STORAGE_KEY = "kitchenops-inventory-movements";
@@ -185,6 +186,7 @@ export function saveInventoryStock(stock: InventoryStock[]): void {
 
   window.localStorage.setItem(STOCK_STORAGE_KEY, JSON.stringify(stock));
   emitInventoryChanged();
+  scheduleCloudCatalogSave();
 }
 
 export function getInventoryMovements(): InventoryMovement[] {

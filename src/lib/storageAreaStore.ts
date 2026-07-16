@@ -1,3 +1,5 @@
+import { scheduleCloudCatalogSave } from "@/lib/cloud/catalogSync";
+
 const STORAGE_KEY = "kitchenops-storage-areas";
 const STORAGE_AREAS_CHANGED_EVENT =
   "kitchenops-storage-areas-changed";
@@ -89,6 +91,7 @@ function save(records: StorageArea[]): void {
   );
 
   emitChanged();
+  scheduleCloudCatalogSave();
 }
 
 function normalise(

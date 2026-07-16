@@ -8,6 +8,8 @@ import {
   getSuppliers,
 } from "@/lib/supplierStore";
 
+import { scheduleCloudCatalogSave } from "@/lib/cloud/catalogSync";
+
 const STORAGE_KEY = "kitchenops-products";
 const PRODUCTS_CHANGED_EVENT =
   "kitchenops-products-changed";
@@ -587,6 +589,7 @@ export function saveProducts(
   );
 
   emitProductsChanged();
+  scheduleCloudCatalogSave();
 }
 
 export function createProduct(

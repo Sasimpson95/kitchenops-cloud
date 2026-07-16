@@ -3,6 +3,8 @@ import {
   starterSuppliers,
 } from "@/data/suppliers";
 
+import { scheduleCloudCatalogSave } from "@/lib/cloud/catalogSync";
+
 const STORAGE_KEY =
   "kitchenops-suppliers";
 
@@ -250,6 +252,7 @@ export function saveSuppliers(
   );
 
   emitSuppliersChanged();
+  scheduleCloudCatalogSave();
 }
 
 export function createSupplier(

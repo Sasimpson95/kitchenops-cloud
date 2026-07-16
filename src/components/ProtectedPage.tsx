@@ -23,6 +23,10 @@ import {
   setCurrentUser,
 } from "@/lib/currentUser";
 
+import {
+  hydrateCloudCatalog,
+} from "@/lib/cloud/catalogSync";
+
 type ProtectedPageProps = {
   children: React.ReactNode;
 };
@@ -60,6 +64,8 @@ export default function ProtectedPage({
         // Compatibility bridge while operational modules are migrated.
         setCurrentUser(session.user);
         setUser(session.user);
+
+        await hydrateCloudCatalog();
       } catch {
         if (!cancelled) {
           router.replace("/login");
