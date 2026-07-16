@@ -11,18 +11,24 @@ import Link from "next/link";
 
 import {
   ArrowLeft,
+  Archive,
   CheckCircle2,
+  Edit3,
+  Loader2,
   Plus,
-  RefreshCw,
+  RotateCcw,
+  Save,
   Tags,
+  X,
 } from "lucide-react";
 
 import ProtectedPage from "@/components/ProtectedPage";
 
 import {
+  createProductCategory,
   loadProductOptions,
+  updateProductCategory,
   type ProductCategoryOption,
-  type ProductType,
   type ProductUnitOption,
   type UnitKind,
 } from "@/lib/productOptions";
@@ -30,7 +36,7 @@ import {
 const inputClass =
   "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-green-800";
 
-async function send(
+async function sendUnit(
   method: "POST" | "PATCH",
   body: object
 ) {
@@ -51,7 +57,8 @@ async function send(
 
   if (!response.ok) {
     throw new Error(
-      data.error ?? "The change could not be saved."
+      data.error ??
+        "The change could not be saved."
     );
   }
 }
@@ -66,8 +73,11 @@ export default function ProductOptionsPage() {
   const [categoryName, setCategoryName] =
     useState("");
 
-  const [productType, setProductType] =
-    useState<ProductType>("ingredient");
+  const [editingCategoryId, setEditingCategoryId] =
+    useState<string | null>(null);
+
+  const [editingCategoryName, setEditingCategoryName] =
+    useState("");
 
   const [unitName, setUnitName] =
     useState("");
@@ -129,11 +139,9 @@ export default function ProductOptionsPage() {
     setMessage("");
 
     try {
-      await send("POST", {
-        optionType: "category",
-        name: categoryName,
-        productType,
-      });
+      await createProductCategory(
+        categoryName
+      );
 
       setCategoryName("");
       setMessage("Category added.");
@@ -143,6 +151,73 @@ export default function ProductOptionsPage() {
         caughtError instanceof Error
           ? caughtError.message
           : "Category could not be added."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function saveCategoryName(
+    category: ProductCategoryOption
+  ) {
+    if (
+      !editingCategoryName.trim() ||
+      saving
+    ) {
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    setMessage("");
+
+    try {
+      await updateProductCategory({
+        id: category.id,
+        name:
+          editingCategoryName,
+      });
+
+      setEditingCategoryId(null);
+      setEditingCategoryName("");
+      setMessage("Category renamed.");
+      await refresh();
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Category could not be renamed."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function toggleCategory(
+    category: ProductCategoryOption
+  ) {
+    setSaving(true);
+    setError("");
+    setMessage("");
+
+    try {
+      await updateProductCategory({
+        id: category.id,
+        active: !category.active,
+      });
+
+      setMessage(
+        category.active
+          ? "Category archived."
+          : "Category restored."
+      );
+
+      await refresh();
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Category could not be updated."
       );
     } finally {
       setSaving(false);
@@ -167,7 +242,7 @@ export default function ProductOptionsPage() {
     setMessage("");
 
     try {
-      await send("POST", {
+      await sendUnit("POST", {
         optionType: "unit",
         name: unitName,
         symbol: unitSymbol,
@@ -189,28 +264,36 @@ export default function ProductOptionsPage() {
     }
   }
 
-  async function toggleCategory(
-    category: ProductCategoryOption
-  ) {
-    await send("PATCH", {
-      optionType: "category",
-      id: category.id,
-      active: !category.active,
-    });
-
-    await refresh();
-  }
-
   async function toggleUnit(
     unit: ProductUnitOption
   ) {
-    await send("PATCH", {
-      optionType: "unit",
-      id: unit.id,
-      active: !unit.active,
-    });
+    setSaving(true);
+    setError("");
+    setMessage("");
 
-    await refresh();
+    try {
+      await sendUnit("PATCH", {
+        optionType: "unit",
+        id: unit.id,
+        active: !unit.active,
+      });
+
+      setMessage(
+        unit.active
+          ? "Unit archived."
+          : "Unit restored."
+      );
+
+      await refresh();
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Unit could not be updated."
+      );
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -232,7 +315,7 @@ export default function ProductOptionsPage() {
 
             <div>
               <p className="font-semibold text-green-800">
-                Product Foundation
+                Product Setup
               </p>
 
               <h1 className="mt-1 text-4xl font-bold text-gray-950">
@@ -240,7 +323,7 @@ export default function ProductOptionsPage() {
               </h1>
 
               <p className="mt-2 text-gray-600">
-                Standardise product setup across every site in this business.
+                Create the category structure that suits this business. KitchenOps does not force preset categories.
               </p>
             </div>
           </div>
@@ -264,39 +347,29 @@ export default function ProductOptionsPage() {
                 Categories
               </h2>
 
+              <p className="mt-2 text-sm leading-6 text-gray-500">
+                Examples could be Dairy, Frozen, Dry Store or Coffee—but the list is entirely yours.
+              </p>
+
               <form
                 onSubmit={addCategory}
-                className="mt-5 grid gap-3 sm:grid-cols-[1fr_190px_auto]"
+                className="mt-5 flex flex-col gap-3 sm:flex-row"
               >
                 <input
                   value={categoryName}
                   onChange={(event) =>
-                    setCategoryName(event.target.value)
+                    setCategoryName(
+                      event.target.value
+                    )
                   }
                   placeholder="Category name"
                   className={inputClass}
                 />
 
-                <select
-                  value={productType}
-                  onChange={(event) =>
-                    setProductType(
-                      event.target.value as ProductType
-                    )
-                  }
-                  className={inputClass}
-                >
-                  <option value="ingredient">Ingredient</option>
-                  <option value="packaging">Packaging</option>
-                  <option value="retail">Retail</option>
-                  <option value="cleaning">Cleaning</option>
-                  <option value="consumable">Consumable</option>
-                </select>
-
                 <button
                   type="submit"
                   disabled={saving}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-800 px-4 py-3 font-semibold text-white disabled:opacity-50"
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-green-800 px-4 py-3 font-semibold text-white disabled:opacity-50"
                 >
                   <Plus size={18} />
                   Add
@@ -304,33 +377,140 @@ export default function ProductOptionsPage() {
               </form>
 
               <div className="mt-5 space-y-3">
-                {categories.map((category) => (
-                  <div
-                    key={category.id}
-                    className="flex items-center justify-between gap-4 rounded-2xl bg-slate-50 p-4"
-                  >
-                    <div>
-                      <p className="font-bold text-gray-950">
-                        {category.name}
-                      </p>
-                      <p className="mt-1 text-xs capitalize text-gray-500">
-                        {category.product_type}
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => void toggleCategory(category)}
-                      className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                        category.active
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-200 text-gray-700"
-                      }`}
-                    >
-                      {category.active ? "Active" : "Archived"}
-                    </button>
+                {loading ? (
+                  <div className="flex items-center justify-center gap-3 rounded-2xl bg-slate-50 p-8 text-gray-600">
+                    <Loader2
+                      size={20}
+                      className="animate-spin"
+                    />
+                    Loading categories...
                   </div>
-                ))}
+                ) : categories.length === 0 ? (
+                  <div className="rounded-2xl bg-slate-50 p-8 text-center">
+                    <p className="font-semibold text-gray-700">
+                      No categories yet
+                    </p>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Add the first category above.
+                    </p>
+                  </div>
+                ) : (
+                  categories.map(
+                    (category) => {
+                      const editing =
+                        editingCategoryId ===
+                        category.id;
+
+                      return (
+                        <article
+                          key={category.id}
+                          className="rounded-2xl bg-slate-50 p-4"
+                        >
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="min-w-0 flex-1">
+                              {editing ? (
+                                <input
+                                  value={editingCategoryName}
+                                  onChange={(event) =>
+                                    setEditingCategoryName(
+                                      event.target.value
+                                    )
+                                  }
+                                  className={inputClass}
+                                  autoFocus
+                                />
+                              ) : (
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="font-bold text-gray-950">
+                                    {category.name}
+                                  </p>
+
+                                  {!category.active && (
+                                    <span className="rounded-full bg-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-700">
+                                      Archived
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                              {editing ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      void saveCategoryName(
+                                        category
+                                      )
+                                    }
+                                    className="inline-flex items-center gap-2 rounded-xl bg-green-800 px-4 py-2 text-sm font-semibold text-white"
+                                  >
+                                    <Save size={16} />
+                                    Save
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingCategoryId(null);
+                                      setEditingCategoryName("");
+                                    }}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700"
+                                  >
+                                    <X size={16} />
+                                    Cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingCategoryId(
+                                        category.id
+                                      );
+                                      setEditingCategoryName(
+                                        category.name
+                                      );
+                                    }}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-white"
+                                  >
+                                    <Edit3 size={16} />
+                                    Rename
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      void toggleCategory(
+                                        category
+                                      )
+                                    }
+                                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold ${
+                                      category.active
+                                        ? "border border-red-200 text-red-700 hover:bg-red-50"
+                                        : "bg-green-800 text-white hover:bg-green-900"
+                                    }`}
+                                  >
+                                    {category.active ? (
+                                      <Archive size={16} />
+                                    ) : (
+                                      <RotateCcw size={16} />
+                                    )}
+                                    {category.active
+                                      ? "Archive"
+                                      : "Restore"}
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    }
+                  )
+                )}
               </div>
             </section>
 
@@ -339,6 +519,10 @@ export default function ProductOptionsPage() {
                 Units
               </h2>
 
+              <p className="mt-2 text-sm leading-6 text-gray-500">
+                Standard units are added automatically. Add extra business-specific units when required.
+              </p>
+
               <form
                 onSubmit={addUnit}
                 className="mt-5 grid gap-3 sm:grid-cols-2"
@@ -346,7 +530,9 @@ export default function ProductOptionsPage() {
                 <input
                   value={unitName}
                   onChange={(event) =>
-                    setUnitName(event.target.value)
+                    setUnitName(
+                      event.target.value
+                    )
                   }
                   placeholder="Unit name"
                   className={inputClass}
@@ -355,9 +541,11 @@ export default function ProductOptionsPage() {
                 <input
                   value={unitSymbol}
                   onChange={(event) =>
-                    setUnitSymbol(event.target.value)
+                    setUnitSymbol(
+                      event.target.value
+                    )
                   }
-                  placeholder="Symbol, e.g. kg"
+                  placeholder="Symbol, e.g. doz"
                   className={inputClass}
                 />
 
@@ -396,38 +584,32 @@ export default function ProductOptionsPage() {
                     <div>
                       <p className="font-bold text-gray-950">
                         {unit.name}
-                        <span className="ml-2 font-normal text-gray-500">
-                          ({unit.symbol})
-                        </span>
                       </p>
-                      <p className="mt-1 text-xs capitalize text-gray-500">
-                        {unit.unit_kind}
+                      <p className="mt-1 text-xs text-gray-500">
+                        {unit.symbol} • {unit.unit_kind}
                       </p>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => void toggleUnit(unit)}
-                      className={`rounded-full px-4 py-2 text-sm font-semibold ${
+                      onClick={() =>
+                        void toggleUnit(unit)
+                      }
+                      className={`rounded-xl px-4 py-2 text-sm font-semibold ${
                         unit.active
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-200 text-gray-700"
+                          ? "border border-red-200 text-red-700 hover:bg-red-50"
+                          : "bg-green-800 text-white hover:bg-green-900"
                       }`}
                     >
-                      {unit.active ? "Active" : "Archived"}
+                      {unit.active
+                        ? "Archive"
+                        : "Restore"}
                     </button>
                   </div>
                 ))}
               </div>
             </section>
           </div>
-
-          {loading && (
-            <div className="mt-6 flex items-center justify-center gap-2 rounded-2xl bg-white p-5 text-gray-600 shadow-sm">
-              <RefreshCw size={18} className="animate-spin" />
-              Loading product options...
-            </div>
-          )}
         </div>
       </main>
     </ProtectedPage>

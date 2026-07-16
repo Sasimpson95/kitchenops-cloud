@@ -15,7 +15,6 @@ export type UnitKind =
 export type ProductCategoryOption = {
   id: string;
   name: string;
-  product_type: ProductType;
   active: boolean;
   sort_order: number;
 };
@@ -34,6 +33,20 @@ export type ProductOptionsResponse = {
   units: ProductUnitOption[];
 };
 
+async function readJson<T>(
+  response: Response
+): Promise<T> {
+  const text = await response.text();
+
+  if (!text) {
+    throw new Error(
+      "KitchenOps received an empty response."
+    );
+  }
+
+  return JSON.parse(text) as T;
+}
+
 export async function loadProductOptions():
   Promise<ProductOptionsResponse> {
   const response = await fetch(
@@ -43,10 +56,11 @@ export async function loadProductOptions():
     }
   );
 
-  const data = await response.json() as
+  const data = await readJson<
     ProductOptionsResponse & {
       error?: string;
-    };
+    }
+  >(response);
 
   if (!response.ok) {
     throw new Error(
@@ -56,4 +70,70 @@ export async function loadProductOptions():
   }
 
   return data;
+}
+
+export async function createProductCategory(
+  name: string
+): Promise<ProductCategoryOption> {
+  const response = await fetch(
+    "/api/cloud/product-options",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        optionType: "category",
+        name,
+      }),
+    }
+  );
+
+  const data = await readJson<{
+    category?: ProductCategoryOption;
+    error?: string;
+  }>(response);
+
+  if (!response.ok || !data.category) {
+    throw new Error(
+      data.error ??
+        "The category could not be created."
+    );
+  }
+
+  return data.category;
+}
+
+export async function updateProductCategory(
+  input: {
+    id: string;
+    name?: string;
+    active?: boolean;
+    sortOrder?: number;
+  }
+): Promise<void> {
+  const response = await fetch(
+    "/api/cloud/product-options",
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        optionType: "category",
+        ...input,
+      }),
+    }
+  );
+
+  const data = await readJson<{
+    error?: string;
+  }>(response);
+
+  if (!response.ok) {
+    throw new Error(
+      data.error ??
+        "The category could not be updated."
+    );
+  }
 }

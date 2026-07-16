@@ -8,8 +8,11 @@ import {
 import {
   PackagePlus,
   Save,
+  Settings2,
   X,
 } from "lucide-react";
+
+import CategoryManagerModal from "@/components/products/CategoryManagerModal";
 
 import type {
   CountMethod,
@@ -266,32 +269,34 @@ export default function ProductFormModal({
     setUnits,
   ] = useState<ProductUnitOption[]>([]);
 
+  const [
+    showCategoryManager,
+    setShowCategoryManager,
+  ] = useState(false);
+
+  async function refreshOptions() {
+    try {
+      const options =
+        await loadProductOptions();
+
+      setCategories(
+        options.categories.filter(
+          (item) => item.active
+        )
+      );
+
+      setUnits(
+        options.units.filter(
+          (item) => item.active
+        )
+      );
+    } catch {
+      // Existing values remain usable if cloud options cannot load.
+    }
+  }
+
   useEffect(() => {
-    let active = true;
-
-    loadProductOptions()
-      .then((options) => {
-        if (!active) return;
-
-        setCategories(
-          options.categories.filter(
-            (item) => item.active
-          )
-        );
-
-        setUnits(
-          options.units.filter(
-            (item) => item.active
-          )
-        );
-      })
-      .catch(() => {
-        // The form still works with existing values if options cannot load.
-      });
-
-    return () => {
-      active = false;
-    };
+    void refreshOptions();
   }, []);
 
   const unitCost =
@@ -423,34 +428,56 @@ export default function ProductFormModal({
             </Field>
 
             <Field label="Category">
-              <select
-                value={form.category}
-                onChange={(event) =>
-                  onChange(
-                    "category",
-                    event.target.value
-                  )
-                }
-                className={`${inputClass} bg-white`}
-              >
-                <option value="">Select category</option>
-                {categories.map((category) => (
-                  <option
-                    key={category.id}
-                    value={category.name}
-                  >
-                    {category.name}
-                  </option>
-                ))}
-                {form.category &&
-                  !categories.some(
-                    (item) => item.name === form.category
-                  ) && (
-                    <option value={form.category}>
-                      {form.category}
+              <div className="flex gap-2">
+                <select
+                  value={form.category}
+                  onChange={(event) =>
+                    onChange(
+                      "category",
+                      event.target.value
+                    )
+                  }
+                  className={`${inputClass} min-w-0 bg-white`}
+                >
+                  <option value="">Select category</option>
+                  {categories.map((category) => (
+                    <option
+                      key={category.id}
+                      value={category.name}
+                    >
+                      {category.name}
                     </option>
-                  )}
-              </select>
+                  ))}
+                  {form.category &&
+                    !categories.some(
+                      (item) => item.name === form.category
+                    ) && (
+                      <option value={form.category}>
+                        {form.category}
+                      </option>
+                    )}
+                </select>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowCategoryManager(true)
+                  }
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-green-800 px-4 py-3 font-semibold text-green-800 hover:bg-green-50"
+                  title="Add, rename or archive categories"
+                >
+                  <Settings2 size={18} />
+                  <span className="hidden sm:inline">
+                    Manage
+                  </span>
+                </button>
+              </div>
+
+              {categories.length === 0 && (
+                <p className="mt-2 text-xs text-gray-500">
+                  No categories have been created yet. Press Manage to add one.
+                </p>
+              )}
             </Field>
 
             <Field label="Internal Code">
@@ -949,6 +976,23 @@ export default function ProductFormModal({
           </button>
         </div>
       </div>
+
+      {showCategoryManager && (
+        <CategoryManagerModal
+          selectedCategory={form.category}
+          onSelect={(name) => {
+            onChange("category", name);
+            void refreshOptions();
+          }}
+          onChanged={() =>
+            void refreshOptions()
+          }
+          onClose={() => {
+            setShowCategoryManager(false);
+            void refreshOptions();
+          }}
+        />
+      )}
     </div>
   );
 }

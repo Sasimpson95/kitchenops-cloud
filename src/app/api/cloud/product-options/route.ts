@@ -11,20 +11,6 @@ import {
   createAdminClient,
 } from "@/lib/supabase/admin";
 
-const DEFAULT_CATEGORIES = [
-  ["Dairy & Eggs", "ingredient"],
-  ["Meat", "ingredient"],
-  ["Fish", "ingredient"],
-  ["Fruit", "ingredient"],
-  ["Vegetables", "ingredient"],
-  ["Bakery", "ingredient"],
-  ["Dry Goods", "ingredient"],
-  ["Drinks", "retail"],
-  ["Packaging", "packaging"],
-  ["Cleaning", "cleaning"],
-  ["Consumables", "consumable"],
-] as const;
-
 const DEFAULT_UNITS = [
   ["Each", "each", "each"],
   ["Gram", "g", "weight"],
@@ -50,56 +36,43 @@ function jsonError(
   );
 }
 
-async function ensureDefaults(
+async function ensureDefaultUnits(
   businessId: string
 ) {
   const admin = createAdminClient();
 
-  const [categories, units] =
-    await Promise.all([
-      admin
-        .from("product_categories")
-        .select("id", { count: "exact", head: true })
-        .eq("business_id", businessId),
-      admin
-        .from("product_units")
-        .select("id", { count: "exact", head: true })
-        .eq("business_id", businessId),
-    ]);
+  const units = await admin
+    .from("product_units")
+    .select("id", {
+      count: "exact",
+      head: true,
+    })
+    .eq("business_id", businessId);
 
-  if ((categories.count ?? 0) === 0) {
-    const { error } = await admin
-      .from("product_categories")
-      .insert(
-        DEFAULT_CATEGORIES.map(
-          ([name, productType], index) => ({
-            business_id: businessId,
-            name,
-            product_type: productType,
-            sort_order: index,
-          })
-        )
-      );
-
-    if (error) throw error;
+  if (units.error) {
+    throw units.error;
   }
 
-  if ((units.count ?? 0) === 0) {
-    const { error } = await admin
-      .from("product_units")
-      .insert(
-        DEFAULT_UNITS.map(
-          ([name, symbol, unitKind], index) => ({
-            business_id: businessId,
-            name,
-            symbol,
-            unit_kind: unitKind,
-            sort_order: index,
-          })
-        )
-      );
+  if ((units.count ?? 0) !== 0) {
+    return;
+  }
 
-    if (error) throw error;
+  const { error } = await admin
+    .from("product_units")
+    .insert(
+      DEFAULT_UNITS.map(
+        ([name, symbol, unitKind], index) => ({
+          business_id: businessId,
+          name,
+          symbol,
+          unit_kind: unitKind,
+          sort_order: index,
+        })
+      )
+    );
+
+  if (error) {
+    throw error;
   }
 }
 
@@ -115,7 +88,7 @@ export async function GET() {
       );
     }
 
-    await ensureDefaults(
+    await ensureDefaultUnits(
       context.businessId
     );
 
@@ -125,20 +98,31 @@ export async function GET() {
       await Promise.all([
         admin
           .from("product_categories")
-          .select("id, name, product_type, active, sort_order")
-          .eq("business_id", context.businessId)
+          .select(
+            "id, name, active, sort_order"
+          )
+          .eq(
+            "business_id",
+            context.businessId
+          )
           .order("sort_order")
           .order("name"),
         admin
           .from("product_units")
-          .select("id, name, symbol, unit_kind, active, sort_order")
-          .eq("business_id", context.businessId)
+          .select(
+            "id, name, symbol, unit_kind, active, sort_order"
+          )
+          .eq(
+            "business_id",
+            context.businessId
+          )
           .order("sort_order")
           .order("name"),
       ]);
 
     const firstError =
-      categories.error || units.error;
+      categories.error ||
+      units.error;
 
     if (firstError) {
       return jsonError(
@@ -183,13 +167,15 @@ export async function POST(
       );
     }
 
-    const body = await request.json() as {
-      optionType?: "category" | "unit";
-      name?: string;
-      productType?: string;
-      symbol?: string;
-      unitKind?: string;
-    };
+    const body =
+      await request.json() as {
+        optionType?:
+          | "category"
+          | "unit";
+        name?: string;
+        symbol?: string;
+        unitKind?: string;
+      };
 
     const name = body.name?.trim();
 
@@ -202,17 +188,24 @@ export async function POST(
 
     const admin = createAdminClient();
 
-    if (body.optionType === "category") {
-      const { data, error } = await admin
-        .from("product_categories")
-        .insert({
-          business_id: context.businessId,
-          name,
-          product_type:
-            body.productType ?? "ingredient",
-        })
-        .select("id, name, product_type, active, sort_order")
-        .single();
+    if (
+      body.optionType ===
+      "category"
+    ) {
+      const { data, error } =
+        await admin
+          .from(
+            "product_categories"
+          )
+          .insert({
+            business_id:
+              context.businessId,
+            name,
+          })
+          .select(
+            "id, name, active, sort_order"
+          )
+          .single();
 
       if (error) {
         return jsonError(
@@ -228,7 +221,9 @@ export async function POST(
       });
     }
 
-    if (body.optionType === "unit") {
+    if (
+      body.optionType === "unit"
+    ) {
       const symbol =
         body.symbol?.trim();
 
@@ -239,17 +234,22 @@ export async function POST(
         );
       }
 
-      const { data, error } = await admin
-        .from("product_units")
-        .insert({
-          business_id: context.businessId,
-          name,
-          symbol,
-          unit_kind:
-            body.unitKind ?? "each",
-        })
-        .select("id, name, symbol, unit_kind, active, sort_order")
-        .single();
+      const { data, error } =
+        await admin
+          .from("product_units")
+          .insert({
+            business_id:
+              context.businessId,
+            name,
+            symbol,
+            unit_kind:
+              body.unitKind ??
+              "each",
+          })
+          .select(
+            "id, name, symbol, unit_kind, active, sort_order"
+          )
+          .single();
 
       if (error) {
         return jsonError(
@@ -300,16 +300,18 @@ export async function PATCH(
       );
     }
 
-    const body = await request.json() as {
-      optionType?: "category" | "unit";
-      id?: string;
-      name?: string;
-      active?: boolean;
-      productType?: string;
-      symbol?: string;
-      unitKind?: string;
-      sortOrder?: number;
-    };
+    const body =
+      await request.json() as {
+        optionType?:
+          | "category"
+          | "unit";
+        id?: string;
+        name?: string;
+        active?: boolean;
+        symbol?: string;
+        unitKind?: string;
+        sortOrder?: number;
+      };
 
     if (!body.id) {
       return jsonError(
@@ -320,65 +322,121 @@ export async function PATCH(
 
     const admin = createAdminClient();
 
-    if (body.optionType === "category") {
+    if (
+      body.optionType ===
+      "category"
+    ) {
+      if (
+        body.name !== undefined &&
+        !body.name.trim()
+      ) {
+        return jsonError(
+          "Category name cannot be empty.",
+          400
+        );
+      }
+
       const { error } = await admin
         .from("product_categories")
         .update({
           ...(body.name !== undefined
-            ? { name: body.name.trim() }
+            ? {
+                name:
+                  body.name.trim(),
+              }
             : {}),
           ...(body.active !== undefined
-            ? { active: body.active }
-            : {}),
-          ...(body.productType !== undefined
-            ? { product_type: body.productType }
+            ? {
+                active:
+                  body.active,
+              }
             : {}),
           ...(body.sortOrder !== undefined
-            ? { sort_order: body.sortOrder }
+            ? {
+                sort_order:
+                  body.sortOrder,
+              }
             : {}),
           updated_at:
             new Date().toISOString(),
         })
         .eq("id", body.id)
-        .eq("business_id", context.businessId);
+        .eq(
+          "business_id",
+          context.businessId
+        );
 
       if (error) {
-        return jsonError(error.message, 400);
+        return jsonError(
+          error.code === "23505"
+            ? "That category already exists."
+            : error.message,
+          400
+        );
       }
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({
+        success: true,
+      });
     }
 
-    if (body.optionType === "unit") {
+    if (
+      body.optionType === "unit"
+    ) {
       const { error } = await admin
         .from("product_units")
         .update({
           ...(body.name !== undefined
-            ? { name: body.name.trim() }
+            ? {
+                name:
+                  body.name.trim(),
+              }
             : {}),
           ...(body.symbol !== undefined
-            ? { symbol: body.symbol.trim() }
+            ? {
+                symbol:
+                  body.symbol.trim(),
+              }
             : {}),
           ...(body.active !== undefined
-            ? { active: body.active }
+            ? {
+                active:
+                  body.active,
+              }
             : {}),
           ...(body.unitKind !== undefined
-            ? { unit_kind: body.unitKind }
+            ? {
+                unit_kind:
+                  body.unitKind,
+              }
             : {}),
           ...(body.sortOrder !== undefined
-            ? { sort_order: body.sortOrder }
+            ? {
+                sort_order:
+                  body.sortOrder,
+              }
             : {}),
           updated_at:
             new Date().toISOString(),
         })
         .eq("id", body.id)
-        .eq("business_id", context.businessId);
+        .eq(
+          "business_id",
+          context.businessId
+        );
 
       if (error) {
-        return jsonError(error.message, 400);
+        return jsonError(
+          error.code === "23505"
+            ? "That unit already exists."
+            : error.message,
+          400
+        );
       }
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({
+        success: true,
+      });
     }
 
     return jsonError(
