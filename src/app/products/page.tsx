@@ -303,6 +303,10 @@ function ProductsContent() {
             [
               product.name,
               product.category,
+              product.productType ?? "",
+              product.internalCode ?? "",
+              product.posCode ?? "",
+              product.barcode ?? "",
               product.supplierName,
               product.supplierCode,
               product.storageArea,
@@ -750,6 +754,9 @@ function ProductsContent() {
 
                           <p className="mt-1 text-sm text-gray-500">
                             {product.category}
+                            {product.productType
+                              ? ` • ${product.productType}`
+                              : ""}
                           </p>
                         </div>
 

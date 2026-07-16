@@ -10,6 +10,17 @@ export type Product = {
   name: string;
   category: string;
 
+  productType?:
+    | "ingredient"
+    | "packaging"
+    | "retail"
+    | "cleaning"
+    | "consumable";
+
+  internalCode?: string;
+  posCode?: string;
+  barcode?: string;
+
   supplierId: number;
   supplierName: string;
   supplierCode: string;

@@ -1,6 +1,11 @@
 "use client";
 
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
   PackagePlus,
   Save,
   X,
@@ -15,9 +20,21 @@ import type {
   Supplier,
 } from "@/data/suppliers";
 
+import {
+  loadProductOptions,
+  type ProductCategoryOption,
+  type ProductType,
+  type ProductUnitOption,
+} from "@/lib/productOptions";
+
 export type ProductFormState = {
   name: string;
   category: string;
+
+  productType: ProductType;
+  internalCode: string;
+  posCode: string;
+  barcode: string;
 
   supplierId: number;
   supplierCode: string;
@@ -48,6 +65,11 @@ export type ProductFormState = {
 export const EMPTY_PRODUCT_FORM: ProductFormState = {
   name: "",
   category: "",
+
+  productType: "ingredient",
+  internalCode: "",
+  posCode: "",
+  barcode: "",
 
   supplierId: 0,
   supplierCode: "",
@@ -81,6 +103,16 @@ export function productToForm(
   return {
     name: product.name,
     category: product.category,
+
+    productType:
+      product.productType ??
+      "ingredient",
+    internalCode:
+      product.internalCode ?? "",
+    posCode:
+      product.posCode ?? "",
+    barcode:
+      product.barcode ?? "",
 
     supplierId:
       product.supplierId,
@@ -224,6 +256,44 @@ export default function ProductFormModal({
   onSave,
   onClose,
 }: ProductFormModalProps) {
+  const [
+    categories,
+    setCategories,
+  ] = useState<ProductCategoryOption[]>([]);
+
+  const [
+    units,
+    setUnits,
+  ] = useState<ProductUnitOption[]>([]);
+
+  useEffect(() => {
+    let active = true;
+
+    loadProductOptions()
+      .then((options) => {
+        if (!active) return;
+
+        setCategories(
+          options.categories.filter(
+            (item) => item.active
+          )
+        );
+
+        setUnits(
+          options.units.filter(
+            (item) => item.active
+          )
+        );
+      })
+      .catch(() => {
+        // The form still works with existing values if options cannot load.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const unitCost =
     form.purchaseQuantity > 0
       ? form.price /
@@ -333,8 +403,27 @@ export default function ProductFormModal({
               />
             </Field>
 
+            <Field label="Product Type">
+              <select
+                value={form.productType}
+                onChange={(event) =>
+                  onChange(
+                    "productType",
+                    event.target.value as ProductType
+                  )
+                }
+                className={`${inputClass} bg-white`}
+              >
+                <option value="ingredient">Ingredient</option>
+                <option value="packaging">Packaging</option>
+                <option value="retail">Retail</option>
+                <option value="cleaning">Cleaning</option>
+                <option value="consumable">Consumable</option>
+              </select>
+            </Field>
+
             <Field label="Category">
-              <input
+              <select
                 value={form.category}
                 onChange={(event) =>
                   onChange(
@@ -342,7 +431,67 @@ export default function ProductFormModal({
                     event.target.value
                   )
                 }
-                placeholder="Example: Dairy & Eggs"
+                className={`${inputClass} bg-white`}
+              >
+                <option value="">Select category</option>
+                {categories.map((category) => (
+                  <option
+                    key={category.id}
+                    value={category.name}
+                  >
+                    {category.name}
+                  </option>
+                ))}
+                {form.category &&
+                  !categories.some(
+                    (item) => item.name === form.category
+                  ) && (
+                    <option value={form.category}>
+                      {form.category}
+                    </option>
+                  )}
+              </select>
+            </Field>
+
+            <Field label="Internal Code">
+              <input
+                value={form.internalCode}
+                onChange={(event) =>
+                  onChange(
+                    "internalCode",
+                    event.target.value
+                  )
+                }
+                placeholder="Optional internal reference"
+                className={inputClass}
+              />
+            </Field>
+
+            <Field label="POS / Sales Code">
+              <input
+                value={form.posCode}
+                onChange={(event) =>
+                  onChange(
+                    "posCode",
+                    event.target.value
+                  )
+                }
+                placeholder="Optional"
+                className={inputClass}
+              />
+            </Field>
+
+            <Field label="Barcode">
+              <input
+                value={form.barcode}
+                onChange={(event) =>
+                  onChange(
+                    "barcode",
+                    event.target.value
+                  )
+                }
+                placeholder="Optional"
+                inputMode="numeric"
                 className={inputClass}
               />
             </Field>
@@ -439,7 +588,7 @@ export default function ProductFormModal({
 
           <Section title="Purchasing">
             <Field label="Purchase Unit">
-              <input
+              <select
                 value={form.orderUnit}
                 onChange={(event) =>
                   onChange(
@@ -447,9 +596,19 @@ export default function ProductFormModal({
                     event.target.value
                   )
                 }
-                placeholder="Case, Bag, Bottle or Tray"
-                className={inputClass}
-              />
+                className={`${inputClass} bg-white`}
+              >
+                <option value="">Select purchase unit</option>
+                {units.map((unit) => (
+                  <option key={unit.id} value={unit.name}>
+                    {unit.name} ({unit.symbol})
+                  </option>
+                ))}
+                {form.orderUnit &&
+                  !units.some((unit) => unit.name === form.orderUnit) && (
+                    <option value={form.orderUnit}>{form.orderUnit}</option>
+                  )}
+              </select>
             </Field>
 
             <Field label="Quantity in Purchase Unit">
@@ -555,19 +714,27 @@ export default function ProductFormModal({
 
           <Section title="Inventory">
             <Field label="Inventory Unit">
-              <input
-                value={
-                  form.inventoryUnit
-                }
+              <select
+                value={form.inventoryUnit}
                 onChange={(event) =>
                   onChange(
                     "inventoryUnit",
                     event.target.value
                   )
                 }
-                placeholder="Each, Kg, Litre or Portion"
-                className={inputClass}
-              />
+                className={`${inputClass} bg-white`}
+              >
+                <option value="">Select inventory unit</option>
+                {units.map((unit) => (
+                  <option key={unit.id} value={unit.name}>
+                    {unit.name} ({unit.symbol})
+                  </option>
+                ))}
+                {form.inventoryUnit &&
+                  !units.some((unit) => unit.name === form.inventoryUnit) && (
+                    <option value={form.inventoryUnit}>{form.inventoryUnit}</option>
+                  )}
+              </select>
             </Field>
 
             <Field label="Count Method">

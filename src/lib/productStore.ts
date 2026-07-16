@@ -20,6 +20,17 @@ export type CreateProductInput = {
   name: string;
   category: string;
 
+  productType:
+    | "ingredient"
+    | "packaging"
+    | "retail"
+    | "cleaning"
+    | "consumable";
+
+  internalCode: string;
+  posCode: string;
+  barcode: string;
+
   supplierId: number;
   supplierName: string;
   supplierCode: string;
@@ -241,6 +252,22 @@ function normaliseProduct(
     category:
       product.category?.trim() ||
       "Uncategorised",
+
+    productType:
+      product.productType ||
+      "ingredient",
+
+    internalCode:
+      product.internalCode?.trim() ||
+      "",
+
+    posCode:
+      product.posCode?.trim() ||
+      "",
+
+    barcode:
+      product.barcode?.trim() ||
+      "",
 
     supplierId,
     supplierName,

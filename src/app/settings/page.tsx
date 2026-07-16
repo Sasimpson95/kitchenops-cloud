@@ -8,6 +8,7 @@ import {
   FileClock,
   PlugZap,
   Settings2,
+  Tags,
   Store,
   UsersRound,
 } from "lucide-react";
@@ -15,6 +16,13 @@ import {
 import ProtectedPage from "@/components/ProtectedPage";
 
 const sections = [
+  {
+    title: "Product Setup",
+    description:
+      "Manage product categories, types and standard units.",
+    href: "/settings/product-options",
+    icon: Tags,
+  },
   {
     title: "Business",
     description:
