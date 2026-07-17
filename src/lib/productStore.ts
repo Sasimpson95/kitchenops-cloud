@@ -82,7 +82,7 @@ function emitProductsChanged(): void {
 }
 
 function initialiseProducts(): Product[] {
-  const products = cloneStarterProducts();
+  const products: Product[] = [];
 
   if (typeof window !== "undefined") {
     window.localStorage.setItem(

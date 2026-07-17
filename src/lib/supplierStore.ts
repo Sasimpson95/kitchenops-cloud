@@ -101,15 +101,12 @@ function normaliseSupplier(
 }
 
 function initialiseSuppliers(): Supplier[] {
-  const initialSuppliers =
-    cloneStarterSuppliers();
+  const initialSuppliers: Supplier[] = [];
 
   if (typeof window !== "undefined") {
     window.localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify(
-        initialSuppliers
-      )
+      JSON.stringify(initialSuppliers)
     );
   }
 

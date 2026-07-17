@@ -128,9 +128,9 @@ export function getStorageAreas(): StorageArea[] {
   const saved = window.localStorage.getItem(STORAGE_KEY);
 
   if (!saved) {
-    const starter = createStarterAreas();
-    save(starter);
-    return starter;
+    const emptyAreas: StorageArea[] = [];
+    save(emptyAreas);
+    return emptyAreas;
   }
 
   try {

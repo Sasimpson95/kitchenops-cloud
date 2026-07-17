@@ -28,6 +28,7 @@ import {
 } from "react";
 
 import ProtectedPage from "@/components/ProtectedPage";
+import { createClient } from "@/lib/supabase/client";
 
 import type {
   User,
@@ -90,18 +91,6 @@ import {
 import {
   getWasteRecords,
 } from "@/lib/wasteStore";
-
-const SITE_NAMES = [
-  "Beeston",
-  "City",
-  "Sherwood",
-  "Bakery",
-];
-
-const SITE_OPTIONS = [
-  "All Sites",
-  ...SITE_NAMES,
-];
 
 function getSiteId(
   siteName: string
@@ -1164,6 +1153,11 @@ export default function DashboardPage() {
   );
 
   const [
+    businessSites,
+    setBusinessSites,
+  ] = useState<string[]>([]);
+
+  const [
     version,
     setVersion,
   ] = useState(0);
@@ -1187,6 +1181,43 @@ export default function DashboardPage() {
         : user.site
     );
   }, [router]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadBusinessSites() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data: membership } = await supabase
+        .from("business_memberships")
+        .select("business_id")
+        .eq("auth_user_id", user.id)
+        .eq("active", true)
+        .maybeSingle();
+
+      if (!membership) return;
+
+      const { data: sites } = await supabase
+        .from("sites")
+        .select("name")
+        .eq("business_id", membership.business_id)
+        .eq("active", true)
+        .order("name");
+
+      if (!cancelled) {
+        setBusinessSites((sites ?? []).map((site) => site.name));
+      }
+    }
+
+    void loadBusinessSites();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const refresh = () =>
@@ -1223,7 +1254,7 @@ export default function DashboardPage() {
       getProducts();
 
     const siteOperations =
-      SITE_NAMES.map(
+      businessSites.map(
         (siteName) => ({
           siteName,
 
@@ -1261,7 +1292,7 @@ export default function DashboardPage() {
 
     const stocktakeComparisons:
       SiteStocktakeComparison[] =
-      SITE_NAMES.map(
+      businessSites.map(
         (siteName) => {
           const completed =
             getStocktakes()
@@ -1490,6 +1521,7 @@ export default function DashboardPage() {
   }, [
     currentUser,
     selectedSite,
+    businessSites,
     version,
   ]);
 
@@ -1569,7 +1601,7 @@ export default function DashboardPage() {
                   }
                   className="mt-5 rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
                 >
-                  {SITE_OPTIONS.map(
+                  {["All Sites", ...businessSites].map(
                     (site) => (
                       <option
                         key={site}
