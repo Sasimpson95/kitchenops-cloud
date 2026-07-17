@@ -1,7 +1,6 @@
 import {
   type CountMethod,
   type Product,
-  starterProducts,
 } from "@/data/products";
 
 import {
@@ -63,12 +62,6 @@ export type UpdateProductInput =
 
 function now(): string {
   return new Date().toISOString();
-}
-
-function cloneStarterProducts(): Product[] {
-  return JSON.parse(
-    JSON.stringify(starterProducts)
-  ) as Product[];
 }
 
 function emitProductsChanged(): void {
@@ -491,7 +484,7 @@ function getNextProductId(
 
 export function getProducts(): Product[] {
   if (typeof window === "undefined") {
-    return cloneStarterProducts();
+    return [];
   }
 
   const saved =

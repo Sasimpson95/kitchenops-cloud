@@ -1,6 +1,5 @@
 import {
   type Supplier,
-  starterSuppliers,
 } from "@/data/suppliers";
 
 const STORAGE_KEY =
@@ -173,7 +172,7 @@ function validateSupplierInput(
 
 export function getSuppliers(): Supplier[] {
   if (typeof window === "undefined") {
-    return cloneStarterSuppliers();
+    return [];
   }
 
   const saved =

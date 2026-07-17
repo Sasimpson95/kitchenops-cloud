@@ -11,7 +11,6 @@ export default function CloudOnboardingPage() {
   const router = useRouter();
   const [businessName, setBusinessName] = useState("");
   const [businessCode, setBusinessCode] = useState("");
-  const [siteName, setSiteName] = useState("");
   const [operationsName, setOperationsName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +19,7 @@ export default function CloudOnboardingPage() {
 
   async function createBusiness() {
     if (loading) return;
-    if (!businessName.trim() || !businessCode.trim() || !siteName.trim() || !operationsName.trim() || !email.trim() || password.length < 8) {
+    if (!businessName.trim() || !businessCode.trim() || !operationsName.trim() || !email.trim() || password.length < 8) {
       setError("Complete every field. Password must contain at least 8 characters.");
       return;
     }
@@ -43,7 +42,7 @@ export default function CloudOnboardingPage() {
         business_name: businessName.trim(),
         business_code: businessCode.trim().toUpperCase(),
         operations_name: operationsName.trim(),
-        first_site_name: siteName.trim(),
+        first_site_name: "",
       });
       if (businessError) throw businessError;
 
@@ -61,11 +60,10 @@ export default function CloudOnboardingPage() {
       <section className="w-full max-w-2xl rounded-3xl bg-white p-7 shadow-sm sm:p-9">
         <p className="font-semibold text-violet-800">Fresh installation</p>
         <h1 className="mt-2 text-3xl font-bold text-gray-950">Create your KitchenOps business</h1>
-        <p className="mt-2 text-gray-500">Create the Operations account, business and first site together.</p>
+        <p className="mt-2 text-gray-500">Create the Operations account and business. Sites can be added afterwards from Settings.</p>
         <div className="mt-7 grid gap-5 sm:grid-cols-2">
           <label><span className="text-sm font-semibold text-gray-700">Business Name</span><input value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="The Pudding Pantry" className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800" /></label>
           <label><span className="text-sm font-semibold text-gray-700">Business Code</span><input value={businessCode} onChange={(e) => setBusinessCode(e.target.value.toUpperCase().replace(/\s/g, ""))} placeholder="PUDDING" className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 uppercase outline-none focus:border-violet-800" /></label>
-          <label><span className="text-sm font-semibold text-gray-700">First Site</span><input value={siteName} onChange={(e) => setSiteName(e.target.value)} placeholder="Beeston" className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800" /></label>
           <label><span className="text-sm font-semibold text-gray-700">Your Name</span><input value={operationsName} onChange={(e) => setOperationsName(e.target.value)} placeholder="Stephen" className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800" /></label>
           <label><span className="text-sm font-semibold text-gray-700">Operations Email</span><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800" /></label>
           <label><span className="text-sm font-semibold text-gray-700">Password</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800" /></label>
