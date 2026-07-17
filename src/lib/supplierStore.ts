@@ -1,5 +1,6 @@
 import {
   type Supplier,
+  starterSuppliers,
 } from "@/data/suppliers";
 
 import { scheduleCloudCatalogSave } from "@/lib/cloud/catalogSync";
@@ -25,6 +26,12 @@ export type SupplierInput = {
 
 function now(): string {
   return new Date().toISOString();
+}
+
+function cloneStarterSuppliers(): Supplier[] {
+  return JSON.parse(
+    JSON.stringify(starterSuppliers)
+  ) as Supplier[];
 }
 
 function emitSuppliersChanged(): void {
@@ -165,7 +172,7 @@ function validateSupplierInput(
 
 export function getSuppliers(): Supplier[] {
   if (typeof window === "undefined") {
-    return [];
+    return cloneStarterSuppliers();
   }
 
   const saved =

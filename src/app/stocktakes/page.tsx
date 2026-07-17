@@ -34,6 +34,7 @@ import type {
 import {
   getCurrentUser,
 } from "@/lib/currentUser";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 
 import {
   getActiveProducts,
@@ -59,13 +60,7 @@ import {
   type Stocktake,
 } from "@/lib/stocktakeStore";
 
-const SITE_OPTIONS = [
-  "All Sites",
-  "Beeston",
-  "City",
-  "Sherwood",
-  "Bakery",
-];
+
 
 function getSiteId(
   siteName: string
@@ -78,6 +73,7 @@ function getSiteId(
 
 export default function StocktakesPage() {
   const router = useRouter();
+  const { options: SITE_OPTIONS } = useBusinessSites();
 
   const [
     currentUser,

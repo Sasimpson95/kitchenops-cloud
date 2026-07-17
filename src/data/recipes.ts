@@ -27,62 +27,7 @@ const STORAGE_KEY = "kitchenops-recipes";
 const RECIPES_CHANGED_EVENT =
   "kitchenops-recipes-changed";
 
-export const recipes: Recipe[] = [
-  {
-    name: "Wet Mix",
-    emoji: "🥣",
-    yield: "5 batches",
-    prepTime: "20 minutes",
-    shelfLife: "3 days chilled",
-    allergens: [
-      "Egg",
-      "Milk",
-      "Gluten",
-    ],
-    components: [],
-    ingredients: [
-      {
-        productId: 1,
-        quantity: 100,
-      },
-      {
-        productId: 2,
-        quantity: 15,
-      },
-      {
-        productId: 3,
-        quantity: 10,
-      },
-    ],
-    method: [
-      "Crack eggs into mixing tub.",
-      "Add milk and whisk until combined.",
-      "Add flour gradually and mix until smooth.",
-      "Label, date and store chilled.",
-    ],
-  },
-  {
-    name: "Salted Caramel",
-    emoji: "🍮",
-    yield: "1 batch",
-    prepTime: "25 minutes",
-    shelfLife: "5 days chilled",
-    allergens: ["Milk"],
-    components: [],
-    ingredients: [
-      {
-        productId: 2,
-        quantity: 1,
-      },
-    ],
-    method: [
-      "Melt sugar until amber.",
-      "Slowly add cream while stirring.",
-      "Whisk in butter and salt.",
-      "Cool, label, date and chill.",
-    ],
-  },
-];
+export const recipes: Recipe[] = [];
 
 function cloneStarterRecipes(): Recipe[] {
   return JSON.parse(
@@ -103,8 +48,7 @@ function emitRecipesChanged(): void {
 }
 
 function initialiseRecipes(): Recipe[] {
-  const initialRecipes =
-    cloneStarterRecipes();
+  const initialRecipes: Recipe[] = [];
 
   if (typeof window !== "undefined") {
     window.localStorage.setItem(
@@ -118,7 +62,7 @@ function initialiseRecipes(): Recipe[] {
 
 export function getRecipes(): Recipe[] {
   if (typeof window === "undefined") {
-    return cloneStarterRecipes();
+    return [];
   }
 
   const savedRecipes =

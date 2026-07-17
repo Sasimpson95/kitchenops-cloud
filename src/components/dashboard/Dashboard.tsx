@@ -25,21 +25,18 @@ import {
   findRecipe,
 } from "@/data/recipes";
 
+import { useBusinessSites } from "@/lib/useBusinessSites";
+
 import {
   approvePrepItem,
   getPrepItems,
   subscribeToPrepChanges,
 } from "@/lib/prepStore";
 
-const sites = [
-  "All Sites",
-  "Beeston",
-  "City",
-  "Sherwood",
-  "Bakery",
-];
+
 
 export default function Dashboard() {
+  const { options: sites } = useBusinessSites();
   const [selectedSite, setSelectedSite] =
     useState("All Sites");
 

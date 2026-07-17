@@ -2,8 +2,8 @@ import Card from "@/components/ui/Card";
 import StatusBadge from "@/components/ui/StatusBadge";
 
 const orders = [
-  { supplier: "Brakes", status: "Draft", delivery: "Today" },
-  { supplier: "Pudding Pantry Bakery", status: "Sent", delivery: "Tomorrow" },
+  
+  
   { supplier: "Booker", status: "Sent", delivery: "Friday" },
 ];
 

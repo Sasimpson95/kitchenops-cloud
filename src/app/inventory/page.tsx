@@ -30,6 +30,7 @@ import type {
 import type { User } from "@/config/roles";
 import type { Product } from "@/data/products";
 import { getCurrentUser } from "@/lib/currentUser";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 import {
   getInventoryMovements,
   getProductStock,
@@ -46,7 +47,7 @@ import {
 import { getActiveProducts, subscribeToProductChanges } from "@/lib/productStore";
 
 const BUSINESS_ID = "pudding-pantry";
-const SITE_OPTIONS = ["All Sites", "Beeston", "City", "Sherwood", "Bakery"];
+
 const STATUS_OPTIONS: Array<"All" | InventoryStatus> = [
   "All",
   "Healthy",
@@ -243,6 +244,7 @@ function buildRecords(
 
 export default function InventoryPage() {
   const router = useRouter();
+  const { options: SITE_OPTIONS } = useBusinessSites();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);

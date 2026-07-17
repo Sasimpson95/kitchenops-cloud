@@ -19,8 +19,12 @@ export default function CloudOnboardingPage() {
 
   async function createBusiness() {
     if (loading) return;
-    if (!businessName.trim() || !businessCode.trim() || !operationsName.trim() || !email.trim() || password.length < 8) {
-      setError("Complete every field. Password must contain at least 8 characters.");
+    if (businessName.trim().length < 2) { setError("Business name must contain at least 2 characters."); return; }
+    if (businessCode.trim().length < 3) { setError("Business code must contain at least 3 characters."); return; }
+    if (operationsName.trim().length < 2) { setError("Enter your name."); return; }
+    if (!email.trim()) { setError("Enter your email address."); return; }
+    if (password.length < 8) {
+      setError("Password must contain at least 8 characters.");
       return;
     }
 
@@ -60,10 +64,10 @@ export default function CloudOnboardingPage() {
       <section className="w-full max-w-2xl rounded-3xl bg-white p-7 shadow-sm sm:p-9">
         <p className="font-semibold text-violet-800">Fresh installation</p>
         <h1 className="mt-2 text-3xl font-bold text-gray-950">Create your KitchenOps business</h1>
-        <p className="mt-2 text-gray-500">Create the Operations account and business. Sites can be added afterwards from Settings.</p>
+        <p className="mt-2 text-gray-500">Create the Operations account and an empty business. You can add sites after signing in.</p>
         <div className="mt-7 grid gap-5 sm:grid-cols-2">
           <label><span className="text-sm font-semibold text-gray-700">Business Name</span><input value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="The Pudding Pantry" className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800" /></label>
-          <label><span className="text-sm font-semibold text-gray-700">Business Code</span><input value={businessCode} onChange={(e) => setBusinessCode(e.target.value.toUpperCase().replace(/\s/g, ""))} placeholder="PUDDING" className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 uppercase outline-none focus:border-violet-800" /></label>
+          <label><span className="text-sm font-semibold text-gray-700">Business Code</span><input minLength={3} value={businessCode} onChange={(e) => setBusinessCode(e.target.value.toUpperCase().replace(/\s/g, ""))} placeholder="PUDDING" className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 uppercase outline-none focus:border-violet-800" /><p className="mt-1 text-xs text-gray-500">Minimum 3 characters.</p></label>
           <label><span className="text-sm font-semibold text-gray-700">Your Name</span><input value={operationsName} onChange={(e) => setOperationsName(e.target.value)} placeholder="Stephen" className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800" /></label>
           <label><span className="text-sm font-semibold text-gray-700">Operations Email</span><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800" /></label>
           <label><span className="text-sm font-semibold text-gray-700">Password</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800" /></label>

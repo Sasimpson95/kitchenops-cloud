@@ -77,15 +77,7 @@ type ProductTab =
   | "information"
   | "activity";
 
-const SITE_NAMES: Record<
-  string,
-  string
-> = {
-  beeston: "Beeston",
-  city: "City",
-  sherwood: "Sherwood",
-  bakery: "Bakery",
-};
+const SITE_NAMES: Record<string, string> = {};
 
 function formatMoney(
   value: number,

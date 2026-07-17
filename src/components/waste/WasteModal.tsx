@@ -12,12 +12,11 @@ import {
 import type { User } from "@/config/roles";
 import type { Product } from "@/data/products";
 import { getProductStock } from "@/lib/inventoryStore";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 import {
   createWasteRecord,
   type WasteReason,
 } from "@/lib/wasteStore";
-
-const SITE_OPTIONS = ["Beeston", "City", "Sherwood", "Bakery"];
 
 const WASTE_REASONS: WasteReason[] = [
   "Burnt",
@@ -48,10 +47,11 @@ export default function WasteModal({
   onClose,
   onSaved,
 }: WasteModalProps) {
+  const { siteNames: SITE_OPTIONS } = useBusinessSites();
   const isOperations = currentUser.role === "operations";
 
   const [siteName, setSiteName] = useState(
-    initialSite === "All Sites" ? "Beeston" : initialSite
+    initialSite === "All Sites" ? "" : initialSite
   );
   const [search, setSearch] = useState("");
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
@@ -72,7 +72,7 @@ export default function WasteModal({
   );
 
   const availableStock = selectedProduct
-    ? getProductStock("pudding-pantry", siteId, selectedProduct.id)
+    ? getProductStock("current-business", siteId, selectedProduct.id)
     : 0;
 
   const filteredProducts = useMemo(() => {

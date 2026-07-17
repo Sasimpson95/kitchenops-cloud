@@ -26,6 +26,7 @@ import RecipeModal from "@/components/recipes/RecipeModal";
 import type { User } from "@/config/roles";
 
 import { getCurrentUser } from "@/lib/currentUser";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 
 import {
   type Recipe,
@@ -46,13 +47,7 @@ import {
   updatePrepQuantity,
 } from "@/lib/prepStore";
 
-const SITES = [
-  "All Sites",
-  "Beeston",
-  "City",
-  "Sherwood",
-  "Bakery",
-];
+
 
 function getRecipeTime(
   recipe: Recipe
@@ -65,6 +60,7 @@ function getRecipeTime(
 
 export default function PrepPlannerPage() {
   const router = useRouter();
+  const { options: SITES, siteNames: businessSiteNames } = useBusinessSites();
 
   const [
     currentUser,

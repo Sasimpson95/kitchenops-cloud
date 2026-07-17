@@ -1,3 +1,4 @@
+import { starterProducts } from "@/data/products";
 import { getProducts } from "@/lib/productStore";
 import { scheduleCloudCatalogSave } from "@/lib/cloud/catalogSync";
 

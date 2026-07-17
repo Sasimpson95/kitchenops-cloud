@@ -1,11 +1,6 @@
 import type { CsvRow, CsvValue } from "@/components/reports/types";
 
-export const REPORT_SITES = [
-  { id: "beeston", name: "Beeston" },
-  { id: "city", name: "City" },
-  { id: "sherwood", name: "Sherwood" },
-  { id: "bakery", name: "Bakery" },
-] as const;
+export const REPORT_SITES: Array<{ id: string; name: string }> = [];
 
 export function toDateKey(value: Date): string {
   const year = value.getFullYear();

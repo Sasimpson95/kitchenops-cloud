@@ -1,8 +1,6 @@
 import Card from "@/components/ui/Card";
 
 const activity = [
-  "Brakes delivery received",
-  "Bakery internal order sent",
   "Booker order created",
 ];
 

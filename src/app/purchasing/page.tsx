@@ -37,19 +37,14 @@ import type {
 import {
   getCurrentUser,
 } from "@/lib/currentUser";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 
 import {
   getOrders,
   subscribeToOrderChanges,
 } from "@/lib/orderStore";
 
-const SITES = [
-  { id: "all-sites", name: "All Sites" },
-  { id: "beeston", name: "Beeston" },
-  { id: "city", name: "City" },
-  { id: "sherwood", name: "Sherwood" },
-  { id: "bakery", name: "Bakery" },
-];
+
 
 function getSiteId(
   siteName: string
@@ -61,11 +56,13 @@ function getSiteId(
 }
 
 export default function PurchasingPage() {
+  const { sites: businessSites } = useBusinessSites();
+  const SITES = [{ id: "all-sites", name: "All Sites", active: true }, ...businessSites];
   const [currentUser, setCurrentUser] =
     useState<User | null>(null);
 
   const [selectedSiteId, setSelectedSiteId] =
-    useState("beeston");
+    useState("all-sites");
 
   const [siteError, setSiteError] =
     useState("");

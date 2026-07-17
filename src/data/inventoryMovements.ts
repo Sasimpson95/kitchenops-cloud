@@ -15,62 +15,7 @@ export type InventoryMovement = {
   date: string;
 };
 
-export const inventoryMovements: InventoryMovement[] = [
-  {
-    id: 1,
-    productId: 1,
-    site: "Beeston",
-    type: "opening",
-    quantity: 3960,
-    note: "Opening stock",
-    date: "2026-07-01",
-  },
-  {
-    id: 2,
-    productId: 2,
-    site: "Beeston",
-    type: "opening",
-    quantity: 42,
-    note: "Opening stock",
-    date: "2026-07-01",
-  },
-  {
-    id: 3,
-    productId: 3,
-    site: "Beeston",
-    type: "opening",
-    quantity: 24,
-    note: "Opening stock",
-    date: "2026-07-01",
-  },
-  {
-    id: 4,
-    productId: 1,
-    site: "Beeston",
-    type: "production",
-    quantity: -500,
-    note: "Wet Mix x5",
-    date: "2026-07-07",
-  },
-  {
-    id: 5,
-    productId: 2,
-    site: "Beeston",
-    type: "production",
-    quantity: -75,
-    note: "Wet Mix x5",
-    date: "2026-07-07",
-  },
-  {
-    id: 6,
-    productId: 3,
-    site: "Beeston",
-    type: "production",
-    quantity: -50,
-    note: "Wet Mix x5",
-    date: "2026-07-07",
-  },
-];
+export const inventoryMovements: InventoryMovement[] = [];
 
 export function getStockForProduct(productId: number, site: string) {
   return inventoryMovements

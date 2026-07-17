@@ -16,30 +16,8 @@ export type StorageArea = {
   updatedAt: string;
 };
 
-const STARTER_AREAS: Array<{
-  name: string;
-  description: string;
-}> = [
-  {
-    name: "Walk-in Fridge",
-    description: "Main chilled storage area.",
-  },
-  {
-    name: "Dry Store",
-    description: "Ambient dry goods storage.",
-  },
-  {
-    name: "Freezer",
-    description: "Frozen product storage.",
-  },
-];
-
-const SITES = [
-  { id: "beeston", name: "Beeston" },
-  { id: "city", name: "City" },
-  { id: "sherwood", name: "Sherwood" },
-  { id: "bakery", name: "Bakery" },
-];
+const STARTER_AREAS: Array<{ name: string; description: string }> = [];
+const SITES: Array<{ id: string; name: string }> = [];
 
 function createId(): string {
   if (

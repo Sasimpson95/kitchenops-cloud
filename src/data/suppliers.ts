@@ -20,4 +20,17 @@ export type Supplier = {
 
 export const starterSuppliers: Supplier[] = [];
 
-export const suppliers: Supplier[] = [];
+/*
+ * Compatibility export.
+ *
+ * Existing pages importing:
+ *
+ * import { suppliers } from "@/data/suppliers";
+ *
+ * will continue to compile.
+ *
+ * Updated pages should use getSuppliers()
+ * or getActiveSuppliers() from supplierStore.
+ */
+export const suppliers =
+  starterSuppliers;

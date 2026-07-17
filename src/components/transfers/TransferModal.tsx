@@ -7,7 +7,8 @@ import type { User } from "@/config/roles";
 import type { Product } from "@/data/products";
 
 import { getProductStock } from "@/lib/inventoryStore";
-import { createTransfer, TRANSFER_SITES } from "@/lib/transferStore";
+import { createTransfer, setTransferSites } from "@/lib/transferStore";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 
 type TransferModalProps = {
   currentUser: User;
@@ -32,12 +33,11 @@ export default function TransferModal({
   onClose,
   onCompleted,
 }: TransferModalProps) {
+  const { sites: TRANSFER_SITES } = useBusinessSites();
   const managerSiteId = siteNameToId(currentUser.site);
   const isOperations = currentUser.role === "operations";
 
-  const [fromSiteId, setFromSiteId] = useState(
-    isOperations ? "beeston" : managerSiteId
-  );
+  const [fromSiteId, setFromSiteId] = useState(isOperations ? "" : managerSiteId);
   const [toSiteId, setToSiteId] = useState("");
   const [productId, setProductId] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -47,8 +47,11 @@ export default function TransferModal({
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setToSiteId("");
-  }, [fromSiteId]);
+    setTransferSites(TRANSFER_SITES);
+    if (isOperations && !fromSiteId && TRANSFER_SITES[0]) setFromSiteId(TRANSFER_SITES[0].id);
+  }, [TRANSFER_SITES, fromSiteId, isOperations]);
+
+  useEffect(() => { setToSiteId(""); }, [fromSiteId]);
 
   const selectedProduct = useMemo(
     () => products.find((product) => product.id === productId) ?? null,
@@ -56,7 +59,7 @@ export default function TransferModal({
   );
 
   const availableStock = selectedProduct
-    ? getProductStock("pudding-pantry", fromSiteId, selectedProduct.id)
+    ? getProductStock("current-business", fromSiteId, selectedProduct.id)
     : 0;
 
   const destinationSites = TRANSFER_SITES.filter(

@@ -38,6 +38,7 @@ import type {
 import {
   getCurrentUser,
 } from "@/lib/currentUser";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 
 import {
   archiveStorageArea,
@@ -69,12 +70,7 @@ import {
   type ProductLocationAssignment,
 } from "@/lib/productLocationStore";
 
-const SITES = [
-  { id: "beeston", name: "Beeston" },
-  { id: "city", name: "City" },
-  { id: "sherwood", name: "Sherwood" },
-  { id: "bakery", name: "Bakery" },
-];
+
 
 function getSiteId(
   siteName: string
@@ -474,6 +470,7 @@ function AssignmentRow({
 }
 
 export default function StorageAreasPage() {
+  const { sites: SITES } = useBusinessSites();
   const router =
     useRouter();
 
@@ -537,35 +534,19 @@ export default function StorageAreasPage() {
   );
 
   useEffect(() => {
-    const user =
-      getCurrentUser();
+    const user = getCurrentUser();
 
     if (!user) {
-      router.replace(
-        "/login"
-      );
+      router.replace("/login");
       return;
     }
 
-    if (
-      user.role === "chef"
-    ) {
-      router.replace(
-        "/home"
-      );
+    if (user.role === "chef") {
+      router.replace("/home");
       return;
     }
 
     setCurrentUser(user);
-
-    setSelectedSiteId(
-      user.role ===
-      "operations"
-        ? "beeston"
-        : getSiteId(
-            user.site
-          )
-    );
   }, [router]);
 
   useEffect(() => {
@@ -610,6 +591,23 @@ export default function StorageAreasPage() {
         site.id ===
         selectedSiteId
     ) ?? SITES[0];
+
+  useEffect(() => {
+    if (SITES.length === 0) {
+      if (selectedSiteId) {
+        setSelectedSiteId("");
+      }
+      return;
+    }
+
+    const selectedSiteStillExists = SITES.some(
+      (site) => site.id === selectedSiteId
+    );
+
+    if (!selectedSiteStillExists) {
+      setSelectedSiteId(SITES[0].id);
+    }
+  }, [SITES, selectedSiteId]);
 
   const areas =
     useMemo(
@@ -739,14 +737,42 @@ export default function StorageAreasPage() {
     }
   }
 
-  if (
-    !currentUser ||
-    !selectedSiteId
-  ) {
+  if (!currentUser) {
     return (
       <ProtectedPage>
         <main className="flex min-h-screen items-center justify-center bg-slate-100">
           Loading Storage Areas...
+        </main>
+      </ProtectedPage>
+    );
+  }
+
+  if (SITES.length === 0 || !selectedSite) {
+    return (
+      <ProtectedPage>
+        <main className="flex min-h-screen items-center justify-center bg-slate-100 p-8">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-10 text-center shadow-sm">
+            <MapPin
+              className="mx-auto text-violet-700"
+              size={42}
+            />
+
+            <h1 className="mt-4 text-2xl font-bold text-gray-950">
+              No Sites Yet
+            </h1>
+
+            <p className="mt-3 text-gray-600">
+              Storage areas belong to a site. Create your first site before adding storage areas.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => router.push("/settings/sites")}
+              className="mt-8 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900"
+            >
+              Create First Site
+            </button>
+          </div>
         </main>
       </ProtectedPage>
     );

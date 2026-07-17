@@ -1,6 +1,6 @@
-export const deliveries = [
-  {
-    supplier: "Brakes",
-    expected: "Expected this morning",
-  },
-];
+export type DeliverySummary = {
+  supplier: string;
+  expected: string;
+};
+
+export const deliveries: DeliverySummary[] = [];

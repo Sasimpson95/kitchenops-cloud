@@ -1,23 +1,17 @@
-# KitchenOps True Fresh Start
+# KitchenOps Demo Data Removal – Setup
 
-This build removes the starter product and supplier catalogue from the application and changes onboarding so a new business creates only:
+1. Copy your existing `.env.local` into this project folder.
+2. In Supabase SQL Editor, run `supabase/migrations/009_true_fresh_start.sql`.
+3. In PowerShell, run:
+   - `npm install`
+   - `npm run typecheck`
+   - `npm run dev`
+4. Sign out and sign back in.
+5. For the test business with zero sites, KitchenOps will clear inherited browser demo data automatically.
+6. Add the first site from Settings > Sites.
+7. When local testing passes, deploy with:
+   - `git add .`
+   - `git commit -m "Remove KitchenOps demo data and use business sites"`
+   - `git push`
 
-- the business record
-- the Operations membership
-
-No site, supplier, product, storage area or inventory data is created automatically.
-
-## Important
-
-A business that was already contaminated by an older build will keep those cloud records. Test this release by creating a brand-new business after deploying migration 009, or manually remove the old test business/data in Supabase.
-
-## Install
-
-1. Copy `.env.local` from the current KitchenOps project into this folder.
-2. Run `npm install`.
-3. In Supabase SQL Editor, run `supabase/migrations/009_true_fresh_start.sql`.
-4. Run `npm run typecheck`.
-5. Run `npm run dev`.
-6. Create a brand-new test account/business.
-
-The new Dashboard should have no sites. Add the first site from Settings > Sites.
+Important: The migration does not delete or alter any existing business or existing site. It only changes future business creation so that a new business starts without a site.

@@ -1,7 +1,3 @@
-import {
-  handoverNotes,
-} from "@/data/handovers";
-
 const STORAGE_KEY =
   "kitchenops-site-handovers";
 
@@ -21,12 +17,7 @@ export type SiteHandover = {
   updatedAt: string;
 };
 
-const SITE_NAMES = [
-  "Beeston",
-  "City",
-  "Sherwood",
-  "Bakery",
-];
+const SITE_NAMES: string[] = [];
 
 function createId(): string {
   if (
@@ -55,39 +46,7 @@ function emitChanged(): void {
 }
 
 function createStarterRecords(): SiteHandover[] {
-  const timestamp =
-    new Date().toISOString();
-
-  return SITE_NAMES.flatMap(
-    (siteName) => [
-      {
-        id: createId(),
-        siteName,
-        day: "today" as const,
-
-        /*
-         * The existing KitchenOps handover notes are preserved for
-         * Beeston. Other sites start empty until their own notes are saved.
-         */
-        notes:
-          siteName === "Beeston"
-            ? [...handoverNotes]
-            : [],
-
-        updatedBy: "KitchenOps",
-        updatedAt: timestamp,
-      },
-
-      {
-        id: createId(),
-        siteName,
-        day: "tomorrow" as const,
-        notes: [],
-        updatedBy: "KitchenOps",
-        updatedAt: timestamp,
-      },
-    ]
-  );
+  return [];
 }
 
 function normaliseRecord(

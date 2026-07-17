@@ -25,6 +25,7 @@ import type { User } from "@/config/roles";
 import type { Product } from "@/data/products";
 
 import { getCurrentUser } from "@/lib/currentUser";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 import {
   getActiveProducts,
   subscribeToProductChanges,
@@ -36,15 +37,8 @@ import {
   type WasteRecord,
 } from "@/lib/wasteStore";
 
-const SITE_OPTIONS = [
-  "All Sites",
-  "Beeston",
-  "City",
-  "Sherwood",
-  "Bakery",
-];
 
-const SITE_NAMES = SITE_OPTIONS.filter((site) => site !== "All Sites");
+
 
 const REASON_OPTIONS: Array<"All" | WasteReason> = [
   "All",
@@ -108,6 +102,7 @@ function isSameDate(value: string, dateKey: string): boolean {
 
 export default function WastePage() {
   const router = useRouter();
+  const { options: SITE_OPTIONS, siteNames: SITE_NAMES } = useBusinessSites();
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);

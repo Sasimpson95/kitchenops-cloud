@@ -11,12 +11,11 @@ const STORAGE_KEY = "kitchenops-stock-transfers";
 const TRANSFERS_CHANGED_EVENT = "kitchenops-transfers-changed";
 const DEFAULT_BUSINESS_ID = "pudding-pantry";
 
-export const TRANSFER_SITES = [
-  { id: "beeston", name: "Beeston" },
-  { id: "city", name: "City" },
-  { id: "sherwood", name: "Sherwood" },
-  { id: "bakery", name: "Bakery" },
-] as const;
+export let TRANSFER_SITES: Array<{ id: string; name: string }> = [];
+
+export function setTransferSites(sites: Array<{ id: string; name: string }>): void {
+  TRANSFER_SITES = sites;
+}
 
 export type StockTransfer = {
   id: string;

@@ -59,4 +59,4 @@ export type Product = {
 
 export const starterProducts: Product[] = [];
 
-export const products: Product[] = [];
+export const products = starterProducts;

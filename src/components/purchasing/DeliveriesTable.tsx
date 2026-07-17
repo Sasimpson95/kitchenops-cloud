@@ -1,9 +1,6 @@
 import Card from "@/components/ui/Card";
 
-const deliveries = [
-  { supplier: "Brakes", eta: "08:30", status: "Awaiting" },
-  { supplier: "Pudding Pantry Bakery", eta: "10:00", status: "Awaiting" },
-];
+const deliveries: Array<{ supplier: string; eta: string; status: string }> = [];
 
 export default function DeliveriesTable() {
   return (

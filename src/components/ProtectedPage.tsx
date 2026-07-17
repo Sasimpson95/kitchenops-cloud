@@ -7,6 +7,8 @@ import type { User } from "@/config/roles";
 import { getCachedCloudSession, getCloudSession } from "@/lib/cloudSession";
 import { getCurrentUser, setCurrentUser } from "@/lib/currentUser";
 import { hydrateCloudCatalog } from "@/lib/cloud/catalogSync";
+import { switchBusinessWorkspace } from "@/lib/businessWorkspace";
+import { createClient } from "@/lib/supabase/client";
 
 type ProtectedPageProps = { children: React.ReactNode };
 
@@ -25,9 +27,18 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
           router.replace(session.needsOnboarding ? "/cloud-onboarding" : "/login");
           return;
         }
+        if (session.business?.id) {
+          const supabase = createClient();
+          const { count } = await supabase
+            .from("sites")
+            .select("id", { count: "exact", head: true })
+            .eq("business_id", session.business.id)
+            .eq("active", true);
+          switchBusinessWorkspace(session.business.id, (count ?? 0) === 0);
+        }
         setCurrentUser(session.user);
         setUser(session.user);
-        void hydrateCloudCatalog();
+        await hydrateCloudCatalog();
       } catch {
         if (!cancelled) router.replace("/login");
       }

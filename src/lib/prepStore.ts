@@ -107,7 +107,7 @@ function normalisePrepItem(
 
     site:
       item.site?.trim() ||
-      "Beeston",
+      "",
 
     name: item.name.trim(),
 
