@@ -1,3 +1,4 @@
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import {
   type ProductionDay,
   type ProductionItem,
@@ -528,7 +529,7 @@ function applyApprovedProduction(
     recipe.ingredients.map(
       (ingredient) => ({
         businessId:
-          "pudding-pantry",
+          getActiveBusinessId(),
 
         siteId: getSiteId(
           existingItem.site

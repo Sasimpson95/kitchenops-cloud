@@ -1,4 +1,6 @@
 "use client";
+
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import { useMemo, useState } from "react";
 import { Plus, ReceiptText, Trash2, X } from "lucide-react";
 import { getActiveProducts } from "@/lib/productStore";
@@ -19,7 +21,7 @@ export default function ReceiveInvoiceModal({siteId,siteName,receivedBy,onClose,
   const valid=lines.filter(l=>l.productId>0&&Number(l.purchaseUnits)>0&&Number(l.unitPrice)>=0); if(!valid.length){setError("Add at least one received product.");return;} setSaving(true);setError("");
   const invoiceLines:InvoiceLine[]=valid.map(l=>{const p=products.find(x=>x.id===l.productId)!;const q=Number(l.purchaseUnits);const price=Number(l.unitPrice);return{productId:p.id,productName:p.name,purchaseUnits:q,unitPrice:price,lineTotal:q*price};});
   try{ const response=await fetch("/api/cloud/invoices",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteId,siteName,supplierId:supplier.id,supplierName:supplier.name,invoiceNumber:invoiceNumber.trim(),invoiceDate,total,receivedBy,lines:invoiceLines})}); const data=await response.json() as {id?:string;error?:string}; if(!response.ok||!data.id)throw new Error(data.error??"Invoice could not be received.");
-   invoiceLines.forEach(line=>receiveProductStock({businessId:"pudding-pantry",siteId,productId:line.productId,productName:line.productName,quantity:line.purchaseUnits,referenceId:data.id!,referenceNumber:`Invoice ${invoiceNumber.trim()}`}));
+   invoiceLines.forEach(line=>receiveProductStock({businessId:getActiveBusinessId(),siteId,productId:line.productId,productName:line.productName,quantity:line.purchaseUnits,referenceId:data.id!,referenceNumber:`Invoice ${invoiceNumber.trim()}`}));
    saveReceivedInvoice({id:data.id,siteId,siteName,supplierId:supplier.id,supplierName:supplier.name,invoiceNumber:invoiceNumber.trim(),invoiceDate,lines:invoiceLines,total,receivedBy,createdAt:new Date().toISOString()}); onSaved(); onClose();
   }catch(e){setError(e instanceof Error?e.message:"Invoice could not be received.");setSaving(false);}
  }

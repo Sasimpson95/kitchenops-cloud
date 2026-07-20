@@ -1,3 +1,4 @@
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import type { Product } from "@/data/products";
 
 import {
@@ -23,7 +24,7 @@ const STORAGE_KEY = "kitchenops-stocktakes-v2";
 const STOCKTAKES_CHANGED_EVENT =
   "kitchenops-stocktakes-changed";
 
-const DEFAULT_BUSINESS_ID = "pudding-pantry";
+
 
 export type StocktakeStatus =
   | "In Progress"
@@ -270,7 +271,7 @@ function normaliseStocktake(
       stocktake.stocktakeNumber || "STK-000000",
 
     businessId:
-      stocktake.businessId || DEFAULT_BUSINESS_ID,
+      stocktake.businessId || getActiveBusinessId(),
 
     siteId: stocktake.siteId,
     siteName: stocktake.siteName,
@@ -532,7 +533,7 @@ export function startStocktake(
   input: StartStocktakeInput
 ): Stocktake {
   const businessId =
-    input.businessId || DEFAULT_BUSINESS_ID;
+    input.businessId || getActiveBusinessId();
 
   if (
     !input.siteId.trim() ||

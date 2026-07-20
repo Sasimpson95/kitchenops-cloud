@@ -31,6 +31,7 @@ import {
 } from "next/navigation";
 
 import ProtectedPage from "@/components/ProtectedPage";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 
 import type {
   User,
@@ -216,6 +217,7 @@ function SummaryCard({
 export default function PosIntegrationPage() {
   const router =
     useRouter();
+  const { sites } = useBusinessSites();
 
   const [
     currentUser,
@@ -302,6 +304,28 @@ export default function PosIntegrationPage() {
       unsubscribeCosting();
     };
   }, []);
+
+  useEffect(() => {
+    if (!settings) return;
+
+    const nextMappings = sites.map((site) => {
+      const existing = settings.siteMappings.find(
+        (mapping) => mapping.kitchenOpsSiteId === site.id
+      );
+
+      return {
+        kitchenOpsSiteId: site.id,
+        kitchenOpsSiteName: site.name,
+        externalLocationId: existing?.externalLocationId ?? "",
+        externalLocationName: existing?.externalLocationName ?? "",
+      };
+    });
+
+    const changed = JSON.stringify(nextMappings) !== JSON.stringify(settings.siteMappings);
+    if (changed) {
+      setSettings(savePosIntegrationSettings({ ...settings, siteMappings: nextMappings }));
+    }
+  }, [sites, settings]);
 
   const menuMappings =
     useMemo(
@@ -833,7 +857,7 @@ export default function PosIntegrationPage() {
                             })
                           )
                         }
-                        placeholder="Example: Beeston Store"
+                        placeholder="Example: Main Store"
                         className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-violet-800"
                       />
                     </label>

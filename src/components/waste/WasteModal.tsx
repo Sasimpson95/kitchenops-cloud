@@ -1,5 +1,7 @@
 "use client";
 
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
+
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -230,7 +232,7 @@ export default function WasteModal({
           <div className="mt-4 max-h-72 space-y-3 overflow-y-auto pr-1">
             {filteredProducts.map((product) => {
               const stock = getProductStock(
-                "pudding-pantry",
+                getActiveBusinessId(),
                 siteId,
                 product.id
               );

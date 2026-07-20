@@ -39,6 +39,8 @@ import type {
 import {
   getCurrentUser,
 } from "@/lib/currentUser";
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 
 import {
   getInventoryMovements,
@@ -109,6 +111,7 @@ export default function ProductPage({
   const { id } = use(params);
   const router = useRouter();
   const productId = Number(id);
+  const { sites } = useBusinessSites();
 
   const [
     currentUser,
@@ -236,57 +239,15 @@ export default function ProductPage({
   const allOrders = getOrders();
 
   const allSiteStocks = useMemo(() => {
-    if (!product) {
-      return [];
-    }
+    if (!product) return [];
 
-    const savedSites =
-      Array.from(
-        new Set(
-          getInventoryStock()
-            .filter(
-              (record) =>
-                record.businessId ===
-                  "pudding-pantry" &&
-                record.productId ===
-                  product.id
-            )
-            .map(
-              (record) =>
-                record.siteId
-            )
-        )
-      );
-
-    const standardSites = [
-      "beeston",
-      "city",
-      "sherwood",
-      "bakery",
-    ];
-
-    const siteIds =
-      Array.from(
-        new Set([
-          ...standardSites,
-          ...savedSites,
-        ])
-      );
-
-    return siteIds.map(
-      (siteId) => ({
-        siteId,
-        siteName:
-          SITE_NAMES[siteId] ||
-          siteId,
-        stock: getProductStock(
-          "pudding-pantry",
-          siteId,
-          product.id
-        ),
-      })
-    );
-  }, [product, inventoryVersion]);
+    const businessId = getActiveBusinessId();
+    return sites.map((site) => ({
+      siteId: site.id,
+      siteName: site.name,
+      stock: getProductStock(businessId, site.id, product.id),
+    }));
+  }, [product, inventoryVersion, sites]);
 
   const visibleSiteStocks =
     useMemo(() => {

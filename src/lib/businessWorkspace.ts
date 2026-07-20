@@ -1,4 +1,4 @@
-const ACTIVE_BUSINESS_KEY = "kitchenops-active-business-id";
+export const ACTIVE_BUSINESS_KEY = "kitchenops-active-business-id";
 
 const WORKSPACE_KEYS = [
   "kitchenops-products",
@@ -67,4 +67,10 @@ export function switchBusinessWorkspace(businessId: string, isEmptyBusiness: boo
   saveWorkspace(previousBusinessId);
   restoreWorkspace(businessId);
   window.localStorage.setItem(ACTIVE_BUSINESS_KEY, businessId);
+}
+
+
+export function getActiveBusinessId(): string {
+  if (typeof window === "undefined") return "";
+  return window.localStorage.getItem(ACTIVE_BUSINESS_KEY) ?? "";
 }

@@ -87,25 +87,6 @@ export type PosIntegrationSettings = {
   updatedAt: string;
 };
 
-const SITES = [
-  {
-    id: "beeston",
-    name: "Beeston",
-  },
-  {
-    id: "city",
-    name: "City",
-  },
-  {
-    id: "sherwood",
-    name: "Sherwood",
-  },
-  {
-    id: "bakery",
-    name: "Bakery",
-  },
-];
-
 function now(): string {
   return new Date().toISOString();
 }
@@ -121,22 +102,7 @@ function createDefaultSettings():
     importMode:
       "reporting-only",
 
-    siteMappings:
-      SITES.map(
-        (site) => ({
-          kitchenOpsSiteId:
-            site.id,
-
-          kitchenOpsSiteName:
-            site.name,
-
-          externalLocationId:
-            "",
-
-          externalLocationName:
-            "",
-        })
-      ),
+    siteMappings: [],
 
     apiBaseUrl: "",
     accountId: "",
@@ -189,31 +155,12 @@ function normalise(
       value.importMode ??
       "reporting-only",
 
-    siteMappings:
-      SITES.map((site) => {
-        const saved =
-          savedMappings.find(
-            (mapping) =>
-              mapping.kitchenOpsSiteId ===
-              site.id
-          );
-
-        return {
-          kitchenOpsSiteId:
-            site.id,
-
-          kitchenOpsSiteName:
-            site.name,
-
-          externalLocationId:
-            saved?.externalLocationId?.trim() ??
-            "",
-
-          externalLocationName:
-            saved?.externalLocationName?.trim() ??
-            "",
-        };
-      }),
+    siteMappings: savedMappings.map((mapping) => ({
+      kitchenOpsSiteId: mapping.kitchenOpsSiteId,
+      kitchenOpsSiteName: mapping.kitchenOpsSiteName,
+      externalLocationId: mapping.externalLocationId?.trim() ?? "",
+      externalLocationName: mapping.externalLocationName?.trim() ?? "",
+    })),
 
     apiBaseUrl:
       value.apiBaseUrl?.trim() ??

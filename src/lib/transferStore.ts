@@ -1,5 +1,6 @@
 import type { Product } from "@/data/products";
 import { getCurrentUser } from "@/lib/currentUser";
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import {
   addInventoryMovements,
   getProductStock,
@@ -9,7 +10,7 @@ import { addAuditRecord } from "@/lib/auditStore";
 
 const STORAGE_KEY = "kitchenops-stock-transfers";
 const TRANSFERS_CHANGED_EVENT = "kitchenops-transfers-changed";
-const DEFAULT_BUSINESS_ID = "pudding-pantry";
+
 
 export let TRANSFER_SITES: Array<{ id: string; name: string }> = [];
 
@@ -154,7 +155,7 @@ export function createTransfer(input: CreateTransferInput): StockTransfer {
   const product = getProduct(input.productId);
   const quantity = Number(input.quantity);
   const availableStock = getProductStock(
-    DEFAULT_BUSINESS_ID,
+    getActiveBusinessId(),
     fromSite.id,
     product.id
   );
@@ -177,7 +178,7 @@ export function createTransfer(input: CreateTransferInput): StockTransfer {
   const transfer: StockTransfer = {
     id: transferId,
     transferNumber,
-    businessId: DEFAULT_BUSINESS_ID,
+    businessId: getActiveBusinessId(),
     fromSiteId: fromSite.id,
     fromSiteName: fromSite.name,
     toSiteId: toSite.id,
@@ -196,7 +197,7 @@ export function createTransfer(input: CreateTransferInput): StockTransfer {
 
   addInventoryMovements([
     {
-      businessId: DEFAULT_BUSINESS_ID,
+      businessId: getActiveBusinessId(),
       siteId: fromSite.id,
       productId: product.id,
       productName: product.name,
@@ -206,7 +207,7 @@ export function createTransfer(input: CreateTransferInput): StockTransfer {
       referenceNumber: `${transferNumber} to ${toSite.name}${reasonSuffix}`,
     },
     {
-      businessId: DEFAULT_BUSINESS_ID,
+      businessId: getActiveBusinessId(),
       siteId: toSite.id,
       productId: product.id,
       productName: product.name,

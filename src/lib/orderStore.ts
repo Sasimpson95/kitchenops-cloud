@@ -1,3 +1,4 @@
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import {
   type OrderStatus,
   type OrderTimelineEvent,
@@ -346,7 +347,7 @@ function buildPurchaseOrder(
     orderNumber:
       getNextOrderNumber(currentOrders),
 
-    businessId: "pudding-pantry",
+    businessId: getActiveBusinessId(),
     siteId: input.siteId,
     siteName: input.siteName,
 

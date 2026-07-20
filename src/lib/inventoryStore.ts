@@ -1,22 +1,11 @@
-import { starterProducts } from "@/data/products";
 import { getProducts } from "@/lib/productStore";
 import { scheduleCloudCatalogSave } from "@/lib/cloud/catalogSync";
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 
 const STOCK_STORAGE_KEY = "kitchenops-inventory-stock";
 const MOVEMENT_STORAGE_KEY = "kitchenops-inventory-movements";
-const LEGACY_STOCK_STORAGE_KEY = "kitchenops-legacy-product-stock";
-const STOCK_MIGRATION_KEY = "kitchenops-inventory-stock-migrated-v1";
 const INVENTORY_CHANGED_EVENT = "kitchenops-inventory-changed";
 
-const DEFAULT_BUSINESS_ID = "pudding-pantry";
-const DEFAULT_SITE_ID = "beeston";
-
-/** Starting values from before current stock moved out of Product. */
-const STARTER_STOCK: Record<number, number> = {
-  1: 3960,
-  2: 42,
-  3: 24,
-};
 
 export type InventoryMovementType =
   | "Delivery"
@@ -98,87 +87,9 @@ function readSavedStock(): InventoryStock[] {
   }
 }
 
-function readLegacyStock(): Map<number, number> {
-  const stock = new Map<number, number>(
-    Object.entries(STARTER_STOCK).map(([id, quantity]) => [
-      Number(id),
-      quantity,
-    ])
-  );
-
-  if (typeof window === "undefined") return stock;
-
-  const saved = window.localStorage.getItem(LEGACY_STOCK_STORAGE_KEY);
-
-  if (!saved) return stock;
-
-  try {
-    const parsed: unknown = JSON.parse(saved);
-
-    if (Array.isArray(parsed)) {
-      parsed.forEach((entry) => {
-        if (
-          typeof entry === "object" &&
-          entry !== null &&
-          Number.isFinite((entry as { productId?: unknown }).productId) &&
-          Number.isFinite((entry as { quantity?: unknown }).quantity)
-        ) {
-          stock.set(
-            Number((entry as { productId: number }).productId),
-            Math.max(0, Number((entry as { quantity: number }).quantity))
-          );
-        }
-      });
-    }
-  } catch {
-    // Starter values remain available if old data cannot be read.
-  }
-
-  return stock;
-}
-
-function migrateLegacyStock(existingStock: InventoryStock[]): InventoryStock[] {
-  if (typeof window === "undefined") return existingStock;
-
-  if (window.localStorage.getItem(STOCK_MIGRATION_KEY) === "true") {
-    return existingStock;
-  }
-
-  const legacyStock = readLegacyStock();
-  const timestamp = now();
-  let migratedStock = [...existingStock];
-
-  legacyStock.forEach((quantity, productId) => {
-    const alreadyExists = migratedStock.some(
-      (record) =>
-        record.businessId === DEFAULT_BUSINESS_ID &&
-        record.siteId === DEFAULT_SITE_ID &&
-        record.productId === productId
-    );
-
-    if (!alreadyExists) {
-      migratedStock.push({
-        businessId: DEFAULT_BUSINESS_ID,
-        siteId: DEFAULT_SITE_ID,
-        productId,
-        quantity,
-        updatedAt: timestamp,
-      });
-    }
-  });
-
-  window.localStorage.setItem(
-    STOCK_STORAGE_KEY,
-    JSON.stringify(migratedStock)
-  );
-  window.localStorage.setItem(STOCK_MIGRATION_KEY, "true");
-
-  return migratedStock;
-}
-
 export function getInventoryStock(): InventoryStock[] {
   if (typeof window === "undefined") return [];
-  return migrateLegacyStock(readSavedStock());
+  return readSavedStock();
 }
 
 export function saveInventoryStock(stock: InventoryStock[]): void {
@@ -243,8 +154,8 @@ export function addInventoryMovements(
       return;
     }
 
-    const businessId = movement.businessId ?? DEFAULT_BUSINESS_ID;
-    const siteId = movement.siteId ?? DEFAULT_SITE_ID;
+    const businessId = movement.businessId ?? getActiveBusinessId();
+    const siteId = movement.siteId ?? "";
     const product = products.find((item) => item.id === movement.productId);
     const productName =
       movement.productName ?? product?.name ?? `Product ${movement.productId}`;

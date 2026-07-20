@@ -1,3 +1,4 @@
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import type { Product } from "@/data/products";
 import {
   addInventoryMovements,
@@ -113,7 +114,7 @@ function normaliseWasteRecord(record: Partial<WasteRecord>): WasteRecord | null 
     id: record.id,
     wasteNumber: record.wasteNumber || "WST-000000",
 
-    businessId: record.businessId || "pudding-pantry",
+    businessId: record.businessId || getActiveBusinessId(),
     siteId: record.siteId,
     siteName: record.siteName,
 
@@ -161,7 +162,7 @@ export function getWasteRecords(): WasteRecord[] {
 }
 
 export function createWasteRecord(input: CreateWasteInput): WasteRecord {
-  const businessId = input.businessId || "pudding-pantry";
+  const businessId = input.businessId || getActiveBusinessId();
   const quantity = Number(input.quantity);
 
   if (!input.siteId.trim() || !input.siteName.trim()) {

@@ -30,6 +30,7 @@ import type { Recipe } from "@/data/recipes";
 import type { ProductionItem } from "@/data/production";
 import { calculateRecipeCosting, getRecipeCostingSetting } from "@/lib/recipeCostingStore";
 import type { ReportFiltersState, ReportTab, CsvRow } from "@/components/reports/types";
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 
 import ReportActions from "@/components/reports/ReportActions";
 import ReportKpiCard from "@/components/reports/ReportKpiCard";
@@ -48,7 +49,7 @@ import {
   siteName,
 } from "@/lib/reportUtils";
 
-const BUSINESS_ID = "pudding-pantry";
+
 
 type ReportsContentProps = {
   tab: ReportTab;
@@ -108,7 +109,7 @@ export default function ReportsContent({
   const productMap = new Map(products.map((product) => [product.id, product]));
 
   const visibleStock = stock.filter((record) =>
-    record.businessId === BUSINESS_ID && matchesSite(filters.site, siteName(record.siteId))
+    record.businessId === getActiveBusinessId() && matchesSite(filters.site, siteName(record.siteId))
   );
 
   const inventoryRows = products
@@ -138,7 +139,7 @@ export default function ReportsContent({
     .filter((row) => matchesText(filters.search, [row.product.name, row.product.category, row.product.supplierName, row.site, row.status]));
 
   const filteredMovements = movements
-    .filter((movement) => movement.businessId === BUSINESS_ID)
+    .filter((movement) => movement.businessId === getActiveBusinessId())
     .filter((movement) => matchesSite(filters.site, siteName(movement.siteId)))
     .filter((movement) => isWithinDateRange(movement.createdAt, filters.startDate, filters.endDate))
     .filter((movement) => {

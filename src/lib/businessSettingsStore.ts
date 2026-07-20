@@ -26,7 +26,7 @@ export type BusinessSettings = {
 };
 
 const DEFAULT_SETTINGS: BusinessSettings = {
-  businessId: "pudding-pantry",
+  businessId: "",
   stocktakeFrequency: "weekly",
   weekStartsOn: "Monday",
   updatedAt: "2026-07-01T09:00:00.000Z",

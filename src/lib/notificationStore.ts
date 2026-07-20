@@ -3,7 +3,8 @@ import { getProducts } from "@/lib/productStore";
 import { getPrepItems } from "@/lib/prepStore";
 import { getStocktakes } from "@/lib/stocktakeStore";
 import { getWasteRecords } from "@/lib/wasteStore";
-import { getProductStock } from "@/lib/inventoryStore";
+import { getInventoryStock, getProductStock } from "@/lib/inventoryStore";
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 
 export type NotificationSeverity = "info" | "warning" | "critical";
 
@@ -58,22 +59,28 @@ export function getNotifications(
       });
     });
 
-  const sites =
-    siteId
-      ? [{ id: siteId, name: siteName as string }]
-      : [
-          { id: "beeston", name: "Beeston" },
-          { id: "city", name: "City" },
-          { id: "sherwood", name: "Sherwood" },
-          { id: "bakery", name: "Bakery" },
-        ];
+  const businessId = getActiveBusinessId();
+
+  const knownSites = new Map<string, string>();
+  getOrders().forEach((order) => knownSites.set(order.siteId, order.siteName));
+  getWasteRecords().forEach((record) => knownSites.set(record.siteId, record.siteName));
+  getStocktakes().forEach((stocktake) => knownSites.set(stocktake.siteId, stocktake.siteName));
+  getInventoryStock()
+    .filter((record) => !businessId || record.businessId === businessId)
+    .forEach((record) => {
+      if (!knownSites.has(record.siteId)) knownSites.set(record.siteId, record.siteId);
+    });
+
+  const sites = siteId
+    ? [{ id: siteId, name: siteName as string }]
+    : Array.from(knownSites, ([id, name]) => ({ id, name }));
 
   sites.forEach((site) => {
     getProducts()
       .filter((product) => product.active)
       .forEach((product) => {
         const stock = getProductStock(
-          "pudding-pantry",
+          businessId,
           site.id,
           product.id
         );

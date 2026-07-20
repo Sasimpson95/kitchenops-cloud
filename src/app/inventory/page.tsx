@@ -30,6 +30,7 @@ import type {
 import type { User } from "@/config/roles";
 import type { Product } from "@/data/products";
 import { getCurrentUser } from "@/lib/currentUser";
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import { useBusinessSites } from "@/lib/useBusinessSites";
 import {
   getInventoryMovements,
@@ -46,7 +47,7 @@ import {
 } from "@/lib/inventoryValuation";
 import { getActiveProducts, subscribeToProductChanges } from "@/lib/productStore";
 
-const BUSINESS_ID = "pudding-pantry";
+
 
 const STATUS_OPTIONS: Array<"All" | InventoryStatus> = [
   "All",
@@ -175,7 +176,7 @@ function buildRecords(
 ): InventoryProductRecord[] {
   return products.map((product) => {
     const stock = getProductStock(
-      BUSINESS_ID,
+      getActiveBusinessId(),
       siteId,
       product.id
     );
@@ -184,7 +185,7 @@ function buildRecords(
       .filter(
         (movement) =>
           movement.businessId ===
-            BUSINESS_ID &&
+            getActiveBusinessId() &&
           movement.siteId === siteId &&
           movement.productId ===
             product.id
@@ -391,7 +392,7 @@ export default function InventoryPage() {
   const siteMovements = useMemo(() => {
     if (!selectedSiteId) return [];
     return movements
-      .filter((movement) => movement.businessId === BUSINESS_ID && movement.siteId === selectedSiteId)
+      .filter((movement) => movement.businessId === getActiveBusinessId() && movement.siteId === selectedSiteId)
       .filter((movement) => movementFilter === "All" || movement.movementType === movementFilter)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [movements, selectedSiteId, movementFilter]);
@@ -560,7 +561,7 @@ export default function InventoryPage() {
             movements={movements.filter(
               (movement) =>
                 movement.businessId ===
-                  BUSINESS_ID &&
+                  getActiveBusinessId() &&
                 movement.siteId ===
                   selectedSiteId
             )}

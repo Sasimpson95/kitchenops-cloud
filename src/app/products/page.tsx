@@ -43,6 +43,8 @@ import type {
 import {
   getCurrentUser,
 } from "@/lib/currentUser";
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
+import { useBusinessSites, siteNameToId } from "@/lib/useBusinessSites";
 
 import {
   getProductStock,
@@ -81,6 +83,8 @@ function ProductsContent() {
   const router = useRouter();
   const searchParams =
     useSearchParams();
+
+  const { sites } = useBusinessSites();
 
   const [
     currentUser,
@@ -707,20 +711,19 @@ function ProductsContent() {
             <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {filteredProducts.map(
                 (product) => {
-                  const stock =
-                    getProductStock(
-                      "pudding-pantry",
-                      currentUser.role ===
-                        "operations"
-                        ? "beeston"
-                        : currentUser.site
-                            .toLowerCase()
-                            .replace(
-                              /\s+/g,
-                              "-"
-                            ),
-                      product.id
-                    );
+                  const businessId = getActiveBusinessId();
+                  const relevantSites =
+                    currentUser.role === "operations"
+                      ? sites
+                      : sites.filter((site) =>
+                          site.id === siteNameToId(currentUser.site) ||
+                          site.name === currentUser.site
+                        );
+                  const stock = relevantSites.reduce(
+                    (total, site) =>
+                      total + getProductStock(businessId, site.id, product.id),
+                    0
+                  );
 
                   const unitCost =
                     product.purchaseQuantity >
