@@ -82,6 +82,15 @@ export default function ProductOptionsPage() {
   const [unitName, setUnitName] =
     useState("");
 
+  const [editingUnitId, setEditingUnitId] =
+    useState<string | null>(null);
+
+  const [editingUnitName, setEditingUnitName] =
+    useState("");
+
+  const [editingUnitSymbol, setEditingUnitSymbol] =
+    useState("");
+
   const [unitSymbol, setUnitSymbol] =
     useState("");
 
@@ -258,6 +267,46 @@ export default function ProductOptionsPage() {
         caughtError instanceof Error
           ? caughtError.message
           : "Unit could not be added."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+
+  async function saveUnitName(
+    unit: ProductUnitOption
+  ) {
+    if (
+      !editingUnitName.trim() ||
+      !editingUnitSymbol.trim() ||
+      saving
+    ) {
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    setMessage("");
+
+    try {
+      await sendUnit("PATCH", {
+        optionType: "unit",
+        id: unit.id,
+        name: editingUnitName,
+        symbol: editingUnitSymbol,
+      });
+
+      setEditingUnitId(null);
+      setEditingUnitName("");
+      setEditingUnitSymbol("");
+      setMessage("Unit updated.");
+      await refresh();
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Unit could not be updated."
       );
     } finally {
       setSaving(false);
@@ -576,37 +625,111 @@ export default function ProductOptionsPage() {
               </form>
 
               <div className="mt-5 space-y-3">
-                {units.map((unit) => (
-                  <div
-                    key={unit.id}
-                    className="flex items-center justify-between gap-4 rounded-2xl bg-slate-50 p-4"
-                  >
-                    <div>
-                      <p className="font-bold text-gray-950">
-                        {unit.name}
-                      </p>
-                      <p className="mt-1 text-xs text-gray-500">
-                        {unit.symbol} • {unit.unit_kind}
-                      </p>
-                    </div>
+                {units.map((unit) => {
+                  const editing = editingUnitId === unit.id;
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        void toggleUnit(unit)
-                      }
-                      className={`rounded-xl px-4 py-2 text-sm font-semibold ${
-                        unit.active
-                          ? "border border-red-200 text-red-700 hover:bg-red-50"
-                          : "bg-violet-800 text-white hover:bg-violet-900"
-                      }`}
+                  return (
+                    <div
+                      key={unit.id}
+                      className="rounded-2xl bg-slate-50 p-4"
                     >
-                      {unit.active
-                        ? "Archive"
-                        : "Restore"}
-                    </button>
-                  </div>
-                ))}
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0 flex-1">
+                          {editing ? (
+                            <div className="grid gap-2 sm:grid-cols-2">
+                              <input
+                                value={editingUnitName}
+                                onChange={(event) =>
+                                  setEditingUnitName(event.target.value)
+                                }
+                                className={inputClass}
+                                placeholder="Unit name"
+                                autoFocus
+                              />
+                              <input
+                                value={editingUnitSymbol}
+                                onChange={(event) =>
+                                  setEditingUnitSymbol(event.target.value)
+                                }
+                                className={inputClass}
+                                placeholder="Symbol"
+                              />
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="font-bold text-gray-950">
+                                  {unit.name}
+                                </p>
+                                {!unit.active && (
+                                  <span className="rounded-full bg-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-700">
+                                    Archived
+                                  </span>
+                                )}
+                              </div>
+                              <p className="mt-1 text-xs text-gray-500">
+                                {unit.symbol} • {unit.unit_kind}
+                              </p>
+                            </>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          {editing ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => void saveUnitName(unit)}
+                                className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-4 py-2 text-sm font-semibold text-white"
+                              >
+                                <Save size={16} />
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingUnitId(null);
+                                  setEditingUnitName("");
+                                  setEditingUnitSymbol("");
+                                }}
+                                className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700"
+                              >
+                                <X size={16} />
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingUnitId(unit.id);
+                                  setEditingUnitName(unit.name);
+                                  setEditingUnitSymbol(unit.symbol);
+                                }}
+                                className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-white"
+                              >
+                                <Edit3 size={16} />
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => void toggleUnit(unit)}
+                                className={`rounded-xl px-4 py-2 text-sm font-semibold ${
+                                  unit.active
+                                    ? "border border-red-200 text-red-700 hover:bg-red-50"
+                                    : "bg-violet-800 text-white hover:bg-violet-900"
+                                }`}
+                              >
+                                {unit.active ? "Archive" : "Restore"}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </section>
           </div>

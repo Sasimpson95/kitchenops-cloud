@@ -1,7 +1,12 @@
+export type SupplierType = "external" | "internal";
+
 export type Supplier = {
   id: number;
 
   name: string;
+  supplierType: SupplierType;
+  linkedSiteId: string;
+  linkedSiteName: string;
   contactName: string;
 
   email: string;

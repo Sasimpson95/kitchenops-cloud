@@ -1,5 +1,6 @@
 import {
   type Supplier,
+  type SupplierType,
   starterSuppliers,
 } from "@/data/suppliers";
 
@@ -13,6 +14,9 @@ const SUPPLIERS_CHANGED_EVENT =
 
 export type SupplierInput = {
   name: string;
+  supplierType?: SupplierType;
+  linkedSiteId?: string;
+  linkedSiteName?: string;
   contactName: string;
 
   email: string;
@@ -59,6 +63,17 @@ function normaliseSupplier(
 
     name:
       supplier.name.trim(),
+
+    supplierType:
+      supplier.supplierType === "internal"
+        ? "internal"
+        : "external",
+
+    linkedSiteId:
+      supplier.linkedSiteId?.trim() || "",
+
+    linkedSiteName:
+      supplier.linkedSiteName?.trim() || "",
 
     contactName:
       supplier.contactName?.trim() ||
@@ -137,6 +152,16 @@ function validateSupplierInput(
     );
   }
 
+  if (input.supplierType === "internal") {
+    if (!input.linkedSiteId?.trim()) {
+      throw new Error(
+        "Choose the KitchenOps site that supplies this internal supplier."
+      );
+    }
+
+    return;
+  }
+
   if (!input.contactName.trim()) {
     throw new Error(
       "Enter a contact name."
@@ -149,9 +174,7 @@ function validateSupplierInput(
     );
   }
 
-  if (
-    !input.email.includes("@")
-  ) {
+  if (!input.email.includes("@")) {
     throw new Error(
       "Enter a valid email address."
     );
@@ -286,6 +309,15 @@ export function createSupplier(
 
     name: input.name.trim(),
 
+    supplierType:
+      input.supplierType ?? "external",
+
+    linkedSiteId:
+      input.linkedSiteId?.trim() ?? "",
+
+    linkedSiteName:
+      input.linkedSiteName?.trim() ?? "",
+
     contactName:
       input.contactName.trim(),
 
@@ -358,6 +390,15 @@ export function updateSupplier(
     ...existingSupplier,
 
     name: input.name.trim(),
+
+    supplierType:
+      input.supplierType ?? "external",
+
+    linkedSiteId:
+      input.linkedSiteId?.trim() ?? "",
+
+    linkedSiteName:
+      input.linkedSiteName?.trim() ?? "",
 
     contactName:
       input.contactName.trim(),

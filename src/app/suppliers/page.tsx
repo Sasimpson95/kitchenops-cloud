@@ -318,16 +318,14 @@ export default function SuppliersPage() {
 
             <div className="rounded-3xl bg-blue-50 p-5 shadow-sm">
               <p className="text-sm text-blue-700">
-                Delivery Days Set
+                Internal Kitchens
               </p>
 
               <p className="mt-1 text-3xl font-bold text-blue-900">
                 {
                   activeSuppliers.filter(
                     (supplier) =>
-                      supplier
-                        .deliveryDays
-                        .length > 0
+                      supplier.supplierType === "internal"
                   ).length
                 }
               </p>
@@ -433,10 +431,22 @@ export default function SuppliersPage() {
                           {supplier.name}
                         </h2>
 
-                        <p className="mt-1 text-sm text-gray-500">
-                          {
-                            supplier.contactName
-                          }
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                            supplier.supplierType === "internal"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-slate-100 text-gray-700"
+                          }`}>
+                            {supplier.supplierType === "internal"
+                              ? "Internal Kitchen"
+                              : "External Supplier"}
+                          </span>
+                        </div>
+
+                        <p className="mt-2 text-sm text-gray-500">
+                          {supplier.supplierType === "internal"
+                            ? supplier.linkedSiteName || "KitchenOps site"
+                            : supplier.contactName}
                         </p>
                       </div>
 
@@ -454,25 +464,31 @@ export default function SuppliersPage() {
                     </div>
 
                     <div className="mt-5 space-y-4 rounded-2xl bg-slate-50 p-4 text-sm">
-                      <div>
-                        <p className="text-gray-500">
-                          Email
-                        </p>
-
-                        <p className="font-semibold text-gray-900">
-                          {supplier.email}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-gray-500">
-                          Phone
-                        </p>
-
-                        <p className="font-semibold text-gray-900">
-                          {supplier.phone}
-                        </p>
-                      </div>
+                      {supplier.supplierType === "internal" ? (
+                        <div>
+                          <p className="text-gray-500">
+                            Supplying Site
+                          </p>
+                          <p className="font-semibold text-gray-900">
+                            {supplier.linkedSiteName || "Not set"}
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          <div>
+                            <p className="text-gray-500">Email</p>
+                            <p className="font-semibold text-gray-900">
+                              {supplier.email}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500">Phone</p>
+                            <p className="font-semibold text-gray-900">
+                              {supplier.phone}
+                            </p>
+                          </div>
+                        </>
+                      )}
 
                       <div>
                         <p className="text-gray-500">
