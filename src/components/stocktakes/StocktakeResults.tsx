@@ -8,11 +8,17 @@ import {
 import type {
   Stocktake,
 } from "@/lib/stocktakeStore";
+import { getProductById } from "@/lib/productStore";
+import { getUnitCost } from "@/lib/inventoryValuation";
 
 type StocktakeResultsProps = {
   stocktake: Stocktake;
   onBack: () => void;
 };
+
+function money(value: number): string {
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(value);
+}
 
 function formatNumber(
   value: number
@@ -30,13 +36,22 @@ export default function StocktakeResults({
   onBack,
 }: StocktakeResultsProps) {
   const items = stocktake.items.map(
-    (item) => ({
-      ...item,
+    (item) => {
+      const difference = (item.countedQuantity ?? 0) - item.expectedQuantity;
+      const product = getProductById(item.productId);
+      const unitCost = product ? getUnitCost(product) : 0;
 
-      difference:
-        (item.countedQuantity ?? 0) -
-        item.expectedQuantity,
-    })
+      return {
+        ...item,
+        difference,
+        varianceValue: difference * unitCost,
+      };
+    }
+  );
+
+  const totalVarianceValue = items.reduce(
+    (total, item) => total + item.varianceValue,
+    0
   );
 
   const variances = items.filter(
@@ -76,7 +91,7 @@ export default function StocktakeResults({
           </div>
         </div>
 
-        <div className="mt-7 grid gap-4 sm:grid-cols-3">
+        <div className="mt-7 grid gap-4 sm:grid-cols-4">
           <div className="rounded-2xl bg-slate-50 p-5">
             <p className="text-sm text-gray-500">
               Products Counted
@@ -97,6 +112,13 @@ export default function StocktakeResults({
             </p>
           </div>
 
+          <div className={`rounded-2xl p-5 ${totalVarianceValue < 0 ? "bg-red-50" : totalVarianceValue > 0 ? "bg-emerald-50" : "bg-slate-50"}`}>
+            <p className="text-sm text-gray-600">Total Variance Value</p>
+            <p className={`mt-1 text-3xl font-bold ${totalVarianceValue < 0 ? "text-red-900" : totalVarianceValue > 0 ? "text-emerald-900" : "text-gray-950"}`}>
+              {totalVarianceValue > 0 ? "+" : ""}{money(totalVarianceValue)}
+            </p>
+          </div>
+
           <div className="rounded-2xl bg-violet-50 p-5">
             <p className="text-sm text-violet-700">
               Completed By
@@ -112,7 +134,7 @@ export default function StocktakeResults({
           {items.map((item) => (
             <div
               key={item.id}
-              className="grid gap-4 rounded-2xl bg-slate-50 p-5 md:grid-cols-[1fr_auto_auto_auto] md:items-center"
+              className="grid gap-4 rounded-2xl bg-slate-50 p-5 md:grid-cols-[1fr_auto_auto_auto_auto] md:items-center"
             >
               <div>
                 <p className="font-bold text-gray-950">
@@ -147,6 +169,13 @@ export default function StocktakeResults({
                     item.countedQuantity ?? 0
                   )}{" "}
                   {item.inventoryUnit}
+                </p>
+              </div>
+
+              <div className="text-right">
+                <p className="text-xs text-gray-500">Variance value</p>
+                <p className={`font-bold ${item.varianceValue < 0 ? "text-red-700" : item.varianceValue > 0 ? "text-emerald-700" : "text-gray-600"}`}>
+                  {item.varianceValue > 0 ? "+" : ""}{money(item.varianceValue)}
                 </p>
               </div>
 

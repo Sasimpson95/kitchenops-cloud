@@ -6,6 +6,7 @@ import {
 } from "@/lib/inventoryStore";
 
 import { addAuditRecord } from "@/lib/auditStore";
+import { getUnitCost } from "@/lib/inventoryValuation";
 
 const STORAGE_KEY = "kitchenops-waste-records";
 const WASTE_CHANGED_EVENT = "kitchenops-waste-changed";
@@ -45,6 +46,8 @@ export type WasteRecord = {
    */
   purchasePriceSnapshot: number;
   purchaseUnitSnapshot: string;
+  unitCostSnapshot: number;
+  wasteValue: number;
 };
 
 export type CreateWasteInput = {
@@ -134,6 +137,8 @@ function normaliseWasteRecord(record: Partial<WasteRecord>): WasteRecord | null 
       Number(record.purchasePriceSnapshot) || 0
     ),
     purchaseUnitSnapshot: record.purchaseUnitSnapshot || "Not set",
+    unitCostSnapshot: Math.max(0, Number(record.unitCostSnapshot) || 0),
+    wasteValue: Math.max(0, Number(record.wasteValue) || 0),
   };
 }
 
@@ -217,6 +222,8 @@ export function createWasteRecord(input: CreateWasteInput): WasteRecord {
 
     purchasePriceSnapshot: input.product.price,
     purchaseUnitSnapshot: input.product.orderUnit,
+    unitCostSnapshot: getUnitCost(input.product),
+    wasteValue: quantity * getUnitCost(input.product),
   };
 
   addInventoryMovements([

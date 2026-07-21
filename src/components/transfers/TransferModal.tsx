@@ -7,6 +7,7 @@ import type { User } from "@/config/roles";
 import type { Product } from "@/data/products";
 
 import { getProductStock } from "@/lib/inventoryStore";
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import { createTransfer, setTransferSites } from "@/lib/transferStore";
 import { useBusinessSites } from "@/lib/useBusinessSites";
 
@@ -59,7 +60,7 @@ export default function TransferModal({
   );
 
   const availableStock = selectedProduct
-    ? getProductStock("current-business", fromSiteId, selectedProduct.id)
+    ? getProductStock(getActiveBusinessId(), fromSiteId, selectedProduct.id)
     : 0;
 
   const destinationSites = TRANSFER_SITES.filter(
@@ -104,7 +105,7 @@ export default function TransferModal({
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "The transfer could not be completed."
+          : "The transfer request could not be created."
       );
       setSaving(false);
     }
@@ -123,10 +124,10 @@ export default function TransferModal({
           <div>
             <p className="text-sm font-semibold text-violet-800">Inventory</p>
             <h2 className="mt-1 text-3xl font-bold text-gray-950">
-              Transfer Stock
+              Request Stock Transfer
             </h2>
             <p className="mt-2 text-gray-600">
-              Stock leaves one site and is added to the destination instantly.
+              Create a transfer request. Stock leaves the source when it is dispatched and reaches the destination when it is received.
             </p>
           </div>
 
@@ -311,7 +312,7 @@ export default function TransferModal({
             disabled={saving || !toSiteId || !productId || quantity <= 0}
             className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {saving ? "Transferring..." : "Complete Transfer"}
+            {saving ? "Creating..." : "Request Transfer"}
           </button>
         </div>
       </div>

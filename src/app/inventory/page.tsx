@@ -245,7 +245,7 @@ function buildRecords(
 
 export default function InventoryPage() {
   const router = useRouter();
-  const { options: SITE_OPTIONS } = useBusinessSites();
+  const { options: SITE_OPTIONS, siteNames: SITE_NAMES } = useBusinessSites();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
@@ -254,6 +254,7 @@ export default function InventoryPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"All" | InventoryStatus>("All");
   const [areaFilter, setAreaFilter] = useState("All Areas");
+  const [categoryFilter, setCategoryFilter] = useState("All Categories");
   const [sort, setSort] = useState<SortOption>("Name");
   const [movementFilter, setMovementFilter] = useState<"All" | InventoryMovementType>("All");
   const [showAllMovements, setShowAllMovements] = useState(false);
@@ -293,7 +294,12 @@ export default function InventoryPage() {
   );
 
   const areas = useMemo(
-    () => ["All Areas", ...Array.from(new Set(products.map((product) => product.location))).sort()],
+    () => ["All Areas", ...Array.from(new Set(products.map((product) => product.location || "Not assigned"))).sort()],
+    [products]
+  );
+
+  const categories = useMemo(
+    () => ["All Categories", ...Array.from(new Set(products.map((product) => product.category))).sort()],
     [products]
   );
 
@@ -365,8 +371,9 @@ export default function InventoryPage() {
         product.supplierCode.toLowerCase().includes(term) ||
         product.location.toLowerCase().includes(term);
       const matchesStatus = statusFilter === "All" || status === statusFilter;
-      const matchesArea = areaFilter === "All Areas" || product.location === areaFilter;
-      return matchesSearch && matchesStatus && matchesArea;
+      const matchesArea = areaFilter === "All Areas" || (product.location || "Not assigned") === areaFilter;
+      const matchesCategory = categoryFilter === "All Categories" || product.category === categoryFilter;
+      return matchesSearch && matchesStatus && matchesArea && matchesCategory;
     });
 
     return [...result].sort((a, b) => {
@@ -379,7 +386,7 @@ export default function InventoryPage() {
         default: return a.product.name.localeCompare(b.product.name);
       }
     });
-  }, [siteRecords, search, statusFilter, areaFilter, sort]);
+  }, [siteRecords, search, statusFilter, areaFilter, categoryFilter, sort]);
 
   const stats = useMemo(() => ({
     inventoryValue: siteRecords.reduce((total, record) => total + record.stockValue, 0),
@@ -417,12 +424,28 @@ export default function InventoryPage() {
     setSearch("");
     setStatusFilter("All");
     setAreaFilter("All Areas");
+    setCategoryFilter("All Categories");
     setMovementFilter("All");
     setShowAllMovements(false);
   }
 
   if (loading || !currentUser) {
     return <ProtectedPage><main className="flex min-h-screen items-center justify-center bg-slate-100"><p className="font-semibold text-gray-600">Loading Inventory...</p></main></ProtectedPage>;
+  }
+
+  if (SITE_NAMES.length === 0) {
+    return (
+      <ProtectedPage>
+        <main className="flex min-h-screen items-center justify-center bg-slate-100 p-8">
+          <div className="max-w-lg rounded-3xl bg-white p-10 text-center shadow-sm">
+            <Building2 size={42} className="mx-auto text-violet-800" />
+            <h1 className="mt-4 text-2xl font-bold text-gray-950">No Sites Yet</h1>
+            <p className="mt-3 text-gray-600">Inventory belongs to a site. Create your first site before tracking stock.</p>
+            <button type="button" onClick={() => router.push("/settings/sites")} className="mt-7 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900">Create First Site</button>
+          </div>
+        </main>
+      </ProtectedPage>
+    );
   }
 
   return (
@@ -477,6 +500,7 @@ export default function InventoryPage() {
                   setStatusFilter(status);
                   setSearch("");
                   setAreaFilter("All Areas");
+                  setCategoryFilter("All Categories");
                 }}
               />
 
@@ -503,12 +527,15 @@ export default function InventoryPage() {
                   </div>
                 </div>
 
-                <div className="mt-5 grid gap-3 md:grid-cols-3">
+                <div className="mt-5 grid gap-3 md:grid-cols-4">
                   <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as "All" | InventoryStatus)} className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800">
                     {STATUS_OPTIONS.map((status) => <option key={status}>{status === "All" ? "All statuses" : status}</option>)}
                   </select>
                   <select value={areaFilter} onChange={(event) => setAreaFilter(event.target.value)} className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800">
                     {areas.map((area) => <option key={area}>{area}</option>)}
+                  </select>
+                  <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)} className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800">
+                    {categories.map((category) => <option key={category}>{category}</option>)}
                   </select>
                   <select value={sort} onChange={(event) => setSort(event.target.value as SortOption)} className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800">
                     {(["Name", "Highest Value", "Lowest Value", "Lowest Stock", "Highest Stock", "Location"] as SortOption[]).map((option) => <option key={option}>{option}</option>)}

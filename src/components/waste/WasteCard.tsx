@@ -25,6 +25,10 @@ function formatDateTime(value: string): string {
   }).format(date);
 }
 
+function money(value: number): string {
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(value);
+}
+
 export default function WasteCard({ record }: WasteCardProps) {
   return (
     <article className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -45,12 +49,12 @@ export default function WasteCard({ record }: WasteCardProps) {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-red-800">
-          <PackageMinus size={20} />
-
-          <p className="text-xl font-bold">
-            -{record.quantity} {record.inventoryUnit}
-          </p>
+        <div className="rounded-2xl bg-red-50 px-4 py-3 text-right text-red-800">
+          <div className="flex items-center justify-end gap-2">
+            <PackageMinus size={20} />
+            <p className="text-xl font-bold">-{record.quantity} {record.inventoryUnit}</p>
+          </div>
+          <p className="mt-1 text-sm font-semibold">Cost {money(record.wasteValue || 0)}</p>
         </div>
       </div>
 

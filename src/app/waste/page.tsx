@@ -100,6 +100,10 @@ function isSameDate(value: string, dateKey: string): boolean {
   return toDateKey(new Date(value)) === dateKey;
 }
 
+function money(value: number): string {
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(value);
+}
+
 export default function WastePage() {
   const router = useRouter();
   const { options: SITE_OPTIONS, siteNames: SITE_NAMES } = useBusinessSites();
@@ -197,6 +201,11 @@ export default function WastePage() {
 
   const todayQuantity = todayRecords.reduce(
     (total, record) => total + record.quantity,
+    0
+  );
+
+  const todayWasteValue = todayRecords.reduce(
+    (total, record) => total + (record.wasteValue || 0),
     0
   );
 
@@ -390,6 +399,11 @@ export default function WastePage() {
           ) : (
             <>
               <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                <div className="rounded-3xl bg-amber-50 p-5 shadow-sm">
+                  <p className="text-sm text-amber-700">Waste Cost Today</p>
+                  <p className="mt-1 text-3xl font-bold text-amber-950">{money(todayWasteValue)}</p>
+                </div>
+
                 <div className="rounded-3xl bg-red-50 p-5 shadow-sm">
                   <p className="text-sm text-red-700">Waste Records Today</p>
 

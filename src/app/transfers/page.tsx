@@ -118,7 +118,7 @@ export default function TransfersPage() {
               </div>
 
               <p className="mt-2 text-gray-600">
-                Move stock between KitchenOps sites with one entry.
+                Request, dispatch and receive stock between KitchenOps sites with a full audit trail.
               </p>
             </div>
 
@@ -140,9 +140,9 @@ export default function TransfersPage() {
             </div>
 
             <div className="rounded-3xl bg-violet-50 p-5 shadow-sm">
-              <p className="text-sm text-violet-700">Completed</p>
+              <p className="text-sm text-violet-700">In Transit</p>
               <p className="mt-1 text-3xl font-bold text-violet-900">
-                {visibleTransfers.filter((transfer) => transfer.status === "Completed").length}
+                {visibleTransfers.filter((transfer) => transfer.status === "Dispatched").length}
               </p>
             </div>
 
@@ -183,7 +183,7 @@ export default function TransfersPage() {
           </div>
 
           <div className="mt-8">
-            <TransferHistory transfers={visibleTransfers} />
+            <TransferHistory transfers={visibleTransfers} currentUser={currentUser} onChanged={refreshTransfers} />
           </div>
         </div>
 
