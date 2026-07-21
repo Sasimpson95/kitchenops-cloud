@@ -13,6 +13,7 @@ export type RecipeComponent = {
 
 export type Recipe = {
   name: string;
+  category: string;
   emoji: string;
   yield: string;
   prepTime: string;
@@ -132,6 +133,10 @@ export function addRecipe(
 
     name: recipe.name.trim(),
 
+    category:
+      recipe.category?.trim() ||
+      "Uncategorised",
+
     emoji:
       recipe.emoji.trim() || "🍽️",
 
@@ -219,6 +224,10 @@ export function updateRecipe(
     ...recipe,
 
     name: recipe.name.trim(),
+
+    category:
+      recipe.category?.trim() ||
+      "Uncategorised",
 
     emoji:
       recipe.emoji.trim() ||

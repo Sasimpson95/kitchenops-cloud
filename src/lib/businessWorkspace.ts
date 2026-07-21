@@ -4,6 +4,8 @@ const WORKSPACE_KEYS = [
   "kitchenops-products",
   "kitchenops-suppliers",
   "kitchenops-recipes",
+  "kitchenops-recipe-costing-settings",
+  "kitchenops-recipe-cost-history",
   "kitchenops-purchase-orders",
   "kitchenops-storage-areas",
   "kitchenops-product-locations",

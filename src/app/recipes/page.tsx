@@ -118,6 +118,14 @@ function RecipeSettingsModal({
   );
 
   const [
+    category,
+    setCategory,
+  ] = useState(
+    recipe.category ||
+      "Uncategorised"
+  );
+
+  const [
     salesCode,
     setSalesCode,
   ] = useState(
@@ -286,6 +294,9 @@ function RecipeSettingsModal({
       recipe.name,
       {
         ...recipe,
+        category:
+          category.trim() ||
+          "Uncategorised",
         ingredients:
           updatedIngredients,
         method:
@@ -1021,7 +1032,7 @@ function RecipesContent() {
             ) &&
             (
               !query ||
-              `${recipe.name} ${recipe.allergens.join(
+              `${recipe.name} ${recipe.category || "Uncategorised"} ${recipe.allergens.join(
                 " "
               )}`
                 .toLowerCase()
@@ -1226,6 +1237,11 @@ function RecipesContent() {
                               }
                             </p>
 
+                            <p className="mt-1 text-xs font-semibold opacity-60">
+                              {recipe.category ||
+                                "Uncategorised"}
+                            </p>
+
                             <p className="mt-1 text-xs opacity-65">
                               {settings.recipeType ===
                               "preparation"
@@ -1273,8 +1289,30 @@ function RecipesContent() {
                 />
 
                 <h2 className="mt-4 text-2xl font-bold text-gray-950">
-                  No recipe selected
+                  {recipes.length === 0
+                    ? "No recipes yet"
+                    : "No recipe selected"}
                 </h2>
+
+                <p className="mx-auto mt-2 max-w-md text-gray-500">
+                  {recipes.length === 0
+                    ? "Create your first recipe from your product catalogue. Costs, yields, GP and allergens will then be kept together in one place."
+                    : "Choose a recipe from the list to view its costing and method."}
+                </p>
+
+                {recipes.length === 0 &&
+                  canManage && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowNewRecipe(true)
+                    }
+                    className="mt-6 inline-flex items-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900"
+                  >
+                    <Plus size={18} />
+                    Create First Recipe
+                  </button>
+                )}
               </section>
             ) : (
               <div className="space-y-6">
@@ -1290,6 +1328,11 @@ function RecipesContent() {
                             selectedRecipe.name
                           }
                         </h2>
+
+                        <span className="rounded-full bg-violet-100 px-3 py-1 text-sm font-semibold text-violet-800">
+                          {selectedRecipe.category ||
+                            "Uncategorised"}
+                        </span>
 
                         {!selectedSettings.active && (
                           <span className="rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-700">
@@ -1348,7 +1391,7 @@ function RecipesContent() {
                         <Edit3
                           size={18}
                         />
-                        Edit Costing
+                        Edit Recipe
                       </button>
                     )}
                   </div>

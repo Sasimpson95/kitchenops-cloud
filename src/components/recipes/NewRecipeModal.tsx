@@ -94,6 +94,11 @@ export default function NewRecipeModal({
   ] = useState("🍽️");
 
   const [
+    category,
+    setCategory,
+  ] = useState("Uncategorised");
+
+  const [
     recipeType,
     setRecipeType,
   ] = useState<RecipeType>(
@@ -405,6 +410,9 @@ export default function NewRecipeModal({
         addRecipe({
           name:
             name.trim(),
+          category:
+            category.trim() ||
+            "Uncategorised",
           emoji:
             emoji.trim() ||
             "🍽️",
@@ -593,6 +601,27 @@ export default function NewRecipeModal({
               </select>
             </label>
           </div>
+
+          <label className="mt-5 block">
+            <span className="text-sm font-semibold text-gray-700">
+              Category
+            </span>
+
+            <input
+              value={category}
+              onChange={(event) =>
+                setCategory(
+                  event.target.value
+                )
+              }
+              placeholder="Example: Brunch, Sauce, Bakery, Dessert"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800"
+            />
+
+            <p className="mt-2 text-xs text-gray-500">
+              Use categories to keep large recipe libraries easy to browse.
+            </p>
+          </label>
 
           <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             <label>
