@@ -30,7 +30,9 @@ import {
   subscribeToSupplierChanges,
 } from "@/lib/supplierStore";
 
-import { createPurchaseOrder } from "@/lib/orderStore";
+import { createDraftPurchaseOrder, createPurchaseOrder } from "@/lib/orderStore";
+import { getProductStock } from "@/lib/inventoryStore";
+import { getActiveBusinessId } from "@/lib/businessWorkspace";
 
 type NewOrderModalProps = {
   siteId: string;
@@ -229,6 +231,71 @@ export default function NewOrderModal({
     setStep("review");
   }
 
+  function buildOrderInput() {
+    if (!selectedSupplier) {
+      throw new Error("Choose a supplier first.");
+    }
+
+    if (basketItems.length === 0) {
+      throw new Error("Add at least one product to the order.");
+    }
+
+    return {
+      siteId,
+      siteName,
+      supplierId: selectedSupplier.id,
+      supplierName: selectedSupplier.name,
+      requestedDeliveryDate: deliveryDate || "Not set",
+      notes: notes.trim(),
+      items: basketItems.map(({ product, quantity }) => ({
+        productId: product.id,
+        productName: product.name,
+        orderUnit: product.orderUnit,
+        quantity,
+        unitPrice: product.price,
+      })),
+    };
+  }
+
+  function saveDraft(): void {
+    if (saving) return;
+    try {
+      setSaving(true);
+      setError("");
+      createDraftPurchaseOrder(buildOrderInput());
+      onClose();
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : "The draft could not be saved.");
+      setSaving(false);
+    }
+  }
+
+  function handleClose(): void {
+    if (basketItems.length === 0) {
+      onClose();
+      return;
+    }
+
+    const keepDraft = window.confirm(
+      "You have started an order. Press OK to save it as a draft, or Cancel to discard it."
+    );
+
+    if (keepDraft) {
+      saveDraft();
+    } else {
+      onClose();
+    }
+  }
+
+  function suggestedQuantity(product: Product): number {
+    const currentStock = getProductStock(getActiveBusinessId(), siteId, product.id);
+    const trigger = product.reorderPoint > 0 ? product.reorderPoint : product.minimumStock;
+    if (product.maximumStock <= 0 || currentStock > trigger) return 0;
+    const neededInventoryUnits = Math.max(0, product.maximumStock - currentStock);
+    const perPurchaseUnit = product.purchaseQuantity > 0 ? product.purchaseQuantity : 1;
+    return Math.ceil(neededInventoryUnits / perPurchaseUnit);
+  }
+
   function saveOrder(): void {
     if (saving) return;
 
@@ -246,21 +313,7 @@ export default function NewOrderModal({
       setSaving(true);
       setError("");
 
-      createPurchaseOrder({
-        siteId,
-        siteName,
-        supplierId: selectedSupplier.id,
-        supplierName: selectedSupplier.name,
-        requestedDeliveryDate: deliveryDate || "Not set",
-        notes: notes.trim(),
-        items: basketItems.map(({ product, quantity }) => ({
-          productId: product.id,
-          productName: product.name,
-          orderUnit: product.orderUnit,
-          quantity,
-          unitPrice: product.price,
-        })),
-      });
+      createPurchaseOrder(buildOrderInput());
 
       onClose();
     } catch (caughtError) {
@@ -276,7 +329,7 @@ export default function NewOrderModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
-      onClick={onClose}
+      onClick={handleClose}
     >
       <div
         className="max-h-[94vh] w-full max-w-6xl overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl"
@@ -292,7 +345,7 @@ export default function NewOrderModal({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-300 text-gray-600 hover:bg-slate-50"
             aria-label="Close"
           >
@@ -438,6 +491,17 @@ export default function NewOrderModal({
                               </p>
                             )}
                           </div>
+
+                          {suggestedQuantity(product) > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setQuantity(product.id, suggestedQuantity(product))}
+                              className="mt-5 w-full rounded-xl bg-emerald-50 px-4 py-3 text-left text-sm font-semibold text-emerald-800 hover:bg-emerald-100"
+                            >
+                              Suggested order: {suggestedQuantity(product)} {product.orderUnit}
+                              <span className="ml-2 font-normal">Use suggested</span>
+                            </button>
+                          )}
 
                           <div className="mt-6 flex items-center justify-between rounded-2xl bg-slate-50 p-3">
                             <button
@@ -590,6 +654,14 @@ export default function NewOrderModal({
                   className="rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700 hover:bg-slate-50"
                 >
                   Back
+                </button>
+                <button
+                  type="button"
+                  onClick={saveDraft}
+                  disabled={saving}
+                  className="rounded-xl border border-violet-800 px-6 py-3 font-semibold text-violet-800 disabled:opacity-50"
+                >
+                  Save Draft
                 </button>
                 <button
                   type="button"

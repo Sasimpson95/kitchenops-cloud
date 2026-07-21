@@ -5,16 +5,17 @@ import {
   type OrderTimelineEventType,
   type PurchaseOrder,
   type PurchaseOrderItem,
-  starterOrders,
 } from "@/data/orders";
 
 import { receiveProductStock } from "@/lib/inventoryStore";
+import { getCurrentUser } from "@/lib/currentUser";
+import { recordPurchasePrice } from "@/lib/purchasePriceStore";
+import { updateProductPurchasePrice } from "@/lib/productStore";
 
 const STORAGE_KEY = "kitchenops-purchase-orders";
 const ORDERS_CHANGED_EVENT =
   "kitchenops-orders-changed";
 
-const CURRENT_USER = "Alex";
 
 export type DeliveryReceiptItem = {
   productId: number;
@@ -69,10 +70,12 @@ function roundMoney(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-function cloneStarterOrders(): PurchaseOrder[] {
-  return JSON.parse(
-    JSON.stringify(starterOrders)
-  ) as PurchaseOrder[];
+function emptyOrders(): PurchaseOrder[] {
+  return [];
+}
+
+function currentUserName(): string {
+  return getCurrentUser()?.name?.trim() || "KitchenOps user";
 }
 
 function createTimelineEvent(input: {
@@ -88,7 +91,7 @@ function createTimelineEvent(input: {
     title: input.title,
     description: input.description,
     performedBy:
-      input.performedBy ?? CURRENT_USER,
+      input.performedBy ?? currentUserName(),
     createdAt: input.createdAt ?? now(),
   };
 }
@@ -202,8 +205,7 @@ function emitOrdersChanged(): void {
 }
 
 function initialiseOrders(): PurchaseOrder[] {
-  const initialOrders =
-    cloneStarterOrders().map(normaliseOrder);
+  const initialOrders: PurchaseOrder[] = [];
 
   if (typeof window !== "undefined") {
     window.localStorage.setItem(
@@ -256,7 +258,7 @@ function getNextOrderNumber(
     0
   );
 
-  return `BEE-${String(
+  return `PO-${String(
     highestOrderNumber + 1
   ).padStart(6, "0")}`;
 }
@@ -373,7 +375,7 @@ function buildPurchaseOrder(
     vat: 0,
     total: subtotal,
 
-    createdBy: CURRENT_USER,
+    createdBy: currentUserName(),
     createdAt: timestamp,
     updatedAt: timestamp,
 
@@ -383,9 +385,7 @@ function buildPurchaseOrder(
 
 export function getOrders(): PurchaseOrder[] {
   if (typeof window === "undefined") {
-    return cloneStarterOrders().map(
-      normaliseOrder
-    );
+    return emptyOrders();
   }
 
   const savedOrders =
@@ -835,6 +835,21 @@ export function receivePurchaseOrder(
           referenceNumber:
             order.orderNumber,
         });
+      }
+
+      if (receivedQuantity > 0) {
+        recordPurchasePrice({
+          siteId: order.siteId,
+          supplierId: order.supplierId,
+          supplierName: order.supplierName,
+          productId: item.productId,
+          productName: item.productName,
+          unitPrice: roundMoney(receivedUnitPrice),
+          sourceType: "order",
+          sourceId: order.id,
+          sourceNumber: order.orderNumber,
+        });
+        updateProductPurchasePrice(item.productId, receivedUnitPrice);
       }
 
       return {

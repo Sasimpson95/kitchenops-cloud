@@ -902,3 +902,20 @@ export function subscribeToProductChanges(
     );
   };
 }
+
+/** Update only the current purchase price after a delivery/invoice is received. */
+export function updateProductPurchasePrice(id: number, price: number): Product | undefined {
+  if (!Number.isFinite(price) || price < 0) return undefined;
+  const products = getProducts();
+  const existing = products.find((product) => product.id === id);
+  if (!existing) return undefined;
+
+  const updated: Product = {
+    ...existing,
+    price: Math.round((price + Number.EPSILON) * 100) / 100,
+    updatedAt: now(),
+  };
+
+  saveProducts(products.map((product) => product.id === id ? updated : product));
+  return updated;
+}

@@ -43,6 +43,8 @@ import {
   getOrders,
   subscribeToOrderChanges,
 } from "@/lib/orderStore";
+import { getReceivedInvoices, subscribeToInvoiceChanges, type ReceivedInvoice } from "@/lib/invoiceStore";
+import { getRecentPriceChanges, subscribeToPurchasePriceChanges, type PurchasePriceRecord } from "@/lib/purchasePriceStore";
 
 
 
@@ -73,12 +75,14 @@ export default function PurchasingPage() {
   const [showReceiveInvoice, setShowReceiveInvoice] = useState(false);
   const [invoiceRefresh, setInvoiceRefresh] = useState(0);
 
-  const [orderList, setOrderList] = useState<
-    PurchaseOrder[]
-  >([]);
+  const [orderList, setOrderList] = useState<PurchaseOrder[]>([]);
+  const [invoiceList, setInvoiceList] = useState<ReceivedInvoice[]>([]);
+  const [priceChangeList, setPriceChangeList] = useState<Array<PurchasePriceRecord & { previousUnitPrice: number; difference: number }>>([]);
 
   const refreshPurchasing = useCallback(() => {
     setOrderList(getOrders());
+    setInvoiceList(getReceivedInvoices());
+    setPriceChangeList(getRecentPriceChanges());
   }, []);
 
   useEffect(() => {
@@ -96,10 +100,15 @@ export default function PurchasingPage() {
 
     refreshPurchasing();
 
-    const unsubscribe =
-      subscribeToOrderChanges(refreshPurchasing);
+    const unsubscribeOrders = subscribeToOrderChanges(refreshPurchasing);
+    const unsubscribeInvoices = subscribeToInvoiceChanges(refreshPurchasing);
+    const unsubscribePrices = subscribeToPurchasePriceChanges(refreshPurchasing);
 
-    return unsubscribe;
+    return () => {
+      unsubscribeOrders();
+      unsubscribeInvoices();
+      unsubscribePrices();
+    };
   }, [refreshPurchasing]);
 
   const today = new Date()
@@ -119,6 +128,32 @@ export default function PurchasingPage() {
     );
   }, [orderList, selectedSiteId]);
 
+  const visibleInvoices = useMemo(() => {
+    return selectedSiteId === "all-sites"
+      ? invoiceList
+      : invoiceList.filter((invoice) => invoice.siteId === selectedSiteId);
+  }, [invoiceList, selectedSiteId]);
+
+  const visiblePriceChanges = useMemo(() => {
+    return selectedSiteId === "all-sites"
+      ? priceChangeList
+      : priceChangeList.filter((record) => record.siteId === selectedSiteId);
+  }, [priceChangeList, selectedSiteId]);
+
+  const supplierSpend = useMemo(() => {
+    const totals = new Map<string, number>();
+    visibleOrders.filter((order) => order.status === "Completed").forEach((order) => {
+      totals.set(order.supplierName, (totals.get(order.supplierName) ?? 0) + (order.invoiceTotal ?? order.total));
+    });
+    visibleInvoices.forEach((invoice) => {
+      totals.set(invoice.supplierName, (totals.get(invoice.supplierName) ?? 0) + invoice.total);
+    });
+    return [...totals.entries()]
+      .map(([supplierName, total]) => ({ supplierName, total }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+  }, [visibleInvoices, visibleOrders]);
+
   const draftOrders = useMemo(() => {
     return visibleOrders.filter(
       (order) => order.status === "Draft"
@@ -126,7 +161,7 @@ export default function PurchasingPage() {
   }, [visibleOrders]);
 
   const deliveriesToday = useMemo(() => {
-    return orderList.filter((order) => {
+    return visibleOrders.filter((order) => {
       return (
         order.status === "Sent" &&
         order.requestedDeliveryDate === today
@@ -135,7 +170,7 @@ export default function PurchasingPage() {
   }, [visibleOrders, today]);
 
   const overdueDeliveries = useMemo(() => {
-    return orderList.filter((order) => {
+    return visibleOrders.filter((order) => {
       return (
         order.status === "Sent" &&
         order.requestedDeliveryDate !== "Not set" &&
@@ -193,6 +228,21 @@ export default function PurchasingPage() {
   function closeNewOrder(): void {
     setShowNewOrder(false);
     refreshPurchasing();
+  }
+
+  if (currentUser && businessSites.length === 0) {
+    return (
+      <ProtectedPage>
+        <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
+          <div className="mx-auto max-w-3xl rounded-3xl bg-white p-10 text-center shadow-sm">
+            <Building2 className="mx-auto text-violet-700" size={44} />
+            <h1 className="mt-4 text-3xl font-bold text-gray-950">No Sites Yet</h1>
+            <p className="mt-3 text-gray-600">Purchasing belongs to a site. Create your first site before placing or receiving orders.</p>
+            <Link href="/settings/sites" className="mt-7 inline-flex rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900">Create First Site</Link>
+          </div>
+        </main>
+      </ProtectedPage>
+    );
   }
 
   return (
@@ -425,7 +475,7 @@ export default function PurchasingPage() {
 
                 <div>
                   <p className="text-4xl font-bold text-gray-950">
-                    0
+                    {visiblePriceChanges.length}
                   </p>
 
                   <p className="font-semibold text-gray-700">
@@ -433,7 +483,7 @@ export default function PurchasingPage() {
                   </p>
 
                   <p className="mt-1 text-sm text-gray-500">
-                    None to review
+                    {visiblePriceChanges.length === 0 ? "None to review" : "Latest received prices"}
                   </p>
                 </div>
               </div>
@@ -442,6 +492,7 @@ export default function PurchasingPage() {
 
           <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_360px]">
             <RecentOrders
+              siteId={selectedSiteId}
               onOrdersChanged={refreshPurchasing}
             />
 
@@ -567,6 +618,50 @@ export default function PurchasingPage() {
                 </div>
               </Card>
             </div>
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <Card>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-950">Recent Invoices</h2>
+                  <p className="mt-1 text-sm text-gray-500">Deliveries received without a KitchenOps purchase order.</p>
+                </div>
+                <ReceiptText className="text-violet-700" size={26} />
+              </div>
+              {visibleInvoices.length === 0 ? (
+                <p className="mt-5 text-gray-500">No standalone invoices received yet.</p>
+              ) : (
+                <div className="mt-5 space-y-3">
+                  {visibleInvoices.slice(0, 5).map((invoice) => (
+                    <div key={invoice.id} className="flex items-center justify-between gap-4 rounded-2xl bg-slate-50 p-4">
+                      <div>
+                        <p className="font-bold text-gray-950">{invoice.supplierName}</p>
+                        <p className="mt-1 text-sm text-gray-500">{invoice.invoiceNumber} • {invoice.invoiceDate}</p>
+                      </div>
+                      <p className="font-bold text-gray-950">£{invoice.total.toFixed(2)}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+
+            <Card>
+              <h2 className="text-xl font-bold text-gray-950">Supplier Spend</h2>
+              <p className="mt-1 text-sm text-gray-500">Completed orders and received invoices currently stored in KitchenOps.</p>
+              {supplierSpend.length === 0 ? (
+                <p className="mt-5 text-gray-500">No supplier spend recorded yet.</p>
+              ) : (
+                <div className="mt-5 space-y-3">
+                  {supplierSpend.map((supplier) => (
+                    <div key={supplier.supplierName} className="flex items-center justify-between gap-4 rounded-2xl bg-slate-50 p-4">
+                      <p className="font-semibold text-gray-800">{supplier.supplierName}</p>
+                      <p className="font-bold text-gray-950">£{supplier.total.toFixed(2)}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
           </div>
         </div>
 

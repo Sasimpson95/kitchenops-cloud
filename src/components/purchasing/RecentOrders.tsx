@@ -25,11 +25,13 @@ import {
 
 type RecentOrdersProps = {
   refreshKey?: number;
+  siteId?: string;
   onOrdersChanged?: () => void;
 };
 
 export default function RecentOrders({
   refreshKey = 0,
+  siteId = "all-sites",
   onOrdersChanged,
 }: RecentOrdersProps) {
   const router = useRouter();
@@ -66,7 +68,11 @@ export default function RecentOrders({
   }, [refreshKey, refreshOrders]);
 
   const recentOrders = useMemo(() => {
-    return [...orderList]
+    const visibleOrders = siteId === "all-sites"
+      ? orderList
+      : orderList.filter((order) => order.siteId === siteId);
+
+    return [...visibleOrders]
       .sort(
         (firstOrder, secondOrder) =>
           new Date(
@@ -77,7 +83,7 @@ export default function RecentOrders({
           ).getTime()
       )
       .slice(0, 5);
-  }, [orderList]);
+  }, [orderList, siteId]);
 
   const selectedOrder = useMemo(() => {
     return (
