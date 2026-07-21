@@ -35,6 +35,11 @@ import {
 
 import CommandPalette from "@/components/CommandPalette";
 import NotificationPopover from "@/components/NotificationPopover";
+import { KITCHENOPS_VERSION } from "@/config/version";
+import {
+  getSiteHandover,
+  subscribeToHandoverChanges,
+} from "@/lib/handoverStore";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -62,6 +67,10 @@ const navItemsByRole: Record<
     {
       label: "Waste",
       href: "/waste",
+    },
+    {
+      label: "Handover",
+      href: "/handover",
     },
   ],
 
@@ -209,10 +218,25 @@ export default function AppShell({
   const [mobileMenuOpen, setMobileMenuOpen] =
     useState(false);
 
+  const [handoverVersion, setHandoverVersion] =
+    useState(0);
+
+  useEffect(() => {
+    return subscribeToHandoverChanges(() =>
+      setHandoverVersion((value) => value + 1)
+    );
+  }, []);
+
+  const chefCanSeeHandover =
+    currentUser.role !== "chef" ||
+    getSiteHandover(currentUser.site, "today").visibleToChefs;
+
   const navItems =
-    navItemsByRole[
-      currentUser.role
-    ];
+    navItemsByRole[currentUser.role].filter(
+      (item) => item.href !== "/handover" || chefCanSeeHandover
+    );
+
+  void handoverVersion;
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -365,6 +389,7 @@ export default function AppShell({
               {" • "}
               {currentUser.site}
             </p>
+            <p className="mt-2 text-xs font-semibold text-violet-700">v{KITCHENOPS_VERSION}</p>
           </div>
 
           {currentUser.role !== "operations" && (

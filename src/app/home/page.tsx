@@ -1848,14 +1848,6 @@ export default function DashboardPage() {
                 }
               />
 
-              <HandoverCard
-                title="Tomorrow's Handover"
-                notes={
-                  data.tomorrowsHandover
-                }
-                href="/handover"
-              />
-
               <section className="rounded-3xl bg-white p-6 shadow-sm">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
@@ -1978,6 +1970,31 @@ export default function DashboardPage() {
                     Record waste for {currentUser.site}.
                   </p>
                 </Link>
+
+                {getSiteHandover(currentUser.site, "today").visibleToChefs && (
+                  <Link
+                    href="/handover"
+                    className="block rounded-3xl bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                  >
+                    <ClipboardCheck
+                      size={26}
+                      className="text-violet-800"
+                    />
+
+                    <h2 className="mt-4 text-xl font-bold text-gray-950">
+                      Today's Handover
+                    </h2>
+
+                    <p className="mt-2 text-sm text-gray-600">
+                      A manager has shared handover notes with the kitchen team.
+                    </p>
+
+                    <span className="mt-5 inline-flex items-center gap-2 font-semibold text-violet-800">
+                      View handover
+                      <ArrowRight size={17} />
+                    </span>
+                  </Link>
+                )}
               </div>
             </div>
           )}

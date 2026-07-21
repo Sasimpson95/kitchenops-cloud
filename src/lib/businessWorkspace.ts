@@ -17,6 +17,7 @@ const WORKSPACE_KEYS = [
   "kitchenops-stocktakes",
   "kitchenops-stocktakes-v2",
   "kitchenops-site-handovers",
+  "kitchenops-handover-rollover-date",
   "kitchenops-production",
   "kitchenops-prep-items",
   "kitchenops-prep-plan",

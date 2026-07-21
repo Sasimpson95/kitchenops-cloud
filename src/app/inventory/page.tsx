@@ -31,6 +31,7 @@ import type { User } from "@/config/roles";
 import type { Product } from "@/data/products";
 import { getCurrentUser } from "@/lib/currentUser";
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
+import { getPreferredSite, setPreferredSite } from "@/lib/uiPreferences";
 import { useBusinessSites } from "@/lib/useBusinessSites";
 import {
   getInventoryMovements,
@@ -271,9 +272,17 @@ export default function InventoryPage() {
       return;
     }
     setCurrentUser(user);
-    setSelectedSite(user.role === "operations" ? "All Sites" : user.site);
+    setSelectedSite(user.role === "operations" ? getPreferredSite("inventory-site", "All Sites") : user.site);
     setLoading(false);
   }, [router]);
+
+  useEffect(() => {
+    if (currentUser?.role !== "operations" || SITE_OPTIONS.length <= 1) return;
+    if (!SITE_OPTIONS.includes(selectedSite)) {
+      setSelectedSite("All Sites");
+      setPreferredSite("inventory-site", "All Sites");
+    }
+  }, [SITE_OPTIONS, currentUser, selectedSite]);
 
   useEffect(() => {
     refreshProducts();
@@ -421,6 +430,7 @@ export default function InventoryPage() {
   function changeSite(site: string) {
     if (!isOperations) return;
     setSelectedSite(site);
+    setPreferredSite("inventory-site", site);
     setSearch("");
     setStatusFilter("All");
     setAreaFilter("All Areas");
@@ -450,7 +460,7 @@ export default function InventoryPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
+      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-7xl">
           <h1 className="text-4xl font-bold text-gray-950">Inventory</h1>
           <p className="mt-2 text-gray-600">Live stock levels, values and movement history.</p>

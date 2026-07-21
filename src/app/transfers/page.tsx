@@ -108,7 +108,7 @@ export default function TransfersPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
+      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div>

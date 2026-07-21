@@ -26,6 +26,7 @@ import { subscribeToRecipeCostingChanges } from "@/lib/recipeCostingStore";
 import { getPrepHistory } from "@/lib/prepStore";
 import { getPurchasePriceHistory, subscribeToPurchasePriceChanges } from "@/lib/purchasePriceStore";
 import { useBusinessSites } from "@/lib/useBusinessSites";
+import { getPreferredSite, setPreferredSite } from "@/lib/uiPreferences";
 
 function initialFilters(user?: User | null): ReportFiltersState {
   const dates = getDefaultReportDates();
@@ -62,7 +63,11 @@ export default function ReportsPage() {
       return;
     }
     setCurrentUser(user);
-    setFilters(initialFilters(user));
+    const nextFilters = initialFilters(user);
+    if (user.role === "operations") {
+      nextFilters.site = getPreferredSite("reports-site", "All Sites");
+    }
+    setFilters(nextFilters);
     setLoading(false);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [router]);
@@ -104,6 +109,14 @@ export default function ReportsPage() {
     return ["All Sites", ...sites.map((site) => site.name)];
   }, [currentUser, sites]);
 
+  useEffect(() => {
+    if (currentUser?.role !== "operations" || siteOptions.length <= 1) return;
+    if (!siteOptions.includes(filters.site)) {
+      setFilters((current) => ({ ...current, site: "All Sites" }));
+      setPreferredSite("reports-site", "All Sites");
+    }
+  }, [currentUser, filters.site, siteOptions]);
+
   const supplierOptions = useMemo(
     () => ["All Suppliers", ...Array.from(new Set(suppliers.map((supplier) => supplier.name))).sort()],
     [suppliers]
@@ -116,6 +129,9 @@ export default function ReportsPage() {
 
   function updateFilter<K extends keyof ReportFiltersState>(field: K, value: ReportFiltersState[K]): void {
     setFilters((current) => ({ ...current, [field]: value }));
+    if (field === "site" && typeof value === "string" && currentUser?.role === "operations") {
+      setPreferredSite("reports-site", value);
+    }
   }
 
   function resetFilters(): void {
@@ -134,7 +150,7 @@ export default function ReportsPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8 print:bg-white print:p-0">
+      <main className="min-h-screen bg-slate-100 p-4 sm:p-8 print:bg-white print:p-0">
         <div className="mx-auto max-w-7xl">
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-800 text-white print:hidden">

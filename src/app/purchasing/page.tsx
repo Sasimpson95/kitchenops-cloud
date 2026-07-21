@@ -38,6 +38,7 @@ import {
   getCurrentUser,
 } from "@/lib/currentUser";
 import { useBusinessSites } from "@/lib/useBusinessSites";
+import { getPreferredSite, setPreferredSite } from "@/lib/uiPreferences";
 
 import {
   getOrders,
@@ -93,7 +94,7 @@ export default function PurchasingPage() {
 
       setSelectedSiteId(
         user.role === "operations"
-          ? "all-sites"
+          ? getPreferredSite("purchasing-site", "all-sites")
           : getSiteId(user.site)
       );
     }
@@ -110,6 +111,15 @@ export default function PurchasingPage() {
       unsubscribePrices();
     };
   }, [refreshPurchasing]);
+
+  useEffect(() => {
+    if (currentUser?.role !== "operations" || businessSites.length === 0) return;
+    const allowedSiteIds = ["all-sites", ...businessSites.map((site) => site.id)];
+    if (!allowedSiteIds.includes(selectedSiteId)) {
+      setSelectedSiteId("all-sites");
+      setPreferredSite("purchasing-site", "all-sites");
+    }
+  }, [businessSites, currentUser, selectedSiteId]);
 
   const today = new Date()
     .toISOString()
@@ -247,7 +257,7 @@ export default function PurchasingPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
+      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <PageHeader
@@ -263,6 +273,7 @@ export default function PurchasingPage() {
                   setSelectedSiteId(
                     event.target.value
                   );
+                  setPreferredSite("purchasing-site", event.target.value);
                   setSiteError("");
                 }}
                 className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"

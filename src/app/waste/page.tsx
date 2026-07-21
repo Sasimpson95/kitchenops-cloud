@@ -26,6 +26,7 @@ import type { Product } from "@/data/products";
 
 import { getCurrentUser } from "@/lib/currentUser";
 import { useBusinessSites } from "@/lib/useBusinessSites";
+import { getPreferredSite, setPreferredSite } from "@/lib/uiPreferences";
 import {
   getActiveProducts,
   subscribeToProductChanges,
@@ -148,9 +149,17 @@ export default function WastePage() {
     }
 
     setCurrentUser(user);
-    setSelectedSite(user.role === "operations" ? "All Sites" : user.site);
+    setSelectedSite(user.role === "operations" ? getPreferredSite("waste-site", "All Sites") : user.site);
     setLoadingUser(false);
   }, [router]);
+
+  useEffect(() => {
+    if (currentUser?.role !== "operations" || SITE_OPTIONS.length <= 1) return;
+    if (!SITE_OPTIONS.includes(selectedSite)) {
+      setSelectedSite("All Sites");
+      setPreferredSite("waste-site", "All Sites");
+    }
+  }, [SITE_OPTIONS, currentUser, selectedSite]);
 
   useEffect(() => {
     refreshProducts();
@@ -230,6 +239,7 @@ export default function WastePage() {
     if (!isOperations) return;
 
     setSelectedSite(site);
+    setPreferredSite("waste-site", site);
     setSearch("");
     setReasonFilter("All");
     setSelectedRecordDate("");
@@ -239,6 +249,7 @@ export default function WastePage() {
     if (!isOperations) return;
 
     setSelectedSite(site);
+    setPreferredSite("waste-site", site);
     setSelectedRecordDate(date);
     setSearch("");
     setReasonFilter("All");
@@ -260,7 +271,7 @@ export default function WastePage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
+      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div>

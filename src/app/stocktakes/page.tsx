@@ -35,6 +35,7 @@ import {
   getCurrentUser,
 } from "@/lib/currentUser";
 import { useBusinessSites } from "@/lib/useBusinessSites";
+import { getPreferredSite, setPreferredSite } from "@/lib/uiPreferences";
 
 import {
   getActiveProducts,
@@ -187,12 +188,20 @@ export default function StocktakesPage() {
 
     setSelectedSite(
       user.role === "operations"
-        ? "All Sites"
+        ? getPreferredSite("stocktakes-site", "All Sites")
         : user.site
     );
 
     setLoadingUser(false);
   }, [router]);
+
+  useEffect(() => {
+    if (currentUser?.role !== "operations" || SITE_OPTIONS.length <= 1) return;
+    if (!SITE_OPTIONS.includes(selectedSite)) {
+      setSelectedSite("All Sites");
+      setPreferredSite("stocktakes-site", "All Sites");
+    }
+  }, [SITE_OPTIONS, currentUser, selectedSite]);
 
   useEffect(() => {
     refreshProducts();
@@ -338,6 +347,7 @@ export default function StocktakesPage() {
     }
 
     setSelectedSite(site);
+    setPreferredSite("stocktakes-site", site);
     setActiveStocktakeId(null);
     setSelectedArea(null);
     setResultsStocktakeId(null);
@@ -572,7 +582,7 @@ export default function StocktakesPage() {
 
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-8">
+        <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
           {selectedArea ? (
             <StocktakeCounter
               stocktake={
@@ -617,7 +627,7 @@ export default function StocktakesPage() {
   if (resultsStocktake) {
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-8">
+        <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
           <StocktakeResults
             stocktake={
               resultsStocktake
@@ -644,7 +654,7 @@ export default function StocktakesPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
+      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div>
