@@ -462,8 +462,11 @@ export default function LoginPage() {
               KitchenOps Cloud
             </p>
             <h2 className="mt-2 text-3xl font-bold text-gray-950">
-              Sign in
+              Welcome back
             </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Sign in to your KitchenOps account.
+            </p>
 
             <div className="mt-6 grid grid-cols-2 rounded-xl bg-slate-100 p-1">
               <button
@@ -573,7 +576,7 @@ export default function LoginPage() {
                 <label className="block">
                   <span className="text-sm font-semibold text-gray-700">Business Code</span>
                   <div className="mt-2 flex gap-2">
-                    <input value={businessCode} onChange={(e) => setBusinessCode(e.target.value.toUpperCase())} className="min-w-0 flex-1 rounded-xl border border-gray-300 px-4 py-3 uppercase outline-none focus:border-violet-800" />
+                    <input value={businessCode} onChange={(e) => setBusinessCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, ""))} placeholder="MYCAFE" className="min-w-0 flex-1 rounded-xl border border-gray-300 px-4 py-3 uppercase outline-none focus:border-violet-800" />
                     <button type="button" onClick={findBusiness} className="rounded-xl border border-violet-800 px-4 font-semibold text-violet-800 hover:bg-violet-50">Find</button>
                   </div>
                 </label>
