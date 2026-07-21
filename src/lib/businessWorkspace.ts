@@ -16,6 +16,9 @@ const WORKSPACE_KEYS = [
   "kitchenops-site-handovers",
   "kitchenops-production",
   "kitchenops-prep-items",
+  "kitchenops-prep-plan",
+  "kitchenops-prep-history",
+  "kitchenops-prep-plan-date",
 ] as const;
 
 function scopedKey(businessId: string, key: string): string {

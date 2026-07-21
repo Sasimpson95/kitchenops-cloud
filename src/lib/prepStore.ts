@@ -21,6 +21,28 @@ const STORAGE_KEY =
 const PREP_CHANGED_EVENT =
   "kitchenops-prep-changed";
 
+const PREP_HISTORY_KEY =
+  "kitchenops-prep-history";
+
+const PREP_PLAN_DATE_KEY =
+  "kitchenops-prep-plan-date";
+
+export type PrepHistoryRecord = {
+  id: string;
+  prepItemId: number;
+  site: string;
+  name: string;
+  emoji: string;
+  planned: number;
+  produced: number;
+  status: ProductionItem["status"];
+  chef?: string;
+  approvedBy?: string;
+  completedAt?: string;
+  scheduledDate: string;
+  archivedAt: string;
+};
+
 export type AddPrepInput = {
   site: string;
   name: string;
@@ -66,6 +88,101 @@ function formatCurrentTime(): string {
       minute: "2-digit",
     }
   ).format(new Date());
+}
+
+
+function localDateString(
+  date = new Date()
+): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function readPrepHistory(): PrepHistoryRecord[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const saved = window.localStorage.getItem(PREP_HISTORY_KEY);
+  if (!saved) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(saved);
+    return Array.isArray(parsed) ? (parsed as PrepHistoryRecord[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function archiveTodayItems(
+  items: ProductionItem[],
+  scheduledDate: string
+): void {
+  if (typeof window === "undefined" || items.length === 0) return;
+
+  const existing = readPrepHistory();
+  const additions: PrepHistoryRecord[] = items.map((item) => ({
+    id: `${scheduledDate}-${item.id}-${item.updatedAt}`,
+    prepItemId: item.id,
+    site: item.site,
+    name: item.name,
+    emoji: item.emoji,
+    planned: item.planned,
+    produced: item.produced,
+    status: item.status,
+    chef: item.chef,
+    approvedBy: item.approvedBy,
+    completedAt: item.completedAt,
+    scheduledDate,
+    archivedAt: now(),
+  }));
+
+  const known = new Set(existing.map((record) => record.id));
+  const merged = [...existing, ...additions.filter((record) => !known.has(record.id))];
+  window.localStorage.setItem(PREP_HISTORY_KEY, JSON.stringify(merged));
+}
+
+function rolloverPrepPlanIfNeeded(
+  items: ProductionItem[]
+): ProductionItem[] {
+  if (typeof window === "undefined") return items;
+
+  const today = localDateString();
+  const planDate = window.localStorage.getItem(PREP_PLAN_DATE_KEY);
+
+  if (!planDate) {
+    window.localStorage.setItem(PREP_PLAN_DATE_KEY, today);
+    return items;
+  }
+
+  if (planDate === today) return items;
+
+  archiveTodayItems(
+    items.filter((item) => item.day === "today"),
+    planDate
+  );
+
+  const rolled = items
+    .filter((item) => item.day === "tomorrow")
+    .map((item) => ({
+      ...item,
+      day: "today" as const,
+      updatedAt: now(),
+    }));
+
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(rolled));
+  window.localStorage.setItem(PREP_PLAN_DATE_KEY, today);
+  emitPrepChanged();
+  return rolled;
+}
+
+export function getPrepHistory(): PrepHistoryRecord[] {
+  return readPrepHistory().sort((first, second) =>
+    second.scheduledDate.localeCompare(first.scheduledDate) ||
+    second.archivedAt.localeCompare(first.archivedAt)
+  );
 }
 
 function getSiteId(
@@ -144,6 +261,8 @@ function normalisePrepItem(
 
     chef: item.chef,
     readyTime: item.readyTime,
+    approvedBy: item.approvedBy,
+    completedAt: item.completedAt,
 
     createdAt:
       item.createdAt || timestamp,
@@ -197,7 +316,11 @@ export function getPrepItems(): ProductionItem[] {
     );
 
   if (!saved) {
-    return initialisePrepPlan();
+    const initial = initialisePrepPlan();
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(PREP_PLAN_DATE_KEY, localDateString());
+    }
+    return initial;
   }
 
   try {
@@ -217,7 +340,7 @@ export function getPrepItems(): ProductionItem[] {
       JSON.stringify(normalisedItems)
     );
 
-    return normalisedItems;
+    return rolloverPrepPlanIfNeeded(normalisedItems);
   } catch {
     return initialisePrepPlan();
   }
@@ -571,6 +694,12 @@ function applyApprovedProduction(
     readyTime:
       existingItem.readyTime ||
       formatCurrentTime(),
+
+    approvedBy:
+      approvedBy,
+
+    completedAt:
+      timestamp,
 
     updatedAt:
       timestamp,

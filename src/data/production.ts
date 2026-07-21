@@ -23,6 +23,8 @@ export type ProductionItem = {
 
   chef?: string;
   readyTime?: string;
+  approvedBy?: string;
+  completedAt?: string;
 
   createdAt: string;
   updatedAt: string;

@@ -13,6 +13,7 @@ import {
   Building2,
   CalendarDays,
   CheckCircle2,
+  History,
   Minus,
   Plus,
   Search,
@@ -41,10 +42,12 @@ import type {
 
 import {
   addPrepItem,
+  getPrepHistory,
   getPrepItems,
   removePrepItem,
   subscribeToPrepChanges,
   updatePrepQuantity,
+  type PrepHistoryRecord,
 } from "@/lib/prepStore";
 
 
@@ -60,7 +63,11 @@ function getRecipeTime(
 
 export default function PrepPlannerPage() {
   const router = useRouter();
-  const { options: SITES, siteNames: businessSiteNames } = useBusinessSites();
+  const {
+    options: SITES,
+    siteNames: businessSiteNames,
+    loading: sitesLoading,
+  } = useBusinessSites();
 
   const [
     currentUser,
@@ -75,6 +82,9 @@ export default function PrepPlannerPage() {
 
   const [recipeList, setRecipeList] =
     useState<Recipe[]>([]);
+
+  const [history, setHistory] =
+    useState<PrepHistoryRecord[]>([]);
 
   const [
     selectedSite,
@@ -131,6 +141,7 @@ export default function PrepPlannerPage() {
   const refreshPrep =
     useCallback(() => {
       setItems(getPrepItems());
+      setHistory(getPrepHistory());
     }, []);
 
   const refreshRecipes =
@@ -148,16 +159,35 @@ export default function PrepPlannerPage() {
 
     setCurrentUser(user);
 
-    if (user.role === "manager") {
-      setSelectedSite(user.site);
-    } else if (user.role === "operations") {
+    if (user.role === "operations") {
       setSelectedSite("All Sites");
-    } else {
-      setSelectedSite(user.site);
+    }
+
+    if (user.role === "manager") {
+      setSelectedDay("tomorrow");
     }
 
     setLoadingUser(false);
   }, [router]);
+
+  useEffect(() => {
+    if (!currentUser || sitesLoading) return;
+
+    if (currentUser.role === "operations") {
+      if (selectedSite !== "All Sites" && !businessSiteNames.includes(selectedSite)) {
+        setSelectedSite("All Sites");
+      }
+      return;
+    }
+
+    const assignedSite = currentUser.site?.trim();
+    const nextSite =
+      assignedSite && businessSiteNames.includes(assignedSite)
+        ? assignedSite
+        : businessSiteNames[0] ?? "";
+
+    setSelectedSite(nextSite);
+  }, [currentUser, sitesLoading, businessSiteNames, selectedSite]);
 
   useEffect(() => {
     refreshPrep();
@@ -276,6 +306,13 @@ export default function PrepPlannerPage() {
         item.site === selectedSite
     );
   }, [items, selectedSite]);
+
+  const selectedSiteHistory = useMemo(() => {
+    if (!hasSelectedSpecificSite) return [];
+    return history
+      .filter((record) => record.site === selectedSite)
+      .slice(0, 20);
+  }, [history, hasSelectedSpecificSite, selectedSite]);
 
   const todayItems =
     selectedSiteItems.filter(
@@ -560,13 +597,36 @@ export default function PrepPlannerPage() {
     }
   }
 
-  if (loadingUser) {
+  if (loadingUser || sitesLoading) {
     return (
       <ProtectedPage>
         <main className="flex min-h-screen items-center justify-center bg-slate-100">
           <p className="font-semibold text-gray-600">
             Loading Prep Planner...
           </p>
+        </main>
+      </ProtectedPage>
+    );
+  }
+
+  if (businessSiteNames.length === 0) {
+    return (
+      <ProtectedPage>
+        <main className="flex min-h-screen items-center justify-center bg-slate-100 p-6">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-10 text-center shadow-sm">
+            <Building2 className="mx-auto text-violet-800" size={44} />
+            <h1 className="mt-5 text-2xl font-bold text-gray-950">No Sites Yet</h1>
+            <p className="mt-3 text-gray-600">
+              Prep plans belong to a site. Create your first site before planning production.
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push("/settings/sites")}
+              className="mt-7 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900"
+            >
+              Create First Site
+            </button>
+          </div>
         </main>
       </ProtectedPage>
     );
@@ -583,9 +643,7 @@ export default function PrepPlannerPage() {
               </h1>
 
               <p className="mt-2 text-gray-600">
-                Plan today and tomorrow using
-                recipes from the live Recipe
-                Library.
+                Plan tomorrow, track today&apos;s production, and keep a clear prep history using the live Recipe Library.
               </p>
             </div>
 
@@ -1099,6 +1157,61 @@ export default function PrepPlannerPage() {
                   </div>
                 )}
               </div>
+
+              <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <History size={22} className="text-violet-800" />
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-950">Prep History</h2>
+                    <p className="mt-1 text-sm text-gray-500">Past prep days are archived automatically when tomorrow becomes today.</p>
+                  </div>
+                </div>
+
+                {selectedSiteHistory.length === 0 ? (
+                  <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-gray-500">
+                    No previous prep days yet.
+                  </div>
+                ) : (
+                  <div className="mt-5 overflow-x-auto">
+                    <table className="w-full min-w-[760px] text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200 text-gray-500">
+                          <th className="px-3 py-3 font-semibold">Date</th>
+                          <th className="px-3 py-3 font-semibold">Prep</th>
+                          <th className="px-3 py-3 font-semibold">Planned</th>
+                          <th className="px-3 py-3 font-semibold">Produced</th>
+                          <th className="px-3 py-3 font-semibold">Status</th>
+                          <th className="px-3 py-3 font-semibold">Chef</th>
+                          <th className="px-3 py-3 font-semibold">Approved By</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedSiteHistory.map((record) => (
+                          <tr key={record.id} className="border-b border-gray-100">
+                            <td className="px-3 py-4 font-semibold text-gray-700">{record.scheduledDate}</td>
+                            <td className="px-3 py-4 font-semibold text-gray-950">{record.emoji} {record.name}</td>
+                            <td className="px-3 py-4 text-gray-700">{record.planned}</td>
+                            <td className="px-3 py-4 text-gray-700">{record.produced || "—"}</td>
+                            <td className="px-3 py-4">
+                              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                record.status === "approved"
+                                  ? "bg-violet-100 text-violet-800"
+                                  : record.status === "awaitingApproval"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-slate-100 text-gray-700"
+                              }`}>
+                                {record.status === "approved" ? "Complete" : record.status === "awaitingApproval" ? "Awaiting approval" : "Not completed"}
+                              </span>
+                            </td>
+                            <td className="px-3 py-4 text-gray-700">{record.chef || "—"}</td>
+                            <td className="px-3 py-4 text-gray-700">{record.approvedBy || "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
             </>
           )}
         </div>
