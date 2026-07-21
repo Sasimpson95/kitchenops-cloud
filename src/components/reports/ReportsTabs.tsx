@@ -3,6 +3,7 @@ import {
   Building2,
   ClipboardCheck,
   LayoutDashboard,
+  Lightbulb,
   PackageSearch,
   Repeat2,
   ShoppingCart,
@@ -19,7 +20,8 @@ type ReportsTabsProps = {
 };
 
 const tabs: Array<{ id: ReportTab; label: string; icon: typeof LayoutDashboard }> = [
-  { id: "operations", label: "Operations", icon: LayoutDashboard },
+  { id: "operations", label: "Executive", icon: LayoutDashboard },
+  { id: "insights", label: "Insights", icon: Lightbulb },
   { id: "inventory", label: "Inventory", icon: Boxes },
   { id: "purchasing", label: "Purchasing", icon: ShoppingCart },
   { id: "recipes", label: "Recipe Costing", icon: ChefHat },

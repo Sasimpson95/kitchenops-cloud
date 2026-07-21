@@ -2,6 +2,10 @@ import type { CsvRow, CsvValue } from "@/components/reports/types";
 
 export const REPORT_SITES: Array<{ id: string; name: string }> = [];
 
+export function setReportSites(sites: Array<{ id: string; name: string }>): void {
+  REPORT_SITES.splice(0, REPORT_SITES.length, ...sites);
+}
+
 export function toDateKey(value: Date): string {
   const year = value.getFullYear();
   const month = String(value.getMonth() + 1).padStart(2, "0");

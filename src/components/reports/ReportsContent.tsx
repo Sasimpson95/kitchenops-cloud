@@ -18,6 +18,9 @@ import {
   ChefHat,
   UtensilsCrossed,
   Percent,
+  Lightbulb,
+  TrendingUp,
+  BadgePoundSterling,
 } from "lucide-react";
 
 import type { PurchaseOrder } from "@/data/orders";
@@ -28,6 +31,8 @@ import type { WasteRecord } from "@/lib/wasteStore";
 import type { Stocktake } from "@/lib/stocktakeStore";
 import type { Recipe } from "@/data/recipes";
 import type { ProductionItem } from "@/data/production";
+import type { PrepHistoryRecord } from "@/lib/prepStore";
+import type { PurchasePriceRecord } from "@/lib/purchasePriceStore";
 import { calculateRecipeCosting, getRecipeCostingSetting } from "@/lib/recipeCostingStore";
 import type { ReportFiltersState, ReportTab, CsvRow } from "@/components/reports/types";
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
@@ -63,6 +68,8 @@ type ReportsContentProps = {
   stocktakes: Stocktake[];
   recipes: Recipe[];
   prepItems: ProductionItem[];
+  prepHistory: PrepHistoryRecord[];
+  purchasePriceHistory: PurchasePriceRecord[];
 };
 
 function productUnitCost(product: Product): number {
@@ -105,6 +112,8 @@ export default function ReportsContent({
   stocktakes,
   recipes,
   prepItems,
+  prepHistory,
+  purchasePriceHistory,
 }: ReportsContentProps) {
   const productMap = new Map(products.map((product) => [product.id, product]));
 
@@ -199,6 +208,114 @@ export default function ReportsContent({
     <ReportActions onCsv={() => downloadCsv(filename, rows)} onPrint={printReport} />
   );
 
+
+
+  if (tab === "insights") {
+    const lowStockRows = inventoryRows.filter((row) => ["Low Stock", "Reorder", "Out of Stock"].includes(row.status));
+    const openOrderRows = filteredOrders.filter((order) => order.status === "Sent");
+    const wasteRows = filteredWaste.map((record) => {
+      const product = productMap.get(record.productId);
+      return { ...record, estimatedValue: record.quantity * (product ? productUnitCost(product) : 0) };
+    });
+    const totalWasteValue = wasteRows.reduce((total, row) => total + row.estimatedValue, 0);
+
+    const priceGroups = new Map<number, PurchasePriceRecord[]>();
+    purchasePriceHistory
+      .filter((record) => record.businessId === getActiveBusinessId())
+      .filter((record) => isWithinDateRange(record.recordedAt, filters.startDate, filters.endDate))
+      .forEach((record) => {
+        const current = priceGroups.get(record.productId) ?? [];
+        current.push(record);
+        priceGroups.set(record.productId, current);
+      });
+
+    const priceChanges = Array.from(priceGroups.values())
+      .map((records) => [...records].sort((a, b) => b.recordedAt.localeCompare(a.recordedAt)))
+      .filter((records) => records.length >= 2)
+      .map((records) => {
+        const latest = records[0];
+        const previous = records[1];
+        const change = latest.unitPrice - previous.unitPrice;
+        const percentChange = previous.unitPrice > 0 ? (change / previous.unitPrice) * 100 : 0;
+        return { latest, previous, change, percentChange };
+      })
+      .filter((row) => row.change !== 0)
+      .sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange));
+
+    const prepRecords = prepHistory
+      .filter((record) => matchesSite(filters.site, record.site))
+      .filter((record) => isWithinDateRange(record.scheduledDate, filters.startDate, filters.endDate));
+    const prepPlanned = prepRecords.reduce((total, record) => total + record.planned, 0);
+    const prepProduced = prepRecords.reduce((total, record) => total + record.produced, 0);
+    const prepCompletion = prepPlanned > 0 ? (prepProduced / prepPlanned) * 100 : 0;
+
+    const negativeVarianceCounts = new Map<number, { productName: string; count: number; value: number }>();
+    filteredStocktakes
+      .filter((stocktake) => stocktake.status === "Completed")
+      .forEach((stocktake) => {
+        stocktake.items.forEach((item) => {
+          if (item.countedQuantity === null) return;
+          const variance = item.countedQuantity - item.expectedQuantity;
+          if (variance >= 0) return;
+          const product = productMap.get(item.productId);
+          const value = variance * (product ? productUnitCost(product) : 0);
+          const current = negativeVarianceCounts.get(item.productId) ?? { productName: item.productName, count: 0, value: 0 };
+          current.count += 1;
+          current.value += value;
+          negativeVarianceCounts.set(item.productId, current);
+        });
+      });
+    const repeatedNegativeVariances = Array.from(negativeVarianceCounts.values())
+      .filter((row) => row.count >= 2)
+      .sort((a, b) => b.count - a.count || a.value - b.value);
+
+    const wasteBySite = REPORT_SITES.map((site) => ({
+      site: site.name,
+      value: wasteRows.filter((row) => row.siteId === site.id || row.siteName === site.name)
+        .reduce((total, row) => total + row.estimatedValue, 0),
+    })).sort((a, b) => b.value - a.value);
+
+    const topWasteSite = wasteBySite[0];
+    const insightRows: Array<{ id: string; title: string; detail: string; priority: string }> = [];
+    if (lowStockRows.length > 0) insightRows.push({ id: "low-stock", title: `${lowStockRows.length} products need stock attention`, detail: "Products are at low, reorder or out-of-stock levels.", priority: "Action" });
+    if (openOrderRows.length > 0) insightRows.push({ id: "open-orders", title: `${openOrderRows.length} purchase orders are still outstanding`, detail: "Review sent orders that have not yet been received.", priority: "Review" });
+    if (priceChanges.some((row) => row.percentChange > 0)) {
+      const top = priceChanges.find((row) => row.percentChange > 0)!;
+      insightRows.push({ id: "price-rise", title: `${top.latest.productName} increased ${top.percentChange.toFixed(1)}%`, detail: `${money(top.previous.unitPrice)} → ${money(top.latest.unitPrice)} from ${top.latest.supplierName}.`, priority: "Cost" });
+    }
+    if (topWasteSite && topWasteSite.value > 0) insightRows.push({ id: "waste-site", title: `${topWasteSite.site} has the highest waste cost`, detail: `${money(topWasteSite.value)} recorded in the selected period.`, priority: "Waste" });
+    if (repeatedNegativeVariances.length > 0) {
+      const top = repeatedNegativeVariances[0];
+      insightRows.push({ id: "variance", title: `${top.productName} has repeated negative stocktake variance`, detail: `${top.count} stocktakes with negative variance, worth ${money(top.value)} in total.`, priority: "Stocktake" });
+    }
+    if (prepRecords.length > 0 && prepCompletion < 95) insightRows.push({ id: "prep", title: `Prep completion is ${prepCompletion.toFixed(1)}%`, detail: `${number(prepProduced)} produced against ${number(prepPlanned)} planned.`, priority: "Prep" });
+
+    return <>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <ReportKpiCard title="Stock Attention" value={lowStockRows.length} icon={AlertTriangle} tone="orange" />
+        <ReportKpiCard title="Waste Cost" value={money(totalWasteValue)} icon={Trash2} tone="red" />
+        <ReportKpiCard title="Price Changes" value={priceChanges.length} icon={TrendingUp} tone="blue" />
+        <ReportKpiCard title="Prep Completion" value={`${prepCompletion.toFixed(1)}%`} icon={Percent} tone="green" />
+      </div>
+      <ReportSection title="Actionable Insights" description="KitchenOps highlights the areas most likely to need management attention.">
+        <ReportTable rows={insightRows} rowKey={(row) => row.id} columns={[
+          { key: "priority", label: "Area", render: (row) => <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800">{row.priority}</span> },
+          { key: "title", label: "Insight", render: (row) => <strong>{row.title}</strong> },
+          { key: "detail", label: "Why it matters", render: (row) => row.detail },
+        ]} />
+      </ReportSection>
+      <ReportSection title="Purchase Price Changes" description="Latest price movements recorded from received orders and invoices.">
+        <ReportTable rows={priceChanges.slice(0, 20)} rowKey={(row) => row.latest.id} columns={[
+          { key: "product", label: "Product", render: (row) => <strong>{row.latest.productName}</strong> },
+          { key: "supplier", label: "Supplier", render: (row) => row.latest.supplierName },
+          { key: "previous", label: "Previous", align: "right", render: (row) => money(row.previous.unitPrice) },
+          { key: "current", label: "Current", align: "right", render: (row) => money(row.latest.unitPrice) },
+          { key: "change", label: "Change", align: "right", render: (row) => <span className={row.change > 0 ? "font-bold text-red-700" : "font-bold text-violet-800"}>{row.percentChange > 0 ? "+" : ""}{row.percentChange.toFixed(1)}%</span> },
+          { key: "date", label: "Recorded", render: (row) => formatDate(row.latest.recordedAt) },
+        ]} />
+      </ReportSection>
+    </>;
+  }
 
   if (tab === "recipes") {
     const recipeRows = recipes
@@ -421,18 +538,25 @@ export default function ReportsContent({
     const productsCounted = completed.reduce((total, item) => total + item.items.length, 0);
     const rows = filteredStocktakes.map((stocktake) => {
       const variances = stocktake.items.filter((item) => item.countedQuantity !== null && item.countedQuantity !== item.expectedQuantity).length;
+      const varianceValue = stocktake.items.reduce((total, item) => {
+        if (item.countedQuantity === null) return total;
+        const product = productMap.get(item.productId);
+        const unitCost = product ? productUnitCost(product) : 0;
+        return total + (item.countedQuantity - item.expectedQuantity) * unitCost;
+      }, 0);
       const durationMinutes = stocktake.completedAt
         ? Math.max(0, Math.round((new Date(stocktake.completedAt).getTime() - new Date(stocktake.startedAt).getTime()) / 60000))
         : null;
-      return { ...stocktake, variances, durationMinutes };
+      return { ...stocktake, variances, varianceValue, durationMinutes };
     });
-    const csv = rows.map((row) => ({ Stocktake: row.stocktakeNumber, Site: row.siteName, Period: row.periodLabel, Status: row.status, Products: row.items.length, Variances: row.variances, "Started By": row.startedBy, "Completed By": row.completedBy ?? "", Started: formatDateTime(row.startedAt), Completed: formatDateTime(row.completedAt), "Duration Minutes": row.durationMinutes ?? "" }));
+    const totalVarianceValue = rows.filter((row) => row.status === "Completed").reduce((total, row) => total + row.varianceValue, 0);
+    const csv = rows.map((row) => ({ Stocktake: row.stocktakeNumber, Site: row.siteName, Period: row.periodLabel, Status: row.status, Products: row.items.length, Variances: row.variances, "Variance Value": row.varianceValue, "Started By": row.startedBy, "Completed By": row.completedBy ?? "", Started: formatDateTime(row.startedAt), Completed: formatDateTime(row.completedAt), "Duration Minutes": row.durationMinutes ?? "" }));
     return <>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <ReportKpiCard title="Completed" value={completed.length} icon={CheckCircle2} tone="green" />
         <ReportKpiCard title="In Progress" value={open.length} icon={Clock3} tone="blue" />
         <ReportKpiCard title="Products Counted" value={productsCounted} icon={Boxes} tone="slate" />
-        <ReportKpiCard title="Variances" value={totalVariances} icon={AlertTriangle} tone="orange" />
+        <ReportKpiCard title="Variance Value" value={money(totalVarianceValue)} subtitle={`${totalVariances} product variances`} icon={BadgePoundSterling} tone={totalVarianceValue < 0 ? "red" : "orange"} />
       </div>
       <ReportSection title="Stocktake Report" description="Scheduled and manual stocktake activity." actions={actions("stocktake-report.csv", csv)}>
         <ReportTable rows={rows} rowKey={(row) => row.id} columns={[
@@ -441,6 +565,7 @@ export default function ReportsContent({
           { key: "period", label: "Period", render: (row) => row.periodLabel },
           { key: "products", label: "Products", align: "center", render: (row) => row.items.length },
           { key: "variance", label: "Variances", align: "center", render: (row) => row.variances },
+          { key: "varianceValue", label: "Variance £", align: "right", render: (row) => <strong className={row.varianceValue < 0 ? "text-red-700" : "text-violet-800"}>{money(row.varianceValue)}</strong> },
           { key: "duration", label: "Duration", align: "right", render: (row) => row.durationMinutes === null ? "—" : `${row.durationMinutes} min` },
           { key: "by", label: "Completed By", render: (row) => row.completedBy || row.startedBy },
           { key: "status", label: "Status", align: "center", render: (row) => statusBadge(row.status) },

@@ -12,7 +12,7 @@ import type { ReportFiltersState, ReportTab } from "@/components/reports/types";
 import type { User } from "@/config/roles";
 
 import { getCurrentUser } from "@/lib/currentUser";
-import { getDefaultReportDates, REPORT_SITES } from "@/lib/reportUtils";
+import { getDefaultReportDates, setReportSites } from "@/lib/reportUtils";
 import { getProducts, subscribeToProductChanges } from "@/lib/productStore";
 import { getInventoryMovements, getInventoryStock, subscribeToInventoryChanges } from "@/lib/inventoryStore";
 import { getOrders, subscribeToOrderChanges } from "@/lib/orderStore";
@@ -23,6 +23,9 @@ import { getSuppliers, subscribeToSupplierChanges } from "@/lib/supplierStore";
 import { getRecipes, subscribeToRecipeChanges } from "@/data/recipes";
 import { getPrepItems, subscribeToPrepChanges } from "@/lib/prepStore";
 import { subscribeToRecipeCostingChanges } from "@/lib/recipeCostingStore";
+import { getPrepHistory } from "@/lib/prepStore";
+import { getPurchasePriceHistory, subscribeToPurchasePriceChanges } from "@/lib/purchasePriceStore";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 
 function initialFilters(user?: User | null): ReportFiltersState {
   const dates = getDefaultReportDates();
@@ -42,6 +45,7 @@ export default function ReportsPage() {
   const [tab, setTab] = useState<ReportTab>("operations");
   const [filters, setFilters] = useState<ReportFiltersState>(initialFilters());
   const [version, setVersion] = useState(0);
+  const { sites, loading: sitesLoading } = useBusinessSites();
 
   const refresh = useCallback(() => setVersion((value) => value + 1), []);
   void version;
@@ -75,6 +79,7 @@ export default function ReportsPage() {
       subscribeToRecipeChanges(refresh),
       subscribeToPrepChanges(refresh),
       subscribeToRecipeCostingChanges(refresh),
+      subscribeToPurchasePriceChanges(refresh),
     ];
     return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
   }, [refresh]);
@@ -89,11 +94,15 @@ export default function ReportsPage() {
   const stocktakes = getStocktakes();
   const recipes = getRecipes();
   const prepItems = getPrepItems();
+  const prepHistory = getPrepHistory();
+  const purchasePriceHistory = getPurchasePriceHistory();
+
+  setReportSites(sites.map((site) => ({ id: site.id, name: site.name })));
 
   const siteOptions = useMemo(() => {
     if (currentUser?.role !== "operations") return [currentUser?.site ?? "All Sites"];
-    return ["All Sites", ...REPORT_SITES.map((site) => site.name)];
-  }, [currentUser]);
+    return ["All Sites", ...sites.map((site) => site.name)];
+  }, [currentUser, sites]);
 
   const supplierOptions = useMemo(
     () => ["All Suppliers", ...Array.from(new Set(suppliers.map((supplier) => supplier.name))).sort()],
@@ -113,7 +122,7 @@ export default function ReportsPage() {
     setFilters(initialFilters(currentUser));
   }
 
-  if (loading || !currentUser) {
+  if (loading || sitesLoading || !currentUser) {
     return (
       <ProtectedPage>
         <main className="flex min-h-screen items-center justify-center bg-slate-100">
@@ -161,6 +170,8 @@ export default function ReportsPage() {
               stocktakes={stocktakes}
               recipes={recipes}
               prepItems={prepItems}
+              prepHistory={prepHistory}
+              purchasePriceHistory={purchasePriceHistory}
             />
           </div>
         </div>
