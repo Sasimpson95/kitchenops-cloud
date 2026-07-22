@@ -349,10 +349,10 @@ function RecipeSettingsModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm"
+      className="mobile-native-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm"
     >
       <div
-        className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-7 shadow-2xl"
+        data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-7 shadow-2xl"
         onClick={(event) =>
           event.stopPropagation()
         }
@@ -371,7 +371,7 @@ function RecipeSettingsModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-gray-600"
+            data-dialog-close="true" aria-label="Close" className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-gray-600"
           >
             <X size={18} />
           </button>

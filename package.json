@@ -1,6 +1,6 @@
 {
   "name": "kitchenops-v1",
-  "version": "0.9.8",
+  "version": "1.0.0-preview2",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,9 +8,18 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm run lint && npm run build"
+    "check": "npm run typecheck && npm run lint && npm run build",
+    "android:check": "node scripts/check-android-config.mjs",
+    "android:sync": "npm run android:check && npx cap sync android",
+    "android:open": "npm run android:sync && npx cap open android",
+    "android:copy": "npm run android:check && npx cap copy android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/core": "^8.4.2",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3",
     "@supabase/ssr": "^0.12.2",
     "@supabase/supabase-js": "^2.110.5",
     "lucide-react": "^1.24.0",
@@ -19,6 +28,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.4.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

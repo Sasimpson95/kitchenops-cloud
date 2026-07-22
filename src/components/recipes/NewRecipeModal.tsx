@@ -499,8 +499,8 @@ export default function NewRecipeModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm">
-      <div className="max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white p-7 shadow-2xl">
+    <div className="mobile-native-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm">
+      <div data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white p-7 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="font-semibold text-violet-800">
@@ -515,7 +515,7 @@ export default function NewRecipeModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-gray-600"
+            data-dialog-close="true" aria-label="Close" className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-gray-600"
           >
             <X size={18} />
           </button>
