@@ -30,11 +30,11 @@ export default function StartStocktakeModal({
 }: StartStocktakeModalProps) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm"
+      className="mobile-native-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl"
+        data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl"
         onClick={(event) =>
           event.stopPropagation()
         }
@@ -90,7 +90,7 @@ export default function StartStocktakeModal({
           </div>
         )}
 
-        <div className="mt-8 flex gap-3">
+        <div className="mobile-sticky-actions mt-8 flex flex-col-reverse gap-3 sm:flex-row">
           <button
             type="button"
             onClick={onClose}

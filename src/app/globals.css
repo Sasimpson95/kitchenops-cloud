@@ -129,3 +129,30 @@ body {
     backdrop-filter: blur(12px);
   }
 }
+
+/* Phase 1 mobile form polish */
+@media (max-width: 640px) {
+  .mobile-native-sheet > header,
+  .mobile-native-sheet > div:first-child {
+    scroll-margin-top: env(safe-area-inset-top);
+  }
+
+  .mobile-native-sheet input,
+  .mobile-native-sheet select,
+  .mobile-native-sheet textarea {
+    font-size: 16px !important;
+  }
+
+  .mobile-native-sheet textarea {
+    min-height: 7rem;
+  }
+
+  .mobile-native-sheet .mobile-sticky-actions > button {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .mobile-native-sheet h2 {
+    line-height: 1.15;
+  }
+}

@@ -357,10 +357,10 @@ export default function ProductFormModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm"
+      className="mobile-native-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm"
     >
       <div
-        className="max-h-[94vh] w-full max-w-5xl overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl"
+        data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet max-h-[94vh] w-full max-w-5xl overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl"
         onClick={(event) =>
           event.stopPropagation()
         }
@@ -947,7 +947,7 @@ export default function ProductFormModal({
           </div>
         )}
 
-        <div className="mt-8 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
+        <div className="mobile-sticky-actions mt-8 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onClose}

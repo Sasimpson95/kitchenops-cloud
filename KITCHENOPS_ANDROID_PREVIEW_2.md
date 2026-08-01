@@ -11,7 +11,7 @@ This release is a mobile polish build based on KitchenOps v0.9.8.1.
 - Overscroll/pull-to-refresh suppression.
 - Larger mobile touch targets.
 - Native status-bar and splash-screen handling.
-- Android version name `1.0.0-preview2`, version code `1`.
+- Android version name `1.0.0-preview3`, version code `1`.
 - Live URL set to `https://kitchenops-cloud.vercel.app/login`.
 
 ## Required workflow
