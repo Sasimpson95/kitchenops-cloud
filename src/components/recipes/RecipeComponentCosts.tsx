@@ -25,7 +25,7 @@ export default function RecipeComponentCosts({
   }
 
   return (
-    <section className="rounded-3xl bg-white p-6 shadow-sm">
+    <section className="rounded-2xl bg-white p-6 shadow-sm">
       <div>
         <h2 className="text-xl font-bold text-gray-950">
           Preparation Components

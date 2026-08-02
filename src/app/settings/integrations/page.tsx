@@ -33,8 +33,8 @@ const integrations = [
 export default function SettingsIntegrationsPage() {
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-6xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-6xl">
           <Link
             href="/settings"
             className="text-sm font-semibold text-violet-800 hover:underline"
@@ -66,7 +66,7 @@ export default function SettingsIntegrationsPage() {
                 <Link
                   key={integration.href}
                   href={integration.href}
-                  className="group rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md"
+                  className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-800">

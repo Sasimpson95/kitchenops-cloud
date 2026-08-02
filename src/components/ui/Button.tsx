@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 export type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -30,27 +30,31 @@ const sizeClasses: Record<ButtonSize, string> = {
   lg: "min-h-12 rounded-xl px-5 py-3 text-base sm:px-6",
 };
 
-export default function Button({
-  children,
-  variant = "primary",
-  size = "md",
-  loading = false,
-  fullWidth = false,
-  leadingIcon,
-  trailingIcon,
-  disabled,
-  className = "",
-  type = "button",
-  ...props
-}: ButtonProps) {
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    children,
+    variant = "primary",
+    size = "md",
+    loading = false,
+    fullWidth = false,
+    leadingIcon,
+    trailingIcon,
+    disabled,
+    className = "",
+    type = "button",
+    ...props
+  },
+  ref,
+) {
   const isDisabled = disabled || loading;
 
   return (
     <button
+      ref={ref}
       type={type}
       disabled={isDisabled}
       aria-busy={loading || undefined}
-      className={`inline-flex items-center justify-center gap-2 font-semibold transition duration-150 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-200 disabled:cursor-not-allowed disabled:opacity-55 ${variantClasses[variant]} ${sizeClasses[size]} ${fullWidth ? "w-full" : ""} ${className}`}
+      className={`kitchenops-interactive inline-flex items-center justify-center gap-2 font-semibold transition duration-150 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-200 disabled:cursor-not-allowed disabled:opacity-55 ${variantClasses[variant]} ${sizeClasses[size]} ${fullWidth ? "w-full" : ""} ${className}`}
       {...props}
     >
       {loading ? (
@@ -65,4 +69,6 @@ export default function Button({
       {!loading && trailingIcon}
     </button>
   );
-}
+});
+
+export default Button;

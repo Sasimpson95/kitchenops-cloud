@@ -190,7 +190,7 @@ function SummaryCard({
   icon: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl bg-white p-5 shadow-sm">
+    <section className="rounded-2xl bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold text-gray-500">
@@ -444,8 +444,8 @@ export default function PosIntegrationPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <p className="font-semibold text-violet-800">
@@ -544,7 +544,7 @@ export default function PosIntegrationPage() {
           </div>
 
           <div className="mt-8 grid gap-6 xl:grid-cols-2">
-            <section className="rounded-3xl bg-white p-6 shadow-sm">
+            <section className="rounded-2xl bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <Plug
                   size={22}
@@ -704,7 +704,7 @@ export default function PosIntegrationPage() {
               )}
             </section>
 
-            <section className="rounded-3xl bg-white p-6 shadow-sm">
+            <section className="rounded-2xl bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <Settings2
                   size={22}
@@ -778,7 +778,7 @@ export default function PosIntegrationPage() {
             </section>
           </div>
 
-          <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+          <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
             <div className="flex items-center gap-3">
               <MapPin
                 size={22}
@@ -909,7 +909,7 @@ export default function PosIntegrationPage() {
             </div>
           </section>
 
-          <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+          <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
               <div className="flex items-start gap-3">
                 <Link2
@@ -1046,7 +1046,7 @@ export default function PosIntegrationPage() {
           </section>
 
           <div className="mt-8 grid gap-6 xl:grid-cols-2">
-            <section className="rounded-3xl bg-white p-6 shadow-sm">
+            <section className="rounded-2xl bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <Database
                   size={22}
@@ -1106,7 +1106,7 @@ export default function PosIntegrationPage() {
               )}
             </section>
 
-            <section className="rounded-3xl bg-white p-6 shadow-sm">
+            <section className="rounded-2xl bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <AlertTriangle
                   size={22}

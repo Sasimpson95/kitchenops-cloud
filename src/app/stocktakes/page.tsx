@@ -582,7 +582,7 @@ export default function StocktakesPage() {
 
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
+        <main className="ko-page ko-enter">
           {selectedArea ? (
             <StocktakeCounter
               stocktake={
@@ -627,7 +627,7 @@ export default function StocktakesPage() {
   if (resultsStocktake) {
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
+        <main className="ko-page ko-enter">
           <StocktakeResults
             stocktake={
               resultsStocktake
@@ -654,8 +654,8 @@ export default function StocktakesPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div>
               <h1 className="text-4xl font-bold text-gray-950">
@@ -682,7 +682,7 @@ export default function StocktakesPage() {
           </div>
 
           <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_1fr]">
-            <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
               <label className="text-sm font-semibold text-gray-600">
                 Viewing Site
               </label>
@@ -726,7 +726,7 @@ export default function StocktakesPage() {
               )}
             </div>
 
-            <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <CalendarClock
                   size={22}
@@ -777,7 +777,7 @@ export default function StocktakesPage() {
                           summary.site
                         )
                       }
-                      className="rounded-3xl border border-gray-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:border-green-300 hover:shadow-md"
+                      className="rounded-2xl border border-gray-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md"
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
@@ -865,7 +865,7 @@ export default function StocktakesPage() {
               ) : currentPeriodStocktake &&
                 settings.stocktakeFrequency !==
                   "manual" ? (
-                <div className="mt-8 rounded-3xl bg-violet-50 p-8">
+                <div className="mt-8 rounded-2xl bg-violet-50 p-8">
                   <div className="flex items-center gap-4">
                     <ClipboardCheck
                       size={34}
@@ -896,7 +896,7 @@ export default function StocktakesPage() {
                   </button>
                 </div>
               ) : (
-                <div className="mt-8 rounded-3xl border border-dashed border-gray-300 bg-white p-10 text-center">
+                <div className="mt-8 rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center">
                   <ClipboardCheck
                     size={38}
                     className="mx-auto text-gray-400"
@@ -935,7 +935,7 @@ export default function StocktakesPage() {
 
                 {completedStocktakes.length ===
                 0 ? (
-                  <div className="mt-5 rounded-3xl bg-white p-10 text-center shadow-sm">
+                  <div className="mt-5 rounded-2xl bg-white p-10 text-center shadow-sm">
                     <p className="font-semibold text-gray-700">
                       No completed stocktakes yet.
                     </p>

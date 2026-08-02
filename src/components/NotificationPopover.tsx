@@ -63,7 +63,7 @@ export default function NotificationPopover({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-12 z-50 w-[min(420px,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-2xl">
+        <div className="absolute right-0 top-12 z-50 w-[min(420px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
           <div className="flex items-center justify-between border-b p-5">
             <div>
               <h2 className="font-bold text-gray-950">Notifications</h2>

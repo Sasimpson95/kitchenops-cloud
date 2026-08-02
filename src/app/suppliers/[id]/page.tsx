@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/lib/toast";
 import {
   use,
   useCallback,
@@ -337,11 +338,7 @@ export default function SupplierPage({
         supplier.id
       );
     } catch (caughtError) {
-      window.alert(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "The supplier could not be archived."
-      );
+      toast.error("Supplier could not be archived", caughtError instanceof Error ? caughtError.message : "Please try again.");
     }
   }
 
@@ -358,11 +355,7 @@ export default function SupplierPage({
         supplier.id
       );
     } catch (caughtError) {
-      window.alert(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "The supplier could not be restored."
-      );
+      toast.error("Supplier could not be restored", caughtError instanceof Error ? caughtError.message : "Please try again.");
     }
   }
 
@@ -381,8 +374,8 @@ export default function SupplierPage({
   if (!supplier) {
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-8">
-          <div className="mx-auto max-w-4xl rounded-3xl bg-white p-8 shadow-sm">
+        <main className="ko-page ko-enter">
+          <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
             <h1 className="text-3xl font-bold text-gray-950">
               Supplier not found
             </h1>
@@ -408,8 +401,8 @@ export default function SupplierPage({
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
-        <div className="mx-auto max-w-6xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-6xl">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <Link
               href="/suppliers"
@@ -470,7 +463,7 @@ export default function SupplierPage({
             )}
           </div>
 
-          <div className="mt-6 rounded-3xl bg-white p-8 shadow-sm">
+          <div className="mt-6 rounded-2xl bg-white p-8 shadow-sm">
             <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
               <div>
                 <div className="flex flex-wrap items-center gap-3">

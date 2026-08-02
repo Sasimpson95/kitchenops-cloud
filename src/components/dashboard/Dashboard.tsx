@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/lib/toast";
 import {
   useCallback,
   useEffect,
@@ -132,9 +133,7 @@ export default function Dashboard() {
     );
 
     if (!recipe) {
-      window.alert(
-        "The matching recipe could not be found."
-      );
+      toast.error("Recipe not found", "The matching recipe could not be found.");
 
       return;
     }
@@ -265,7 +264,7 @@ export default function Dashboard() {
                 ))}
             </div>
 
-            <div className="mt-8 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               <h2 className="text-2xl font-bold text-gray-950">
                 Latest Stocktake
               </h2>
@@ -371,7 +370,7 @@ export default function Dashboard() {
           </>
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <div className="rounded-3xl bg-white p-6 shadow-sm lg:col-span-2">
+            <div className="rounded-2xl bg-white p-6 shadow-sm lg:col-span-2">
               <h2 className="text-xl font-bold">
                 Prep Awaiting Approval (
                 {awaitingApproval.length})
@@ -437,7 +436,7 @@ export default function Dashboard() {
               )}
             </div>
 
-            <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
               <h2 className="text-xl font-bold">
                 {selectedSite} — Today&apos;s
                 Handover
@@ -469,7 +468,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
               <h2 className="text-xl font-bold">
                 {selectedSite} — Today&apos;s
                 Prep
@@ -594,7 +593,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
               <h2 className="text-xl font-bold">
                 Receive Deliveries
               </h2>
@@ -632,7 +631,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
               <h2 className="text-xl font-bold">
                 Waste
               </h2>
@@ -657,7 +656,7 @@ export default function Dashboard() {
 
         {reviewItem && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+            <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
               <h2 className="text-center text-2xl font-bold text-gray-950">
                 Review Prep
               </h2>

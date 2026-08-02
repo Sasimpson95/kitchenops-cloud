@@ -172,7 +172,7 @@ export default function ProductActivity({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl bg-white p-6 shadow-sm">
+      <section className="rounded-2xl bg-white p-6 shadow-sm">
         <h2 className="text-xl font-bold text-gray-950">
           Activity Summary
         </h2>
@@ -249,7 +249,7 @@ export default function ProductActivity({
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm">
+      <section className="rounded-2xl bg-white p-6 shadow-sm">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
             <h2 className="text-xl font-bold text-gray-950">
@@ -344,7 +344,7 @@ export default function ProductActivity({
         )}
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm">
+      <section className="rounded-2xl bg-white p-6 shadow-sm">
         <h2 className="text-xl font-bold text-gray-950">
           Purchase Orders
         </h2>

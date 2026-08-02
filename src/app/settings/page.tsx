@@ -64,8 +64,8 @@ const sections = [
 export default function SettingsPage() {
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-6xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-6xl">
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
               <Settings2 size={24} />
@@ -94,7 +94,7 @@ export default function SettingsPage() {
                 <Link
                   key={section.href}
                   href={section.href}
-                  className="group flex items-center gap-5 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md"
+                  className="group flex items-center gap-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md"
                 >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-50 text-violet-800 transition group-hover:bg-violet-100">
                     <Icon size={23} />
@@ -119,7 +119,7 @@ export default function SettingsPage() {
             })}
           </div>
 
-          <section className="mt-6 flex flex-col gap-2 rounded-3xl border border-violet-200 bg-violet-50 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <section className="mt-6 flex flex-col gap-2 rounded-2xl border border-violet-200 bg-violet-50 p-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wide text-violet-700">Installed version</p>
               <h2 className="mt-1 text-xl font-bold text-violet-950">KitchenOps v{KITCHENOPS_VERSION}</h2>
@@ -130,7 +130,7 @@ export default function SettingsPage() {
             </span>
           </section>
 
-          <section className="mt-6 rounded-3xl border border-dashed border-gray-300 bg-white/70 p-6">
+          <section className="mt-6 rounded-2xl border border-dashed border-gray-300 bg-white/70 p-6">
             <h2 className="font-bold text-gray-950">
               Administration is now grouped here
             </h2>

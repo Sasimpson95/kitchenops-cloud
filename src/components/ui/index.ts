@@ -11,3 +11,5 @@ export { default as SectionCard } from "./SectionCard";
 export { default as Skeleton, CardSkeleton } from "./Skeleton";
 export { default as StatusBadge } from "./StatusBadge";
 export { default as Textarea } from "./Textarea";
+
+export { default as ToastProvider } from "./ToastProvider";

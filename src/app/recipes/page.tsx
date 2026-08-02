@@ -352,7 +352,7 @@ function RecipeSettingsModal({
       className="mobile-native-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm"
     >
       <div
-        data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-7 shadow-2xl"
+        data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-7 shadow-2xl"
         onClick={(event) =>
           event.stopPropagation()
         }
@@ -1116,8 +1116,8 @@ function RecipesContent() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <p className="font-semibold text-violet-800">
@@ -1150,7 +1150,7 @@ function RecipesContent() {
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[320px_1fr]">
-            <aside className="rounded-3xl bg-white p-5 shadow-sm">
+            <aside className="rounded-2xl bg-white p-5 shadow-sm">
               <div className="relative">
                 <Search
                   size={19}
@@ -1282,7 +1282,7 @@ function RecipesContent() {
             {!selectedRecipe ||
             !selectedSettings ||
             !costing ? (
-              <section className="rounded-3xl bg-white p-12 text-center shadow-sm">
+              <section className="rounded-2xl bg-white p-12 text-center shadow-sm">
                 <Calculator
                   size={42}
                   className="mx-auto text-gray-400"
@@ -1316,7 +1316,7 @@ function RecipesContent() {
               </section>
             ) : (
               <div className="space-y-6">
-                <section className="rounded-3xl bg-white p-6 shadow-sm">
+                <section className="rounded-2xl bg-white p-6 shadow-sm">
                   <div className="flex flex-col justify-between gap-5 md:flex-row md:items-start">
                     <div>
                       <div className="flex flex-wrap items-center gap-3">
@@ -1421,7 +1421,7 @@ function RecipesContent() {
                 />
 
                 <div className="grid gap-6 xl:grid-cols-2">
-                  <section className="rounded-3xl bg-white p-6 shadow-sm">
+                  <section className="rounded-2xl bg-white p-6 shadow-sm">
                     <h2 className="text-xl font-bold text-gray-950">
                       Allergens
                     </h2>
@@ -1451,7 +1451,7 @@ function RecipesContent() {
                     )}
                   </section>
 
-                  <section className="rounded-3xl bg-white p-6 shadow-sm">
+                  <section className="rounded-2xl bg-white p-6 shadow-sm">
                     <h2 className="text-xl font-bold text-gray-950">
                       Method
                     </h2>

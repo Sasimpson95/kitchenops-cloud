@@ -150,8 +150,8 @@ export default function ReportsPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8 print:bg-white print:p-0">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter print:bg-white print:p-0">
+        <div className="w-full">
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-800 text-white print:hidden">
               <BarChart3 size={28} />

@@ -148,7 +148,7 @@ export default function SupplierModal({
 
   return (
     <div className="mobile-native-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm">
-      <div data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
+      <div data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-semibold text-violet-800">Catalogue</p>

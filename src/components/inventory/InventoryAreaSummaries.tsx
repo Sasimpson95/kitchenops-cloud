@@ -33,7 +33,7 @@ export default function InventoryAreaSummaries({
   }
 
   return (
-    <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+    <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
           <MapPin size={22} />
@@ -66,7 +66,7 @@ export default function InventoryAreaSummaries({
                     : summary.area
                 )
               }
-              className={`rounded-2xl border p-5 text-left transition hover:-translate-y-1 hover:shadow-md ${
+              className={`rounded-2xl border p-5 text-left transition hover:-translate-y-0.5 hover:shadow-md ${
                 active
                   ? "border-violet-700 bg-violet-50 ring-2 ring-violet-100"
                   : "border-gray-200 bg-slate-50 hover:border-green-300 hover:bg-violet-50"

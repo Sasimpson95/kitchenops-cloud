@@ -34,7 +34,7 @@ export default function ReportKpiCard({
   tone = "slate",
 }: ReportKpiCardProps) {
   return (
-    <div className={`rounded-3xl p-5 shadow-sm ${tones[tone]}`}>
+    <div className={`rounded-2xl p-5 shadow-sm ${tones[tone]}`}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold opacity-70">{title}</p>

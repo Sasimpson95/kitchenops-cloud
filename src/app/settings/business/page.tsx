@@ -313,8 +313,8 @@ export default function SettingsPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-6xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-6xl">
           <p className="font-semibold text-violet-800">
             Operations
           </p>
@@ -341,7 +341,7 @@ export default function SettingsPage() {
 
           {business && (
             <>
-              <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
+              <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm sm:p-8">
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
                     <Building2 size={24} />
@@ -432,7 +432,7 @@ export default function SettingsPage() {
                 </div>
               </section>
 
-              <section className="mt-6 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
+              <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm sm:p-8">
                 <h2 className="text-2xl font-bold text-gray-950">
                   Operations Users
                 </h2>
@@ -462,7 +462,7 @@ export default function SettingsPage() {
                 </div>
               </section>
 
-              <section className="mt-6 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
+              <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm sm:p-8">
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
                     <CalendarClock size={24} />

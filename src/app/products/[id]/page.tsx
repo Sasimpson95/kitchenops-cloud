@@ -435,8 +435,8 @@ export default function ProductPage({
   if (!product) {
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-8">
-          <div className="mx-auto max-w-4xl rounded-3xl bg-white p-8 shadow-sm">
+        <main className="ko-page ko-enter">
+          <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
             <h1 className="text-3xl font-bold text-gray-950">
               Product not found
             </h1>
@@ -493,8 +493,8 @@ export default function ProductPage({
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <Link
               href="/products"
@@ -544,7 +544,7 @@ export default function ProductPage({
             )}
           </div>
 
-          <section className="mt-6 rounded-3xl bg-white p-8 shadow-sm">
+          <section className="mt-6 rounded-2xl bg-white p-8 shadow-sm">
             <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
               <div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -734,7 +734,7 @@ export default function ProductPage({
                 product={product}
               />
 
-              <section className="mt-6 rounded-3xl bg-white p-6 shadow-sm">
+              <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm">
                 <div className="flex items-center gap-3">
                   <Boxes
                     size={22}

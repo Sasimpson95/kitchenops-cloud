@@ -23,7 +23,7 @@ export default function ReportFilters({
   onReset,
 }: ReportFiltersProps) {
   return (
-    <section className="mt-6 rounded-3xl bg-white p-6 shadow-sm print:hidden">
+    <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm print:hidden">
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">

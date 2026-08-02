@@ -75,7 +75,7 @@ export default function InventoryHistoryModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl"
+        className="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl"
         onClick={(event) =>
           event.stopPropagation()
         }

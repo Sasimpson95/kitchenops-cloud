@@ -447,7 +447,7 @@ export default function InventoryPage() {
     return (
       <ProtectedPage>
         <main className="flex min-h-screen items-center justify-center bg-slate-100 p-8">
-          <div className="max-w-lg rounded-3xl bg-white p-10 text-center shadow-sm">
+          <div className="max-w-lg rounded-2xl bg-white p-10 text-center shadow-sm">
             <Building2 size={42} className="mx-auto text-violet-800" />
             <h1 className="mt-4 text-2xl font-bold text-gray-950">No Sites Yet</h1>
             <p className="mt-3 text-gray-600">Inventory belongs to a site. Create your first site before tracking stock.</p>
@@ -460,12 +460,12 @@ export default function InventoryPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <h1 className="text-4xl font-bold text-gray-950">Inventory</h1>
           <p className="mt-2 text-gray-600">Live stock levels, values and movement history.</p>
 
-          <div className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+          <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
             <label className="text-sm font-semibold text-gray-600">Viewing Site</label>
             {isOperations ? (
               <select value={selectedSite} onChange={(event) => changeSite(event.target.value)} className="mt-2 block w-full max-w-sm rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800">
@@ -486,7 +486,7 @@ export default function InventoryPage() {
               <p className="mt-2 text-gray-600">Select a site to inspect its stock and activity.</p>
               <div className="mt-6 grid gap-5 md:grid-cols-2">
                 {siteSummaries.map((summary) => (
-                  <button key={summary.site} type="button" onClick={() => changeSite(summary.site)} className="rounded-3xl border border-gray-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:border-green-300 hover:shadow-md">
+                  <button key={summary.site} type="button" onClick={() => changeSite(summary.site)} className="rounded-2xl border border-gray-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-800"><Building2 size={24} /></div><h3 className="text-2xl font-bold">{summary.site}</h3></div>
                       <span className="text-2xl text-violet-800">→</span>
@@ -527,7 +527,7 @@ export default function InventoryPage() {
                 }}
               />
 
-              <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+              <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                   <div><h2 className="text-2xl font-bold">{selectedSite} Stock</h2><p className="mt-1 text-gray-500">Search, filter and sort live inventory.</p></div>
                   <div className="relative w-full lg:w-96">
@@ -561,7 +561,7 @@ export default function InventoryPage() {
                 />
               </section>
 
-              <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+              <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                   <div className="flex items-center gap-3"><History size={24} className="text-violet-800" /><div><h2 className="text-2xl font-bold">Recent Activity</h2><p className="mt-1 text-gray-500">Every delivery, prep, waste, transfer and stocktake movement.</p></div></div>
                   <select value={movementFilter} onChange={(event) => setMovementFilter(event.target.value as "All" | InventoryMovementType)} className="rounded-xl border border-gray-300 px-4 py-3 font-semibold outline-none focus:border-violet-800">

@@ -46,7 +46,7 @@ function StatButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-3xl p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md ${className}`}
+      className={`rounded-2xl p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${className}`}
     >
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold">

@@ -108,8 +108,8 @@ export default function TransfersPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div>
               <div className="flex items-center gap-3">
@@ -132,21 +132,21 @@ export default function TransfersPage() {
           </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-3xl bg-white p-5 shadow-sm">
+            <div className="rounded-2xl bg-white p-5 shadow-sm">
               <p className="text-sm text-gray-500">Transfers Recorded</p>
               <p className="mt-1 text-3xl font-bold text-gray-950">
                 {visibleTransfers.length}
               </p>
             </div>
 
-            <div className="rounded-3xl bg-violet-50 p-5 shadow-sm">
+            <div className="rounded-2xl bg-violet-50 p-5 shadow-sm">
               <p className="text-sm text-violet-700">In Transit</p>
               <p className="mt-1 text-3xl font-bold text-violet-900">
                 {visibleTransfers.filter((transfer) => transfer.status === "Dispatched").length}
               </p>
             </div>
 
-            <div className="rounded-3xl bg-blue-50 p-5 shadow-sm">
+            <div className="rounded-2xl bg-blue-50 p-5 shadow-sm">
               <p className="text-sm text-blue-700">Viewing</p>
               <p className="mt-1 text-xl font-bold text-blue-900">
                 {currentUser.role === "operations" ? "All Sites" : currentUser.site}
@@ -154,7 +154,7 @@ export default function TransfersPage() {
             </div>
           </div>
 
-          <div className="mt-8 rounded-3xl bg-white p-5 shadow-sm">
+          <div className="mt-8 rounded-2xl bg-white p-5 shadow-sm">
             <div className="relative">
               <Search
                 size={21}

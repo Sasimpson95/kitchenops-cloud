@@ -88,8 +88,8 @@ export default function PrepPlannerPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-8">
-      <div className="mx-auto max-w-5xl">
+    <main className="ko-page ko-enter">
+      <div className="w-full max-w-5xl">
         <h1 className="text-4xl font-bold text-gray-950">Prep Planner</h1>
 
         <p className="mt-2 text-gray-600">
@@ -187,7 +187,7 @@ export default function PrepPlannerPage() {
 
       {selectedItem && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
             <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-2xl">
               ✅
             </div>

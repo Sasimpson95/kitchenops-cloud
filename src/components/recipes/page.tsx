@@ -15,8 +15,8 @@ export default function RecipesPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold text-gray-950">
@@ -45,7 +45,7 @@ export default function RecipesPage() {
               <button
                 key={recipe.name}
                 onClick={() => setSelectedRecipe(recipe)}
-                className="rounded-3xl bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                className="rounded-2xl bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
               >
                 <h2 className="text-2xl font-bold text-gray-950">
                   {recipe.emoji} {recipe.name}
@@ -77,7 +77,7 @@ export default function RecipesPage() {
           </div>
 
           {filteredRecipes.length === 0 && (
-            <div className="mt-8 rounded-3xl bg-white p-12 text-center shadow-sm">
+            <div className="mt-8 rounded-2xl bg-white p-12 text-center shadow-sm">
               <h2 className="text-2xl font-bold text-gray-900">
                 No recipes found
               </h2>

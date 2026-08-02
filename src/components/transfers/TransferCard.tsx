@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/lib/toast";
 import { ArrowRight, CheckCircle2, Clock3, PackageCheck, Truck, XCircle } from "lucide-react";
 import type { User } from "@/config/roles";
 import type { StockTransfer } from "@/lib/transferStore";
@@ -42,12 +43,12 @@ export default function TransferCard({ transfer, currentUser, onChanged }: Trans
       action();
       onChanged?.();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "The transfer could not be updated.");
+      toast.error("Transfer not updated", error instanceof Error ? error.message : "The transfer could not be updated.");
     }
   }
 
   return (
-    <article className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+    <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div>
           <div className="flex flex-wrap items-center gap-3">

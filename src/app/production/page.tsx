@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/lib/toast";
 import {
   useCallback,
   useEffect,
@@ -469,9 +470,7 @@ export default function PrepPlannerPage() {
       );
 
     if (!recipe) {
-      window.alert(
-        "The matching recipe could not be found."
-      );
+      toast.error("Recipe not found", "The matching recipe could not be found.");
 
       return;
     }
@@ -570,9 +569,7 @@ export default function PrepPlannerPage() {
     if (
       item.site !== selectedSite
     ) {
-      window.alert(
-        "This prep item belongs to another site."
-      );
+      toast.warning("Different site", "This prep item belongs to another site.");
 
       return;
     }
@@ -589,11 +586,7 @@ export default function PrepPlannerPage() {
     try {
       removePrepItem(item.id);
     } catch (caughtError) {
-      window.alert(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "Prep could not be removed."
-      );
+      toast.error("Prep could not be removed", caughtError instanceof Error ? caughtError.message : "Please try again.");
     }
   }
 
@@ -613,7 +606,7 @@ export default function PrepPlannerPage() {
     return (
       <ProtectedPage>
         <main className="flex min-h-screen items-center justify-center bg-slate-100 p-6">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-10 text-center shadow-sm">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-10 text-center shadow-sm">
             <Building2 className="mx-auto text-violet-800" size={44} />
             <h1 className="mt-5 text-2xl font-bold text-gray-950">No Sites Yet</h1>
             <p className="mt-3 text-gray-600">
@@ -634,8 +627,8 @@ export default function PrepPlannerPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
-        <div className="mx-auto max-w-6xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-6xl">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <h1 className="text-4xl font-bold text-gray-950">
@@ -657,7 +650,7 @@ export default function PrepPlannerPage() {
             </button>
           </div>
 
-          <div className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+          <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
             <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
               <div>
                 <label className="text-sm font-semibold text-gray-600">
@@ -749,7 +742,7 @@ export default function PrepPlannerPage() {
                           summary.site
                         )
                       }
-                      className="rounded-3xl border border-gray-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:border-green-300 hover:shadow-md"
+                      className="rounded-2xl border border-gray-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md"
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
@@ -826,7 +819,7 @@ export default function PrepPlannerPage() {
           ) : (
             <>
               <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-3xl bg-white p-5 shadow-sm">
+                <div className="rounded-2xl bg-white p-5 shadow-sm">
                   <p className="text-sm text-gray-500">
                     Today&apos;s Prep
                   </p>
@@ -836,7 +829,7 @@ export default function PrepPlannerPage() {
                   </p>
                 </div>
 
-                <div className="rounded-3xl bg-violet-50 p-5 shadow-sm">
+                <div className="rounded-2xl bg-violet-50 p-5 shadow-sm">
                   <p className="text-sm text-violet-700">
                     Approved Today
                   </p>
@@ -846,7 +839,7 @@ export default function PrepPlannerPage() {
                   </p>
                 </div>
 
-                <div className="rounded-3xl bg-blue-50 p-5 shadow-sm">
+                <div className="rounded-2xl bg-blue-50 p-5 shadow-sm">
                   <p className="text-sm text-blue-700">
                     Tomorrow&apos;s Prep
                   </p>
@@ -857,7 +850,7 @@ export default function PrepPlannerPage() {
                 </div>
               </div>
 
-              <div className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+              <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
                 <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
                   <div className="flex gap-3">
                     <button
@@ -1158,7 +1151,7 @@ export default function PrepPlannerPage() {
                 )}
               </div>
 
-              <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+              <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
                 <div className="flex items-center gap-3">
                   <History size={22} className="text-violet-800" />
                   <div>
@@ -1218,7 +1211,7 @@ export default function PrepPlannerPage() {
 
         {adding && canEdit && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm">
-            <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl">
+            <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-violet-800">
@@ -1404,7 +1397,7 @@ export default function PrepPlannerPage() {
 
         {editingItem && canEdit && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+            <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
               <p className="text-center text-sm font-semibold text-violet-800">
                 {editingItem.site}
               </p>

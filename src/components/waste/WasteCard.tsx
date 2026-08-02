@@ -31,7 +31,7 @@ function money(value: number): string {
 
 export default function WasteCard({ record }: WasteCardProps) {
   return (
-    <article className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+    <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div>
           <div className="flex flex-wrap items-center gap-3">

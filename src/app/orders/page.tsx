@@ -7,8 +7,8 @@ import OrdersTable from "@/components/orders/OrdersTable";
 export default function OrdersPage() {
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
 
           <PageHeader
             title="Purchase Orders"

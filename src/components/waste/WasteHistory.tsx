@@ -14,7 +14,7 @@ export default function WasteHistory({
 }: WasteHistoryProps) {
   if (records.length === 0) {
     return (
-      <div className="rounded-3xl bg-white p-10 text-center shadow-sm">
+      <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
         <ClipboardList size={36} className="mx-auto text-gray-400" />
 
         <h2 className="mt-4 text-xl font-bold text-gray-950">

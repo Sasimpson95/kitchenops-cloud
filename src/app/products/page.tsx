@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/lib/toast";
 import {
   Suspense,
   useCallback,
@@ -492,11 +493,7 @@ function ProductsContent() {
         product.id
       );
     } catch (caughtError) {
-      window.alert(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "The product could not be deleted."
-      );
+      toast.error("Product could not be deleted", caughtError instanceof Error ? caughtError.message : "Please try again.");
     }
   }
 
@@ -514,9 +511,7 @@ function ProductsContent() {
     if (
       archivedCount === 0
     ) {
-      window.alert(
-        "There are no archived products to delete."
-      );
+      toast.info("No archived products", "There are no archived products to delete.");
       return;
     }
 
@@ -548,8 +543,8 @@ function ProductsContent() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div>
               <h1 className="text-4xl font-bold text-gray-950">
@@ -615,7 +610,7 @@ function ProductsContent() {
             )}
           </div>
 
-          <section className="mt-6 rounded-3xl bg-white p-6 shadow-sm">
+          <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm">
             <div className="grid gap-4 lg:grid-cols-[1fr_240px_240px]">
               <div className="relative">
                 <Search
@@ -698,7 +693,7 @@ function ProductsContent() {
 
           {filteredProducts.length ===
           0 ? (
-            <div className="mt-8 rounded-3xl bg-white p-12 text-center shadow-sm">
+            <div className="mt-8 rounded-2xl bg-white p-12 text-center shadow-sm">
               <h2 className="text-2xl font-bold text-gray-950">
                 No products found
               </h2>
@@ -747,7 +742,7 @@ function ProductsContent() {
                   return (
                     <article
                       key={product.id}
-                      className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                      className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
@@ -955,9 +950,9 @@ function ProductsContent() {
 function ProductsLoading() {
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="rounded-3xl bg-white p-8 shadow-sm">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
+          <div className="rounded-2xl bg-white p-8 shadow-sm">
             <p className="font-semibold text-gray-700">
               Loading products...
             </p>

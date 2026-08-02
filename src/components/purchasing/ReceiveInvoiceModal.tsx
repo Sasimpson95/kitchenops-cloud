@@ -208,7 +208,7 @@ export default function ReceiveInvoiceModal({
 
   return (
     <div className="mobile-native-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-3">
-      <section data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl sm:p-7">
+      <section data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-7">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="font-semibold text-violet-800">Purchasing • {siteName}</p>

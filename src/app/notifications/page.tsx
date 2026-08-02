@@ -65,8 +65,8 @@ export default function NotificationsPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-5xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-5xl">
           <div>
             <h1 className="text-4xl font-bold text-gray-950">
               Notification Centre
@@ -77,7 +77,7 @@ export default function NotificationsPage() {
           </div>
 
           {notifications.length === 0 ? (
-            <div className="mt-8 rounded-3xl bg-white p-12 text-center shadow-sm">
+            <div className="mt-8 rounded-2xl bg-white p-12 text-center shadow-sm">
               <Bell size={42} className="mx-auto text-violet-700" />
               <h2 className="mt-4 text-2xl font-bold text-gray-950">
                 Everything is up to date
@@ -92,7 +92,7 @@ export default function NotificationsPage() {
                 <Link
                   href={notification.href}
                   key={notification.id}
-                  className="flex gap-4 rounded-3xl bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                  className="flex gap-4 rounded-2xl bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                 >
                   <div className="pt-1">
                     <Icon notification={notification} />

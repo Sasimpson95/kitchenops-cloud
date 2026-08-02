@@ -9,7 +9,7 @@ type SupplierCardProps = {
 export default function SupplierCard({ supplier }: SupplierCardProps) {
   return (
     <Link href={`/suppliers/${supplier.id}`} className="block">
-      <Card className="transition hover:-translate-y-1 hover:shadow-md">
+      <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
         <h2 className="text-2xl font-bold text-gray-950">
           {supplier.name}
         </h2>

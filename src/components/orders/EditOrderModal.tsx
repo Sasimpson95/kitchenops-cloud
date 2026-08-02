@@ -151,7 +151,7 @@ export default function EditOrderModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[92vh] w-full max-w-6xl overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl"
+        className="max-h-[92vh] w-full max-w-6xl overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl"
         onClick={(event) =>
           event.stopPropagation()
         }

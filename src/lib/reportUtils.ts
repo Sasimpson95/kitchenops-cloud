@@ -1,3 +1,4 @@
+import { toast } from "@/lib/toast";
 import type { CsvRow, CsvValue } from "@/components/reports/types";
 
 export const REPORT_SITES: Array<{ id: string; name: string }> = [];
@@ -81,7 +82,7 @@ function escapeCsv(value: CsvValue): string {
 export function downloadCsv(filename: string, rows: CsvRow[]): void {
   if (typeof window === "undefined") return;
   if (rows.length === 0) {
-    window.alert("There is no report data to export.");
+    toast.info("Nothing to export", "There is no report data to export.");
     return;
   }
 

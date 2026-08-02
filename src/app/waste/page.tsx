@@ -271,8 +271,8 @@ export default function WastePage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div>
               <h1 className="text-4xl font-bold text-gray-950">Waste</h1>
@@ -293,7 +293,7 @@ export default function WastePage() {
             </button>
           </div>
 
-          <div className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+          <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
             <label className="text-sm font-semibold text-gray-600">
               Viewing Site
             </label>
@@ -361,7 +361,7 @@ export default function WastePage() {
                       type="button"
                       key={summary.site}
                       onClick={() => changeSite(summary.site)}
-                      className="rounded-3xl border border-gray-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:border-red-300 hover:shadow-md"
+                      className="rounded-2xl border border-gray-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-red-300 hover:shadow-md"
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
@@ -410,12 +410,12 @@ export default function WastePage() {
           ) : (
             <>
               <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-3xl bg-amber-50 p-5 shadow-sm">
+                <div className="rounded-2xl bg-amber-50 p-5 shadow-sm">
                   <p className="text-sm text-amber-700">Waste Cost Today</p>
                   <p className="mt-1 text-3xl font-bold text-amber-950">{money(todayWasteValue)}</p>
                 </div>
 
-                <div className="rounded-3xl bg-red-50 p-5 shadow-sm">
+                <div className="rounded-2xl bg-red-50 p-5 shadow-sm">
                   <p className="text-sm text-red-700">Waste Records Today</p>
 
                   <p className="mt-1 text-3xl font-bold text-red-900">
@@ -423,7 +423,7 @@ export default function WastePage() {
                   </p>
                 </div>
 
-                <div className="rounded-3xl bg-white p-5 shadow-sm">
+                <div className="rounded-2xl bg-white p-5 shadow-sm">
                   <p className="text-sm text-gray-500">Quantity Today</p>
 
                   <p className="mt-1 text-3xl font-bold text-gray-950">
@@ -435,7 +435,7 @@ export default function WastePage() {
                   </p>
                 </div>
 
-                <div className="rounded-3xl bg-white p-5 shadow-sm">
+                <div className="rounded-2xl bg-white p-5 shadow-sm">
                   <p className="text-sm text-gray-500">
                     {selectedRecordDate ? "Records on Selected Date" : "Total Records"}
                   </p>
@@ -446,7 +446,7 @@ export default function WastePage() {
                 </div>
               </div>
 
-              <div className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+              <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
                   <div className="flex items-center gap-3">
                     <CalendarDays size={24} className="text-red-700" />

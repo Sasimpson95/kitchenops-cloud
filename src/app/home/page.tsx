@@ -132,7 +132,7 @@ function MetricCard({ label, value, detail, href, icon, tone }: MetricCardProps)
   return (
     <Link
       href={href}
-      className={`group rounded-3xl p-5 shadow-sm ring-1 transition hover:-translate-y-0.5 hover:shadow-md ${metricTones[tone]}`}
+      className={`group rounded-2xl p-5 shadow-sm ring-1 transition hover:-translate-y-0.5 hover:shadow-md ${metricTones[tone]}`}
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -497,8 +497,8 @@ export default function DashboardPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 px-4 py-5 sm:px-8 sm:py-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <header className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-violet-950 via-violet-900 to-purple-700 p-6 text-white shadow-lg sm:p-8">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div>
@@ -530,7 +530,7 @@ export default function DashboardPage() {
           </header>
 
           {dashboard.siteNames.length === 0 ? (
-            <section className="mt-6 rounded-3xl border border-dashed border-violet-300 bg-white p-8 text-center shadow-sm sm:p-12">
+            <section className="mt-6 rounded-2xl border border-dashed border-violet-300 bg-white p-8 text-center shadow-sm sm:p-12">
               <Boxes size={42} className="mx-auto text-violet-700" />
               <h2 className="mt-4 text-2xl font-black text-gray-950">Create your first site</h2>
               <p className="mx-auto mt-2 max-w-lg text-gray-600">Sites connect your prep, products, purchasing, inventory and reports.</p>
@@ -548,42 +548,42 @@ export default function DashboardPage() {
               )}
 
               {isVisible("attention") && (
-                <section style={{ order: widgetOrder("attention") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                <section style={{ order: widgetOrder("attention") }} className="mt-6 rounded-2xl bg-white p-5 shadow-sm sm:p-6">
                   <div className="flex items-center justify-between gap-4"><div><p className="text-sm font-bold uppercase tracking-wide text-violet-700">Priority</p><h2 className="mt-1 text-2xl font-black text-gray-950">Needs Your Attention</h2></div><Link href="/notifications" className="inline-flex items-center gap-2 font-bold text-violet-800">View all <ArrowRight size={17} /></Link></div>
                   {dashboard.notifications.length === 0 ? <div className="mt-5 flex items-center gap-4 rounded-2xl bg-violet-50 p-5 text-violet-950"><CheckCircle2 size={28} className="shrink-0 text-violet-700" /><div><p className="font-black">Everything looks good today.</p><p className="mt-1 text-sm text-violet-700">There are no outstanding alerts for this view.</p></div></div> : <div className="mt-5 space-y-3">{dashboard.notifications.slice(0,5).map((notification) => <Link href={notification.href} key={notification.id} className="flex items-start gap-4 rounded-2xl border border-orange-100 bg-orange-50 p-4 transition hover:border-orange-200"><AlertTriangle size={21} className="mt-0.5 shrink-0 text-orange-700" /><div className="min-w-0 flex-1"><p className="font-bold text-orange-950">{notification.title}</p><p className="mt-1 text-sm text-orange-800">{notification.description}</p></div><ArrowRight size={18} className="shrink-0 text-orange-700" /></Link>)}</div>}
                 </section>
               )}
 
               {isVisible("quickActions") && (
-                <section style={{ order: widgetOrder("quickActions") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                <section style={{ order: widgetOrder("quickActions") }} className="mt-6 rounded-2xl bg-white p-5 shadow-sm sm:p-6">
                   <p className="text-sm font-bold uppercase tracking-wide text-violet-700">Shortcuts</p><h2 className="mt-1 text-2xl font-black text-gray-950">Quick Actions</h2>
                   <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{quickActions.map((action) => <QuickAction key={action.href + action.label} {...action} />)}</div>
                 </section>
               )}
 
               {isVisible("prep") && (
-                <section style={{ order: widgetOrder("prep") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                <section style={{ order: widgetOrder("prep") }} className="mt-6 rounded-2xl bg-white p-5 shadow-sm sm:p-6">
                   <div className="flex items-center justify-between gap-4"><div className="flex items-center gap-3"><ChefHat size={24} className="text-violet-800" /><h2 className="text-2xl font-black text-gray-950">Today's Prep</h2></div><Link href="/production" className="font-bold text-violet-800">Open prep</Link></div>
                   {dashboard.todaysPrep.length === 0 ? <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-gray-500">No prep is planned for today.</div> : <div className="mt-5 grid gap-3 xl:grid-cols-2">{dashboard.todaysPrep.slice(0,6).map((item) => <PrepCard key={item.id} item={item} currentUser={currentUser} onChanged={() => setVersion((value) => value + 1)} />)}</div>}
                 </section>
               )}
 
               {isVisible("handover") && (
-                <section style={{ order: widgetOrder("handover") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                <section style={{ order: widgetOrder("handover") }} className="mt-6 rounded-2xl bg-white p-5 shadow-sm sm:p-6">
                   <div className="flex items-center justify-between gap-4"><div className="flex items-center gap-3"><ReceiptText size={24} className="text-blue-800" /><h2 className="text-2xl font-black text-gray-950">Today's Handover</h2></div><Link href="/handover" className="font-bold text-violet-800">Open</Link></div>
                   {visibleHandovers.every((handover) => handover.notes.length === 0) ? <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-gray-500">No handover notes have been added.</div> : <div className="mt-5 grid gap-4 md:grid-cols-2">{visibleHandovers.map((handover) => handover.notes.length === 0 ? null : <div key={handover.siteName} className="rounded-2xl bg-blue-50 p-4">{dashboard.siteNames.length > 1 && <p className="mb-2 text-xs font-black uppercase tracking-wide text-blue-700">{handover.siteName}</p>}<div className="space-y-2">{handover.notes.slice(0,4).map((note,index) => <p key={`${handover.siteName}-${index}`} className="text-sm leading-6 text-blue-950">• {note}</p>)}</div></div>)}</div>}
                 </section>
               )}
 
               {isVisible("recentActivity") && (
-                <section style={{ order: widgetOrder("recentActivity") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                <section style={{ order: widgetOrder("recentActivity") }} className="mt-6 rounded-2xl bg-white p-5 shadow-sm sm:p-6">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-bold uppercase tracking-wide text-violet-700">Live operations</p><h2 className="mt-1 text-2xl font-black text-gray-950">Recent Activity</h2></div><Link href="/reports" className="inline-flex items-center gap-2 font-bold text-violet-800">View reports <BarChart3 size={18} /></Link></div>
                   {dashboard.activity.length === 0 ? <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-gray-500">No activity has been recorded today.</div> : <div className="mt-5 divide-y divide-gray-100">{dashboard.activity.slice(0,8).map((item) => <Link href={item.href} key={item.id} className="grid gap-2 py-4 transition hover:bg-slate-50 sm:grid-cols-[70px_120px_1fr_auto] sm:items-center sm:px-3"><p className="text-sm font-bold text-gray-500">{formatTime(item.time)}</p><p className="text-sm font-bold text-violet-800">{item.siteName}</p><div><p className="font-bold text-gray-950">{item.title}</p><p className="mt-1 text-sm text-gray-500">{item.detail}</p></div><ArrowRight size={18} className="text-violet-700" /></Link>)}</div>}
                 </section>
               )}
 
               {isVisible("sites") && currentUser.role === "operations" && selectedSite === "All Sites" && businessSites.length > 1 && (
-                <section style={{ order: widgetOrder("sites") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                <section style={{ order: widgetOrder("sites") }} className="mt-6 rounded-2xl bg-white p-5 shadow-sm sm:p-6">
                   <div className="flex items-center gap-3"><PackageCheck size={24} className="text-violet-800" /><h2 className="text-2xl font-black text-gray-950">Sites at a Glance</h2></div>
                   <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{businessSites.map((siteName) => { const sitePrep=getPrepItems().filter((item)=>item.site===siteName&&item.day==="today"); const siteComplete=sitePrep.filter((item)=>item.status==="approved").length; const siteOpenOrders=getOrders().filter((order)=>order.siteId===getSiteId(siteName)&&order.status==="Sent").length; return <button type="button" key={siteName} onClick={()=>setSelectedSite(siteName)} className="rounded-2xl border border-gray-200 p-5 text-left transition hover:border-violet-300 hover:bg-violet-50"><p className="text-lg font-black text-gray-950">{siteName}</p><div className="mt-4 grid grid-cols-2 gap-3"><div className="rounded-xl bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-gray-500">Prep</p><p className="mt-1 text-xl font-black text-gray-950">{siteComplete}/{sitePrep.length}</p></div><div className="rounded-xl bg-blue-50 p-3"><p className="text-xs font-bold uppercase text-blue-700">Orders</p><p className="mt-1 text-xl font-black text-blue-950">{siteOpenOrders}</p></div></div><span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-violet-800">Open site <ArrowRight size={16} /></span></button>; })}</div>
                 </section>

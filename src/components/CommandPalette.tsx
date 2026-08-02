@@ -164,7 +164,7 @@ export default function CommandPalette({
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl"
+        className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center gap-3 border-b px-5">

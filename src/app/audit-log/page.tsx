@@ -84,8 +84,8 @@ export default function AuditLogPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-6xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-6xl">
           <div>
             <h1 className="text-4xl font-bold text-gray-950">Audit Log</h1>
             <p className="mt-2 text-gray-600">
@@ -107,7 +107,7 @@ export default function AuditLogPage() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="mt-8 rounded-3xl bg-white p-12 text-center shadow-sm">
+            <div className="mt-8 rounded-2xl bg-white p-12 text-center shadow-sm">
               <ClipboardList size={40} className="mx-auto text-gray-400" />
               <h2 className="mt-4 text-2xl font-bold text-gray-950">
                 No audit records yet
@@ -121,7 +121,7 @@ export default function AuditLogPage() {
               {filtered.map((record) => (
                 <article
                   key={record.id}
-                  className="rounded-3xl bg-white p-6 shadow-sm"
+                  className="rounded-2xl bg-white p-6 shadow-sm"
                 >
                   <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                     <div>

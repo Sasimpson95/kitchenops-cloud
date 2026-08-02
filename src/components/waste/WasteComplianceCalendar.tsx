@@ -185,7 +185,7 @@ export default function WasteComplianceCalendar({
     parseDateKey(startDate) > parseDateKey(endDate);
 
   return (
-    <div className="rounded-3xl bg-white p-6 shadow-sm">
+    <div className="rounded-2xl bg-white p-6 shadow-sm">
       <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
         <div>
           <h2 className="text-2xl font-bold text-gray-950">

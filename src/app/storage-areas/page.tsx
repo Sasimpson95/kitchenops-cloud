@@ -201,7 +201,7 @@ function ProductPicker({
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-7 shadow-2xl"
+        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-7 shadow-2xl"
         onClick={(event) =>
           event.stopPropagation()
         }
@@ -751,7 +751,7 @@ export default function StorageAreasPage() {
     return (
       <ProtectedPage>
         <main className="flex min-h-screen items-center justify-center bg-slate-100 p-8">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-10 text-center shadow-sm">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-10 text-center shadow-sm">
             <MapPin
               className="mx-auto text-violet-700"
               size={42}
@@ -780,8 +780,8 @@ export default function StorageAreasPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <h1 className="text-4xl font-bold text-gray-950">
@@ -876,7 +876,7 @@ export default function StorageAreasPage() {
           </div>
 
           {areas.length === 0 ? (
-            <div className="mt-8 rounded-3xl bg-white p-12 text-center shadow-sm">
+            <div className="mt-8 rounded-2xl bg-white p-12 text-center shadow-sm">
               <MapPin
                 size={40}
                 className="mx-auto text-gray-400"
@@ -903,7 +903,7 @@ export default function StorageAreasPage() {
                       key={
                         area.id
                       }
-                      className={`rounded-3xl bg-white p-6 shadow-sm ${
+                      className={`rounded-2xl bg-white p-6 shadow-sm ${
                         !area.active
                           ? "opacity-70"
                           : ""
@@ -1145,7 +1145,7 @@ export default function StorageAreasPage() {
             }
           >
             <div
-              className="w-full max-w-xl rounded-3xl bg-white p-7 shadow-2xl"
+              className="w-full max-w-xl rounded-2xl bg-white p-7 shadow-2xl"
               onClick={(
                 event
               ) =>

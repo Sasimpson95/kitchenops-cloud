@@ -193,7 +193,7 @@ export default function StocktakeCounter({
     ) + 1;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="w-full max-w-5xl">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <button
           type="button"
@@ -209,7 +209,7 @@ export default function StocktakeCounter({
         </div>
       </div>
 
-      <div className="mt-6 rounded-3xl bg-white p-8 shadow-sm">
+      <div className="mt-6 rounded-2xl bg-white p-8 shadow-sm">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
           <div>
             <p className="text-sm font-semibold text-violet-800">
@@ -328,7 +328,7 @@ export default function StocktakeCounter({
           </div>
         )}
 
-        <div className="mt-8 rounded-3xl border border-gray-200 bg-slate-50 p-8 text-center">
+        <div className="mt-8 rounded-2xl border border-gray-200 bg-slate-50 p-8 text-center">
           <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Product {currentPosition} of {areaItems.length}
           </p>

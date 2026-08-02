@@ -123,7 +123,7 @@ export default function InventoryCard({
 
   return (
     <article
-      className={`rounded-3xl border border-t-4 border-gray-200 ${style.border} bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md`}
+      className={`rounded-2xl border border-t-4 border-gray-200 ${style.border} bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md`}
     >
       <div className="flex items-start justify-between gap-4">
         <div>

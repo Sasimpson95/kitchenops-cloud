@@ -243,8 +243,8 @@ export default function PurchasingPage() {
   if (currentUser && businessSites.length === 0) {
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-          <div className="mx-auto max-w-3xl rounded-3xl bg-white p-10 text-center shadow-sm">
+        <main className="ko-page ko-enter">
+          <div className="mx-auto max-w-3xl rounded-2xl bg-white p-10 text-center shadow-sm">
             <Building2 className="mx-auto text-violet-700" size={44} />
             <h1 className="mt-4 text-3xl font-bold text-gray-950">No Sites Yet</h1>
             <p className="mt-3 text-gray-600">Purchasing belongs to a site. Create your first site before placing or receiving orders.</p>
@@ -257,8 +257,8 @@ export default function PurchasingPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <PageHeader
               title="Purchasing"
@@ -304,7 +304,7 @@ export default function PurchasingPage() {
                 currentUser?.role === "operations" &&
                 selectedSiteId === "all-sites"
               }
-              className="rounded-3xl bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+              className="rounded-2xl bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
             >
               <div className="flex items-center gap-4">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-violet-800">
@@ -327,7 +327,7 @@ export default function PurchasingPage() {
               href="/orders"
               className="block"
             >
-              <Card className="h-full transition hover:-translate-y-1 hover:shadow-md">
+              <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
                 <div className="flex items-center gap-4">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 text-blue-800">
                     <Truck size={28} />
@@ -350,7 +350,7 @@ export default function PurchasingPage() {
               type="button"
               onClick={openReceiveInvoice}
               disabled={selectedSiteId === "all-sites"}
-              className="rounded-3xl bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-2xl bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
             >
               <div className="flex items-center gap-4">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-violet-800">
@@ -364,7 +364,7 @@ export default function PurchasingPage() {
               href="/suppliers"
               className="block"
             >
-              <Card className="h-full transition hover:-translate-y-1 hover:shadow-md">
+              <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
                 <div className="flex items-center gap-4">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-violet-800">
                     <Building2 size={28} />
@@ -387,7 +387,7 @@ export default function PurchasingPage() {
               href="/orders"
               className="block"
             >
-              <Card className="h-full transition hover:-translate-y-1 hover:shadow-md">
+              <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
                 <div className="flex items-center gap-4">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-purple-100 text-purple-800">
                     <History size={28} />

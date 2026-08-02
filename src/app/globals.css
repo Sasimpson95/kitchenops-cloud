@@ -241,3 +241,139 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* KitchenOps Preview 6B.6 — full design-system conversion */
+.ko-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgb(237 233 254 / 0.55), transparent 28rem),
+    var(--ko-canvas);
+}
+
+.ko-page > .w-full,
+.ko-page > [class*="max-w-"] {
+  margin-inline: auto;
+}
+
+.ko-page h1 {
+  letter-spacing: -0.035em;
+}
+
+.ko-page section,
+.ko-page article {
+  scroll-margin-top: 5rem;
+}
+
+.ko-page button,
+.ko-page a,
+.mobile-native-sheet button,
+.mobile-native-sheet a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ko-page button:not(:disabled),
+.ko-page a[href] {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 160ms;
+  transition-timing-function: ease-out;
+}
+
+.ko-page button:active:not(:disabled),
+.ko-page a[href]:active {
+  transform: translateY(1px);
+}
+
+.ko-page input,
+.ko-page select,
+.ko-page textarea {
+  min-height: 44px;
+  border-color: var(--ko-border);
+  background-color: var(--ko-surface);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.ko-page input:focus,
+.ko-page select:focus,
+.ko-page textarea:focus {
+  border-color: var(--ko-primary-700) !important;
+  outline: none;
+  box-shadow: 0 0 0 4px var(--ko-primary-100);
+}
+
+.ko-page table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ko-page thead th {
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.ko-page tbody tr {
+  transition: background-color 150ms ease;
+}
+
+.ko-page tbody tr:hover {
+  background-color: rgb(248 250 252 / 0.85);
+}
+
+.ko-page [class*="shadow-sm"] {
+  box-shadow: var(--ko-shadow-sm);
+}
+
+.ko-page [class*="rounded-2xl"][class*="bg-white"],
+.ko-page [class*="rounded-xl"][class*="bg-white"] {
+  border-color: var(--ko-border);
+}
+
+.ko-page [role="status"],
+.ko-page [aria-live] {
+  border-radius: var(--ko-radius-md);
+}
+
+@media (max-width: 640px) {
+  .ko-page {
+    padding-top: calc(1rem + env(safe-area-inset-top));
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+
+  .ko-page h1 {
+    font-size: clamp(1.8rem, 8vw, 2.35rem);
+    line-height: 1.08;
+  }
+
+  .ko-page table {
+    font-size: 0.875rem;
+  }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-8px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [class*="toast-in"] { animation: none !important; }
+}
+
+.kitchenops-interactive {
+  transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease, background-color 150ms ease;
+}
+.kitchenops-interactive:active { transform: scale(.985); }
+
+@keyframes skeleton-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

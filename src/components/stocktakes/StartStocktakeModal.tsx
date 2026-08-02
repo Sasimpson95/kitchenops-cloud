@@ -34,7 +34,7 @@ export default function StartStocktakeModal({
       onClick={onClose}
     >
       <div
-        data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl"
+        data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl"
         onClick={(event) =>
           event.stopPropagation()
         }

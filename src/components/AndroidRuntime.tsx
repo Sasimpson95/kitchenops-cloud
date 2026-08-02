@@ -67,7 +67,7 @@ export default function AndroidRuntime() {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-100 p-6">
-      <div className="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-xl">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-xl">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
           <WifiOff size={30} />
         </div>

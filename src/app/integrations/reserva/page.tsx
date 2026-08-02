@@ -113,8 +113,8 @@ export default function ReservaIntegrationPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-5xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-5xl">
           <div>
             <p className="font-semibold text-violet-800">Integration</p>
             <h1 className="mt-1 text-4xl font-bold text-gray-950">
@@ -125,7 +125,7 @@ export default function ReservaIntegrationPage() {
             </p>
           </div>
 
-          <section className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
+          <section className="mt-8 rounded-2xl bg-white p-8 shadow-sm">
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
                 <Link2 size={24} />
@@ -258,7 +258,7 @@ export default function ReservaIntegrationPage() {
             </div>
           </section>
 
-          <section className="mt-6 rounded-3xl bg-blue-50 p-6">
+          <section className="mt-6 rounded-2xl bg-blue-50 p-6">
             <div className="flex gap-3">
               <CalendarDays size={24} className="shrink-0 text-blue-800" />
               <div>

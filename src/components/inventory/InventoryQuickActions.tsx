@@ -38,7 +38,7 @@ export default function InventoryQuickActions({
   selectedSite,
 }: InventoryQuickActionsProps) {
   return (
-    <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+    <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
       <div>
         <h2 className="text-xl font-bold text-gray-950">
           Quick Actions

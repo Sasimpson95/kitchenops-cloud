@@ -347,8 +347,8 @@ export default function ProductOptionsPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-6xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-6xl">
           <Link
             href="/settings"
             className="inline-flex items-center gap-2 font-semibold text-violet-800 hover:underline"
@@ -391,7 +391,7 @@ export default function ProductOptionsPage() {
           )}
 
           <div className="mt-8 grid gap-6 xl:grid-cols-2">
-            <section className="rounded-3xl bg-white p-6 shadow-sm">
+            <section className="rounded-2xl bg-white p-6 shadow-sm">
               <h2 className="text-2xl font-bold text-gray-950">
                 Categories
               </h2>
@@ -563,7 +563,7 @@ export default function ProductOptionsPage() {
               </div>
             </section>
 
-            <section className="rounded-3xl bg-white p-6 shadow-sm">
+            <section className="rounded-2xl bg-white p-6 shadow-sm">
               <h2 className="text-2xl font-bold text-gray-950">
                 Units
               </h2>

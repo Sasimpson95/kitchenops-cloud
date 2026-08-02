@@ -10,7 +10,7 @@ export default function SiteOverviewCard({
   return (
     <button
       onClick={onSelect}
-      className="rounded-3xl border border-gray-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+      className="rounded-2xl border border-gray-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-950">

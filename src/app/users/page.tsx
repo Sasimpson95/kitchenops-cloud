@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/lib/toast";
 import {
   useCallback,
   useEffect,
@@ -195,7 +196,7 @@ export default function UsersPage() {
     if (!next) return;
 
     if (!/^\d{4}$/.test(next)) {
-      window.alert("PIN must contain exactly four digits.");
+      toast.warning("Invalid PIN", "PIN must contain exactly four digits.");
       return;
     }
 
@@ -211,7 +212,7 @@ export default function UsersPage() {
     if (rpcError) {
       setError(rpcError.message);
     } else {
-      window.alert("Temporary PIN reset.");
+      toast.success("Temporary PIN reset");
       await load();
     }
   }
@@ -225,15 +226,15 @@ export default function UsersPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-6xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-6xl">
           <p className="font-semibold text-violet-800">Operations</p>
           <h1 className="mt-1 text-4xl font-bold">Users</h1>
           <p className="mt-2 text-gray-600">
             Create Manager and Chef PIN accounts for shared kitchen devices.
           </p>
 
-          <section className="mt-8 flex flex-col justify-between gap-4 rounded-3xl bg-violet-950 p-6 text-white shadow-sm sm:flex-row sm:items-center">
+          <section className="mt-8 flex flex-col justify-between gap-4 rounded-2xl bg-violet-950 p-6 text-white shadow-sm sm:flex-row sm:items-center">
             <div>
               <p className="text-sm font-semibold text-violet-200">{businessName}</p>
               <h2 className="mt-1 text-2xl font-bold">Business Code</h2>
@@ -257,7 +258,7 @@ export default function UsersPage() {
             </div>
           </section>
 
-          <section className="mt-6 rounded-3xl bg-white p-6 shadow-sm">
+          <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm">
             <h2 className="text-xl font-bold">New User</h2>
             <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
               <input
@@ -317,7 +318,7 @@ export default function UsersPage() {
             )}
           </section>
 
-          <section className="mt-6 rounded-3xl bg-white p-6 shadow-sm">
+          <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm">
             <h2 className="text-xl font-bold">Team</h2>
 
             {loading ? (

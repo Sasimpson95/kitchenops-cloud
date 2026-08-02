@@ -71,7 +71,7 @@ export default function StocktakeAreas({
   const allCounted = totalCounted === stocktake.items.length;
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="w-full max-w-6xl">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <button
           type="button"
@@ -87,7 +87,7 @@ export default function StocktakeAreas({
         </div>
       </div>
 
-      <div className="mt-6 rounded-3xl bg-white p-8 shadow-sm">
+      <div className="mt-6 rounded-2xl bg-white p-8 shadow-sm">
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-start">
           <div>
             <p className="text-sm font-semibold text-violet-800">
@@ -138,7 +138,7 @@ export default function StocktakeAreas({
                 type="button"
                 key={area.name}
                 onClick={() => onSelectArea(area.name)}
-                className={`rounded-3xl border p-6 text-left transition hover:-translate-y-1 hover:shadow-md ${
+                className={`rounded-2xl border p-6 text-left transition hover:-translate-y-0.5 hover:shadow-md ${
                   complete
                     ? "border-violet-200 bg-violet-50"
                     : area.counted > 0

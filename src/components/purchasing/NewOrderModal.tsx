@@ -332,7 +332,7 @@ export default function NewOrderModal({
       onClick={handleClose}
     >
       <div
-        data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet max-h-[94vh] w-full max-w-6xl overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl"
+        data-mobile-sheet="true" role="dialog" aria-modal="true" className="mobile-native-sheet max-h-[94vh] w-full max-w-6xl overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
@@ -397,7 +397,7 @@ export default function NewOrderModal({
                   type="button"
                   key={supplier.id}
                   onClick={() => chooseSupplier(supplier)}
-                  className="rounded-3xl bg-slate-50 p-6 text-left transition hover:-translate-y-1 hover:bg-violet-50 hover:shadow-md"
+                  className="rounded-2xl bg-slate-50 p-6 text-left transition hover:-translate-y-0.5 hover:bg-violet-50 hover:shadow-md"
                 >
                   <h4 className="text-xl font-bold text-gray-950">
                     {supplier.name}

@@ -1,6 +1,6 @@
 export default function DashboardPreview() {
   return (
-    <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-2xl">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl">
       <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
         <div className="mb-5 flex items-center justify-between">
           <div>

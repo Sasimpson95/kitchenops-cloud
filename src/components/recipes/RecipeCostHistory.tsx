@@ -38,7 +38,7 @@ export default function RecipeCostHistory({
   records: RecipeCostHistoryRecord[];
 }) {
   return (
-    <section className="rounded-3xl bg-white p-6 shadow-sm">
+    <section className="rounded-2xl bg-white p-6 shadow-sm">
       <div className="flex items-center gap-3">
         <History
           size={22}

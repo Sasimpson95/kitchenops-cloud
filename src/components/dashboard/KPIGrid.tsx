@@ -9,7 +9,7 @@ export default function KPIGrid() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat) => (
-        <div key={stat.label} className="rounded-3xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+        <div key={stat.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
           <p className="text-sm text-slate-500">{stat.label}</p>
           <p className={`mt-3 text-2xl font-semibold ${stat.accent}`}>{stat.value}</p>
         </div>

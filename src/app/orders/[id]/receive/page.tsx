@@ -289,8 +289,8 @@ export default function ReceiveDeliveryPage({
   if (loading) {
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-8">
-          <div className="mx-auto max-w-6xl">
+        <main className="ko-page ko-enter">
+          <div className="w-full max-w-6xl">
             <Card>
               <p className="text-gray-600">
                 Loading delivery...
@@ -305,8 +305,8 @@ export default function ReceiveDeliveryPage({
   if (!order) {
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-8">
-          <div className="mx-auto max-w-6xl">
+        <main className="ko-page ko-enter">
+          <div className="w-full max-w-6xl">
             <Card>
               <h1 className="text-3xl font-bold text-gray-950">
                 Order not found
@@ -344,8 +344,8 @@ export default function ReceiveDeliveryPage({
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
-        <div className="mx-auto max-w-6xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-6xl">
           <PageHeader
             title="Receive Delivery"
             description={`${order.orderNumber} · ${order.supplierName}`}

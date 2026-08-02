@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/lib/toast";
 import {
   useCallback,
   useEffect,
@@ -215,11 +216,7 @@ export default function SuppliersPage() {
         supplier.id
       );
     } catch (caughtError) {
-      window.alert(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "The supplier could not be archived."
-      );
+      toast.error("Supplier could not be archived", caughtError instanceof Error ? caughtError.message : "Please try again.");
     }
   }
 
@@ -235,11 +232,7 @@ export default function SuppliersPage() {
         supplier.id
       );
     } catch (caughtError) {
-      window.alert(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "The supplier could not be restored."
-      );
+      toast.error("Supplier could not be restored", caughtError instanceof Error ? caughtError.message : "Please try again.");
     }
   }
 
@@ -257,8 +250,8 @@ export default function SuppliersPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div>
               <h1 className="text-4xl font-bold text-gray-950">
@@ -306,7 +299,7 @@ export default function SuppliersPage() {
           )}
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-3xl bg-white p-5 shadow-sm">
+            <div className="rounded-2xl bg-white p-5 shadow-sm">
               <p className="text-sm text-gray-500">
                 Active Suppliers
               </p>
@@ -316,7 +309,7 @@ export default function SuppliersPage() {
               </p>
             </div>
 
-            <div className="rounded-3xl bg-blue-50 p-5 shadow-sm">
+            <div className="rounded-2xl bg-blue-50 p-5 shadow-sm">
               <p className="text-sm text-blue-700">
                 Internal Kitchens
               </p>
@@ -331,7 +324,7 @@ export default function SuppliersPage() {
               </p>
             </div>
 
-            <div className="rounded-3xl bg-slate-200 p-5 shadow-sm">
+            <div className="rounded-2xl bg-slate-200 p-5 shadow-sm">
               <p className="text-sm text-gray-600">
                 Archived
               </p>
@@ -342,7 +335,7 @@ export default function SuppliersPage() {
             </div>
           </div>
 
-          <div className="mt-8 rounded-3xl bg-white p-5 shadow-sm">
+          <div className="mt-8 rounded-2xl bg-white p-5 shadow-sm">
             <div className="relative">
               <Search
                 size={21}
@@ -408,7 +401,7 @@ export default function SuppliersPage() {
 
           {filteredSuppliers.length ===
           0 ? (
-            <div className="mt-8 rounded-3xl bg-white p-12 text-center shadow-sm">
+            <div className="mt-8 rounded-2xl bg-white p-12 text-center shadow-sm">
               <h2 className="text-2xl font-bold text-gray-950">
                 No suppliers found
               </h2>
@@ -423,7 +416,7 @@ export default function SuppliersPage() {
                 (supplier) => (
                   <div
                     key={supplier.id}
-                    className="rounded-3xl bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                    className="rounded-2xl bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>

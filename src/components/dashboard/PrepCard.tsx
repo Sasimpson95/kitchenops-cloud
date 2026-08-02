@@ -1,6 +1,6 @@
 export default function PrepCard() {
   return (
-    <div className="rounded-3xl bg-white p-6 shadow-sm border border-gray-200">
+    <div className="rounded-2xl bg-white p-6 shadow-sm border border-gray-200">
 
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">

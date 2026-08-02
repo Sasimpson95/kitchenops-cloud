@@ -83,7 +83,7 @@ export default function CloudOnboardingPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <section className="w-full max-w-2xl rounded-3xl bg-white p-7 shadow-sm sm:p-9">
+      <section className="w-full max-w-2xl rounded-2xl bg-white p-7 shadow-sm sm:p-9">
         <p className="font-semibold text-violet-800">Fresh installation</p>
         <h1 className="mt-2 text-3xl font-bold text-gray-950">Create your KitchenOps business</h1>
         <p className="mt-2 text-gray-500">Create the Operations account and an empty business. You can add sites after signing in.</p>

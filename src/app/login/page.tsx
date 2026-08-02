@@ -457,7 +457,7 @@ export default function LoginPage() {
         </section>
 
         <section className="flex items-center justify-center p-4 sm:p-8">
-          <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-sm sm:p-9">
+          <div className="w-full max-w-md rounded-2xl bg-white p-7 shadow-sm sm:p-9">
             <p className="font-semibold text-violet-800">
               KitchenOps Cloud
             </p>

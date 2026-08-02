@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/lib/toast";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import StatusBadge from "@/components/ui/StatusBadge";
@@ -112,7 +113,7 @@ export default function OrderDetailsModal({
           )}
 
           {order.status === "Sent" && (
-            <Button onClick={() => alert("Receive this order from the Purchasing page.")}>
+            <Button onClick={() => toast.info("Open Purchasing", "Receive this order from the Purchasing page.")}>
               Receive Delivery
             </Button>
           )}

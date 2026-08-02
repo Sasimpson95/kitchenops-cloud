@@ -59,7 +59,7 @@ function InformationCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl bg-white p-6 shadow-sm">
+    <section className="rounded-2xl bg-white p-6 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
           {icon}
@@ -264,7 +264,7 @@ export default function ProductInformation({
         />
       </InformationCard>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm lg:col-span-2">
+      <section className="rounded-2xl bg-white p-6 shadow-sm lg:col-span-2">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-800">
             <StickyNote size={22} />

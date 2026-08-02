@@ -169,7 +169,7 @@ export default function HandoverPage() {
   if (!currentUser || loadingSites) {
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-4 sm:p-8" />
+        <main className="ko-page ko-enter" />
       </ProtectedPage>
     );
   }
@@ -177,8 +177,8 @@ export default function HandoverPage() {
   if (!selectedSite) {
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-          <div className="mx-auto max-w-4xl rounded-3xl bg-white p-10 text-center shadow-sm">
+        <main className="ko-page ko-enter">
+          <div className="mx-auto max-w-4xl rounded-2xl bg-white p-10 text-center shadow-sm">
             <h1 className="text-3xl font-bold text-gray-950">No sites yet</h1>
             <p className="mt-3 text-gray-600">
               Add your first site in Settings before using Handover.
@@ -198,8 +198,8 @@ export default function HandoverPage() {
   if (currentUser.role === "chef" && !todayVisibleToChefs) {
     return (
       <ProtectedPage>
-        <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-          <div className="mx-auto max-w-4xl rounded-3xl bg-white p-10 text-center shadow-sm">
+        <main className="ko-page ko-enter">
+          <div className="mx-auto max-w-4xl rounded-2xl bg-white p-10 text-center shadow-sm">
             <h1 className="text-3xl font-bold text-gray-950">Handover</h1>
             <p className="mt-3 text-gray-600">
               No handover has been shared with the kitchen team today.
@@ -219,8 +219,8 @@ export default function HandoverPage() {
 
   return (
     <ProtectedPage>
-      <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
-        <div className="mx-auto max-w-5xl">
+      <main className="ko-page ko-enter">
+        <div className="w-full max-w-5xl">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <h1 className="text-4xl font-bold text-gray-950">Handover</h1>
@@ -244,7 +244,7 @@ export default function HandoverPage() {
             )}
           </div>
 
-          <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+          <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
             <div className="flex items-center gap-3">
               <CalendarDays size={22} className="text-violet-800" />
               <div>
@@ -274,7 +274,7 @@ export default function HandoverPage() {
           </section>
 
           {canWriteHandover && (
-            <section className="mt-6 rounded-3xl bg-white p-6 shadow-sm">
+            <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <CalendarDays size={22} className="text-violet-800" />
                 <div>
@@ -352,7 +352,7 @@ export default function HandoverPage() {
             </section>
           )}
 
-          <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+          <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
             <div className="flex items-center gap-3">
               <Clock3 className="text-violet-800" />
               <div>
