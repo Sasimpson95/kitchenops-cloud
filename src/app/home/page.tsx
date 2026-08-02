@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   ArrowRight,
+  ChevronDown,
+  ChevronUp,
   BarChart3,
   Boxes,
   CheckCircle2,
@@ -14,10 +16,13 @@ import {
   PackageCheck,
   Plus,
   ReceiptText,
+  RotateCcw,
+  Settings2,
   ShoppingCart,
   Trash2,
   Truck,
   UtensilsCrossed,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
@@ -27,6 +32,13 @@ import type { User } from "@/config/roles";
 import type { ProductionItem } from "@/data/production";
 import { createClient } from "@/lib/supabase/client";
 import { getCurrentUser } from "@/lib/currentUser";
+import {
+  getDefaultDashboardPreferences,
+  loadDashboardPreferences,
+  saveDashboardPreferences,
+  type DashboardWidgetId,
+  type DashboardWidgetPreference,
+} from "@/lib/dashboardPreferences";
 import {
   getSiteHandover,
   subscribeToHandoverChanges,
@@ -308,6 +320,9 @@ export default function DashboardPage() {
   const [selectedSite, setSelectedSite] = useState("All Sites");
   const [businessSites, setBusinessSites] = useState<string[]>([]);
   const [version, setVersion] = useState(0);
+  const [editingDashboard, setEditingDashboard] = useState(false);
+  const [preferences, setPreferences] = useState<DashboardWidgetPreference[]>([]);
+  const [draftPreferences, setDraftPreferences] = useState<DashboardWidgetPreference[]>([]);
 
   useEffect(() => {
     const user = getCurrentUser();
@@ -315,38 +330,32 @@ export default function DashboardPage() {
       router.replace("/login");
       return;
     }
-
     setCurrentUser(user);
     setSelectedSite(user.role === "operations" ? "All Sites" : user.site);
+    setPreferences(loadDashboardPreferences(user.role, user.name, user.site));
   }, [router]);
 
   useEffect(() => {
     let cancelled = false;
-
     async function loadSites(): Promise<void> {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-
       const { data: membership } = await supabase
         .from("business_memberships")
         .select("business_id")
         .eq("auth_user_id", user.id)
         .eq("active", true)
         .maybeSingle();
-
       if (!membership) return;
-
       const { data: sites } = await supabase
         .from("sites")
         .select("name")
         .eq("business_id", membership.business_id)
         .eq("active", true)
         .order("name");
-
       if (!cancelled) setBusinessSites((sites ?? []).map((site) => site.name));
     }
-
     void loadSites();
     return () => { cancelled = true; };
   }, []);
@@ -363,97 +372,53 @@ export default function DashboardPage() {
 
   const dashboard = useMemo(() => {
     if (!currentUser) return null;
-
-    const siteNames =
-      currentUser.role === "operations"
-        ? selectedSite === "All Sites"
-          ? businessSites
-          : [selectedSite]
-        : [currentUser.site];
-
+    const siteNames = currentUser.role === "operations"
+      ? selectedSite === "All Sites" ? businessSites : [selectedSite]
+      : [currentUser.site];
     const siteIds = new Set(siteNames.map(getSiteId));
     const prep = getPrepItems().filter((item) => siteNames.includes(item.site));
     const todaysPrep = prep.filter((item) => item.day === "today");
     const completedPrep = todaysPrep.filter((item) => item.status === "approved").length;
     const awaitingPrep = todaysPrep.filter((item) => item.status === "awaitingApproval").length;
-
     const allOrders = getOrders().filter((order) => siteIds.has(order.siteId));
     const openOrders = allOrders.filter((order) => order.status === "Sent");
-
     const wasteToday = getWasteRecords().filter(
       (record) => siteIds.has(record.siteId) && isToday(record.createdAt)
     );
     const wasteValue = wasteToday.reduce((total, record) => total + record.wasteValue, 0);
-
     const notifications = getNotifications(
       currentUser.role === "operations" ? selectedSite : currentUser.site
     );
     const stockAlerts = notifications.filter(
       (notification) => notification.href === "/inventory"
     ).length;
-
-    const handovers = siteNames.map((siteName) =>
-      getSiteHandover(siteName, "today")
-    );
-
+    const handovers = siteNames.map((siteName) => getSiteHandover(siteName, "today"));
     const activity: ActivityItem[] = [
       ...wasteToday.map((record) => ({
-        id: `waste-${record.id}`,
-        time: record.createdAt,
-        title: "Waste recorded",
+        id: `waste-${record.id}`, time: record.createdAt, title: "Waste recorded",
         detail: `${record.quantity} ${record.inventoryUnit} ${record.productName}`,
-        siteName: record.siteName,
-        href: "/waste",
+        siteName: record.siteName, href: "/waste",
       })),
-      ...getTransfers()
-        .filter((transfer) => isToday(transfer.createdAt) && siteIds.has(transfer.fromSiteId))
-        .map((transfer) => ({
-          id: `transfer-${transfer.id}`,
-          time: transfer.createdAt,
-          title: "Stock transfer updated",
-          detail: `${transfer.quantity} ${transfer.inventoryUnit} ${transfer.productName} to ${transfer.toSiteName}`,
-          siteName: transfer.fromSiteName,
-          href: "/transfers",
-        })),
-      ...allOrders
-        .filter((order) => isToday(order.updatedAt))
-        .map((order) => ({
-          id: `order-${order.id}`,
-          time: order.updatedAt,
-          title: "Purchase order updated",
-          detail: `${order.orderNumber} • ${order.supplierName} • ${order.status}`,
-          siteName: order.siteName,
-          href: "/purchasing",
-        })),
-      ...getStocktakes()
-        .filter((stocktake) =>
-          siteIds.has(stocktake.siteId) &&
-          Boolean(stocktake.completedAt) &&
-          isToday(stocktake.completedAt ?? stocktake.updatedAt)
-        )
-        .map((stocktake) => ({
-          id: `stocktake-${stocktake.id}`,
-          time: stocktake.completedAt ?? stocktake.updatedAt,
-          title: "Stocktake completed",
-          detail: stocktake.stocktakeNumber,
-          siteName: stocktake.siteName,
-          href: "/stocktakes",
-        })),
-    ].sort((first, second) => new Date(second.time).getTime() - new Date(first.time).getTime());
-
-    return {
-      siteNames,
-      todaysPrep,
-      completedPrep,
-      awaitingPrep,
-      openOrders,
-      wasteToday,
-      wasteValue,
-      notifications,
-      stockAlerts,
-      handovers,
-      activity,
-    };
+      ...getTransfers().filter((transfer) => isToday(transfer.createdAt) && siteIds.has(transfer.fromSiteId)).map((transfer) => ({
+        id: `transfer-${transfer.id}`, time: transfer.createdAt, title: "Stock transfer updated",
+        detail: `${transfer.quantity} ${transfer.inventoryUnit} ${transfer.productName} to ${transfer.toSiteName}`,
+        siteName: transfer.fromSiteName, href: "/transfers",
+      })),
+      ...allOrders.filter((order) => isToday(order.updatedAt)).map((order) => ({
+        id: `order-${order.id}`, time: order.updatedAt, title: "Purchase order updated",
+        detail: `${order.orderNumber} • ${order.supplierName} • ${order.status}`,
+        siteName: order.siteName, href: "/purchasing",
+      })),
+      ...getStocktakes().filter((stocktake) =>
+        siteIds.has(stocktake.siteId) && Boolean(stocktake.completedAt) &&
+        isToday(stocktake.completedAt ?? stocktake.updatedAt)
+      ).map((stocktake) => ({
+        id: `stocktake-${stocktake.id}`, time: stocktake.completedAt ?? stocktake.updatedAt,
+        title: "Stocktake completed", detail: stocktake.stocktakeNumber,
+        siteName: stocktake.siteName, href: "/stocktakes",
+      })),
+    ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+    return { siteNames, todaysPrep, completedPrep, awaitingPrep, openOrders, wasteToday, wasteValue, notifications, stockAlerts, handovers, activity };
   }, [businessSites, currentUser, selectedSite, version]);
 
   if (!currentUser || !dashboard) {
@@ -472,16 +437,63 @@ export default function DashboardPage() {
     { href: "/waste", label: "Record waste", description: "Log waste and its true cost", icon: <Trash2 size={22} /> },
     { href: "/stocktakes", label: "Start stocktake", description: "Count stock by storage area", icon: <ClipboardCheck size={22} /> },
   ];
-
   const chefActions = [
     { href: "/recipes", label: "Open recipes", description: "View methods, yields and allergens", icon: <UtensilsCrossed size={22} /> },
     { href: "/waste", label: "Record waste", description: `Log waste for ${currentUser.site}`, icon: <Trash2 size={22} /> },
   ];
-
   const quickActions = currentUser.role === "chef" ? chefActions : managerActions;
   const visibleHandovers = dashboard.handovers.filter(
     (handover) => currentUser.role !== "chef" || handover.visibleToChefs
   );
+
+  const widgetLabels: Record<DashboardWidgetId, string> = {
+    snapshot: "Today's Snapshot",
+    attention: "Needs Your Attention",
+    quickActions: "Quick Actions",
+    prep: "Today's Prep",
+    handover: "Today's Handover",
+    recentActivity: "Recent Activity",
+    sites: "Sites at a Glance",
+  };
+
+  function openEditor(): void {
+    setDraftPreferences(preferences.map((item) => ({ ...item })));
+    setEditingDashboard(true);
+  }
+  function moveWidget(index: number, direction: -1 | 1): void {
+    const nextIndex = index + direction;
+    if (nextIndex < 0 || nextIndex >= draftPreferences.length) return;
+    setDraftPreferences((current) => {
+      const next = [...current];
+      [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+      return next;
+    });
+  }
+  function saveEditor(): void {
+    if (!currentUser) return;
+
+    saveDashboardPreferences(
+      currentUser.role,
+      currentUser.name,
+      currentUser.site,
+      draftPreferences
+    );
+    setPreferences(draftPreferences.map((item) => ({ ...item })));
+    setEditingDashboard(false);
+  }
+
+  function resetEditor(): void {
+    if (!currentUser) return;
+
+    setDraftPreferences(getDefaultDashboardPreferences(currentUser.role));
+  }
+  function isVisible(id: DashboardWidgetId): boolean {
+    return preferences.find((item) => item.id === id)?.visible ?? false;
+  }
+  function widgetOrder(id: DashboardWidgetId): number {
+    const index = preferences.findIndex((item) => item.id === id);
+    return index < 0 ? 99 : index;
+  }
 
   return (
     <ProtectedPage>
@@ -490,9 +502,7 @@ export default function DashboardPage() {
           <header className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-violet-950 via-violet-900 to-purple-700 p-6 text-white shadow-lg sm:p-8">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <p className="font-semibold text-violet-200">
-                  {getGreeting()}{currentUser.name ? `, ${currentUser.name}` : ""}
-                </p>
+                <p className="font-semibold text-violet-200">{getGreeting()}{currentUser.name ? `, ${currentUser.name}` : ""}</p>
                 <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-5xl">KitchenOps</h1>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-violet-100 sm:text-base">
                   {currentUser.role === "operations"
@@ -503,21 +513,19 @@ export default function DashboardPage() {
                   <Clock3 size={16} /> {getTodayLabel()}
                 </p>
               </div>
-
-              {currentUser.role === "operations" && (
-                <label className="block min-w-64">
-                  <span className="mb-2 block text-sm font-semibold text-violet-100">Viewing</span>
-                  <select
-                    value={selectedSite}
-                    onChange={(event) => setSelectedSite(event.target.value)}
-                    className="w-full rounded-2xl border border-white/20 bg-white px-4 py-3 font-bold text-violet-950 outline-none focus:ring-4 focus:ring-white/20"
-                  >
-                    {["All Sites", ...businessSites].map((site) => (
-                      <option key={site} value={site}>{site}</option>
-                    ))}
-                  </select>
-                </label>
-              )}
+              <div className="flex min-w-64 flex-col gap-3">
+                {currentUser.role === "operations" && (
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-semibold text-violet-100">Viewing</span>
+                    <select value={selectedSite} onChange={(event) => setSelectedSite(event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white px-4 py-3 font-bold text-violet-950 outline-none focus:ring-4 focus:ring-white/20">
+                      {["All Sites", ...businessSites].map((site) => <option key={site} value={site}>{site}</option>)}
+                    </select>
+                  </label>
+                )}
+                <button type="button" onClick={openEditor} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-4 py-3 font-bold text-white transition hover:bg-white/20">
+                  <Settings2 size={19} /> Edit Dashboard
+                </button>
+              </div>
             </div>
           </header>
 
@@ -525,243 +533,96 @@ export default function DashboardPage() {
             <section className="mt-6 rounded-3xl border border-dashed border-violet-300 bg-white p-8 text-center shadow-sm sm:p-12">
               <Boxes size={42} className="mx-auto text-violet-700" />
               <h2 className="mt-4 text-2xl font-black text-gray-950">Create your first site</h2>
-              <p className="mx-auto mt-2 max-w-lg text-gray-600">
-                Sites connect your prep, products, purchasing, inventory and reports.
-              </p>
-              <Link href="/settings/sites" className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-bold text-white">
-                <Plus size={19} /> Add first site
-              </Link>
+              <p className="mx-auto mt-2 max-w-lg text-gray-600">Sites connect your prep, products, purchasing, inventory and reports.</p>
+              <Link href="/settings/sites" className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-bold text-white"><Plus size={19} /> Add first site</Link>
             </section>
           ) : (
-            <>
-              <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <MetricCard
-                  label="Today's Prep"
-                  value={`${dashboard.completedPrep}/${dashboard.todaysPrep.length}`}
-                  detail={dashboard.awaitingPrep > 0 ? `${dashboard.awaitingPrep} awaiting approval` : "Planned vs complete"}
-                  href="/production"
-                  icon={<ChefHat size={24} />}
-                  tone="violet"
-                />
-                <MetricCard
-                  label="Stock Attention"
-                  value={String(dashboard.stockAlerts)}
-                  detail="Low or out of stock"
-                  href="/inventory"
-                  icon={<Boxes size={24} />}
-                  tone={dashboard.stockAlerts > 0 ? "orange" : "slate"}
-                />
-                <MetricCard
-                  label="Open Orders"
-                  value={String(dashboard.openOrders.length)}
-                  detail="Waiting to be received"
-                  href="/purchasing"
-                  icon={<Truck size={24} />}
-                  tone="blue"
-                />
-                <MetricCard
-                  label="Waste Today"
-                  value={formatMoney(dashboard.wasteValue)}
-                  detail={`${dashboard.wasteToday.length} record${dashboard.wasteToday.length === 1 ? "" : "s"}`}
-                  href="/waste"
-                  icon={<Trash2 size={24} />}
-                  tone="orange"
-                />
-              </section>
-
-              <div className="mt-6 grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
-                <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-bold uppercase tracking-wide text-violet-700">Priority</p>
-                      <h2 className="mt-1 text-2xl font-black text-gray-950">Needs Your Attention</h2>
-                    </div>
-                    <Link href="/notifications" className="inline-flex items-center gap-2 font-bold text-violet-800">
-                      View all <ArrowRight size={17} />
-                    </Link>
-                  </div>
-
-                  {dashboard.notifications.length === 0 ? (
-                    <div className="mt-5 flex items-center gap-4 rounded-2xl bg-violet-50 p-5 text-violet-950">
-                      <CheckCircle2 size={28} className="shrink-0 text-violet-700" />
-                      <div>
-                        <p className="font-black">Everything looks good today.</p>
-                        <p className="mt-1 text-sm text-violet-700">There are no outstanding alerts for this view.</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="mt-5 space-y-3">
-                      {dashboard.notifications.slice(0, 5).map((notification) => (
-                        <Link
-                          href={notification.href}
-                          key={notification.id}
-                          className="flex items-start gap-4 rounded-2xl border border-orange-100 bg-orange-50 p-4 transition hover:border-orange-200"
-                        >
-                          <AlertTriangle size={21} className="mt-0.5 shrink-0 text-orange-700" />
-                          <div className="min-w-0 flex-1">
-                            <p className="font-bold text-orange-950">{notification.title}</p>
-                            <p className="mt-1 text-sm text-orange-800">{notification.description}</p>
-                          </div>
-                          <ArrowRight size={18} className="shrink-0 text-orange-700" />
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </section>
-
-                <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
-                  <p className="text-sm font-bold uppercase tracking-wide text-violet-700">Shortcuts</p>
-                  <h2 className="mt-1 text-2xl font-black text-gray-950">Quick Actions</h2>
-                  <div className="mt-5 grid gap-3">
-                    {quickActions.map((action) => (
-                      <QuickAction key={action.href + action.label} {...action} />
-                    ))}
-                  </div>
-                </section>
-              </div>
-
-              <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-                <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <ChefHat size={24} className="text-violet-800" />
-                      <h2 className="text-2xl font-black text-gray-950">Today's Prep</h2>
-                    </div>
-                    <Link href="/production" className="font-bold text-violet-800">Open prep</Link>
-                  </div>
-
-                  {dashboard.todaysPrep.length === 0 ? (
-                    <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-gray-500">
-                      No prep is planned for today.
-                    </div>
-                  ) : (
-                    <div className="mt-5 space-y-3">
-                      {dashboard.todaysPrep.slice(0, 6).map((item) => (
-                        <PrepCard
-                          key={item.id}
-                          item={item}
-                          currentUser={currentUser}
-                          onChanged={() => setVersion((value) => value + 1)}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </section>
-
-                <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <ReceiptText size={24} className="text-blue-800" />
-                      <h2 className="text-2xl font-black text-gray-950">Today's Handover</h2>
-                    </div>
-                    <Link href="/handover" className="font-bold text-violet-800">Open</Link>
-                  </div>
-
-                  {visibleHandovers.every((handover) => handover.notes.length === 0) ? (
-                    <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-gray-500">
-                      No handover notes have been added.
-                    </div>
-                  ) : (
-                    <div className="mt-5 space-y-4">
-                      {visibleHandovers.map((handover) => {
-                        if (handover.notes.length === 0) return null;
-
-                        return (
-                          <div key={handover.siteName} className="rounded-2xl bg-blue-50 p-4">
-                            {dashboard.siteNames.length > 1 && (
-                              <p className="mb-2 text-xs font-black uppercase tracking-wide text-blue-700">{handover.siteName}</p>
-                            )}
-                            <div className="space-y-2">
-                              {handover.notes.slice(0, 4).map((note, index) => (
-                                <p key={`${handover.siteName}-${index}`} className="text-sm leading-6 text-blue-950">• {note}</p>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </section>
-              </div>
-
-              <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm font-bold uppercase tracking-wide text-violet-700">Live operations</p>
-                    <h2 className="mt-1 text-2xl font-black text-gray-950">Recent Activity</h2>
-                  </div>
-                  <Link href="/reports" className="inline-flex items-center gap-2 font-bold text-violet-800">
-                    View reports <BarChart3 size={18} />
-                  </Link>
-                </div>
-
-                {dashboard.activity.length === 0 ? (
-                  <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-gray-500">
-                    No activity has been recorded today.
-                  </div>
-                ) : (
-                  <div className="mt-5 divide-y divide-gray-100">
-                    {dashboard.activity.slice(0, 8).map((item) => (
-                      <Link
-                        href={item.href}
-                        key={item.id}
-                        className="grid gap-2 py-4 transition hover:bg-slate-50 sm:grid-cols-[70px_120px_1fr_auto] sm:items-center sm:px-3"
-                      >
-                        <p className="text-sm font-bold text-gray-500">{formatTime(item.time)}</p>
-                        <p className="text-sm font-bold text-violet-800">{item.siteName}</p>
-                        <div>
-                          <p className="font-bold text-gray-950">{item.title}</p>
-                          <p className="mt-1 text-sm text-gray-500">{item.detail}</p>
-                        </div>
-                        <ArrowRight size={18} className="text-violet-700" />
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </section>
-
-              {currentUser.role === "operations" && selectedSite === "All Sites" && businessSites.length > 1 && (
-                <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
-                  <div className="flex items-center gap-3">
-                    <PackageCheck size={24} className="text-violet-800" />
-                    <h2 className="text-2xl font-black text-gray-950">Sites at a Glance</h2>
-                  </div>
-                  <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {businessSites.map((siteName) => {
-                      const sitePrep = getPrepItems().filter((item) => item.site === siteName && item.day === "today");
-                      const siteComplete = sitePrep.filter((item) => item.status === "approved").length;
-                      const siteOpenOrders = getOrders().filter((order) => order.siteId === getSiteId(siteName) && order.status === "Sent").length;
-
-                      return (
-                        <button
-                          type="button"
-                          key={siteName}
-                          onClick={() => setSelectedSite(siteName)}
-                          className="rounded-2xl border border-gray-200 p-5 text-left transition hover:border-violet-300 hover:bg-violet-50"
-                        >
-                          <p className="text-lg font-black text-gray-950">{siteName}</p>
-                          <div className="mt-4 grid grid-cols-2 gap-3">
-                            <div className="rounded-xl bg-slate-50 p-3">
-                              <p className="text-xs font-bold uppercase text-gray-500">Prep</p>
-                              <p className="mt-1 text-xl font-black text-gray-950">{siteComplete}/{sitePrep.length}</p>
-                            </div>
-                            <div className="rounded-xl bg-blue-50 p-3">
-                              <p className="text-xs font-bold uppercase text-blue-700">Orders</p>
-                              <p className="mt-1 text-xl font-black text-blue-950">{siteOpenOrders}</p>
-                            </div>
-                          </div>
-                          <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-violet-800">
-                            Open site <ArrowRight size={16} />
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
+            <div className="flex flex-col">
+              {isVisible("snapshot") && (
+                <section style={{ order: widgetOrder("snapshot") }} className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <MetricCard label="Today's Prep" value={`${dashboard.completedPrep}/${dashboard.todaysPrep.length}`} detail={dashboard.awaitingPrep > 0 ? `${dashboard.awaitingPrep} awaiting approval` : "Planned vs complete"} href="/production" icon={<ChefHat size={24} />} tone="violet" />
+                  <MetricCard label="Stock Attention" value={String(dashboard.stockAlerts)} detail="Low or out of stock" href="/inventory" icon={<Boxes size={24} />} tone={dashboard.stockAlerts > 0 ? "orange" : "slate"} />
+                  <MetricCard label="Open Orders" value={String(dashboard.openOrders.length)} detail="Waiting to be received" href="/purchasing" icon={<Truck size={24} />} tone="blue" />
+                  <MetricCard label="Waste Today" value={formatMoney(dashboard.wasteValue)} detail={`${dashboard.wasteToday.length} record${dashboard.wasteToday.length === 1 ? "" : "s"}`} href="/waste" icon={<Trash2 size={24} />} tone="orange" />
                 </section>
               )}
-            </>
+
+              {isVisible("attention") && (
+                <section style={{ order: widgetOrder("attention") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                  <div className="flex items-center justify-between gap-4"><div><p className="text-sm font-bold uppercase tracking-wide text-violet-700">Priority</p><h2 className="mt-1 text-2xl font-black text-gray-950">Needs Your Attention</h2></div><Link href="/notifications" className="inline-flex items-center gap-2 font-bold text-violet-800">View all <ArrowRight size={17} /></Link></div>
+                  {dashboard.notifications.length === 0 ? <div className="mt-5 flex items-center gap-4 rounded-2xl bg-violet-50 p-5 text-violet-950"><CheckCircle2 size={28} className="shrink-0 text-violet-700" /><div><p className="font-black">Everything looks good today.</p><p className="mt-1 text-sm text-violet-700">There are no outstanding alerts for this view.</p></div></div> : <div className="mt-5 space-y-3">{dashboard.notifications.slice(0,5).map((notification) => <Link href={notification.href} key={notification.id} className="flex items-start gap-4 rounded-2xl border border-orange-100 bg-orange-50 p-4 transition hover:border-orange-200"><AlertTriangle size={21} className="mt-0.5 shrink-0 text-orange-700" /><div className="min-w-0 flex-1"><p className="font-bold text-orange-950">{notification.title}</p><p className="mt-1 text-sm text-orange-800">{notification.description}</p></div><ArrowRight size={18} className="shrink-0 text-orange-700" /></Link>)}</div>}
+                </section>
+              )}
+
+              {isVisible("quickActions") && (
+                <section style={{ order: widgetOrder("quickActions") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                  <p className="text-sm font-bold uppercase tracking-wide text-violet-700">Shortcuts</p><h2 className="mt-1 text-2xl font-black text-gray-950">Quick Actions</h2>
+                  <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{quickActions.map((action) => <QuickAction key={action.href + action.label} {...action} />)}</div>
+                </section>
+              )}
+
+              {isVisible("prep") && (
+                <section style={{ order: widgetOrder("prep") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                  <div className="flex items-center justify-between gap-4"><div className="flex items-center gap-3"><ChefHat size={24} className="text-violet-800" /><h2 className="text-2xl font-black text-gray-950">Today's Prep</h2></div><Link href="/production" className="font-bold text-violet-800">Open prep</Link></div>
+                  {dashboard.todaysPrep.length === 0 ? <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-gray-500">No prep is planned for today.</div> : <div className="mt-5 grid gap-3 xl:grid-cols-2">{dashboard.todaysPrep.slice(0,6).map((item) => <PrepCard key={item.id} item={item} currentUser={currentUser} onChanged={() => setVersion((value) => value + 1)} />)}</div>}
+                </section>
+              )}
+
+              {isVisible("handover") && (
+                <section style={{ order: widgetOrder("handover") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                  <div className="flex items-center justify-between gap-4"><div className="flex items-center gap-3"><ReceiptText size={24} className="text-blue-800" /><h2 className="text-2xl font-black text-gray-950">Today's Handover</h2></div><Link href="/handover" className="font-bold text-violet-800">Open</Link></div>
+                  {visibleHandovers.every((handover) => handover.notes.length === 0) ? <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-gray-500">No handover notes have been added.</div> : <div className="mt-5 grid gap-4 md:grid-cols-2">{visibleHandovers.map((handover) => handover.notes.length === 0 ? null : <div key={handover.siteName} className="rounded-2xl bg-blue-50 p-4">{dashboard.siteNames.length > 1 && <p className="mb-2 text-xs font-black uppercase tracking-wide text-blue-700">{handover.siteName}</p>}<div className="space-y-2">{handover.notes.slice(0,4).map((note,index) => <p key={`${handover.siteName}-${index}`} className="text-sm leading-6 text-blue-950">• {note}</p>)}</div></div>)}</div>}
+                </section>
+              )}
+
+              {isVisible("recentActivity") && (
+                <section style={{ order: widgetOrder("recentActivity") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-bold uppercase tracking-wide text-violet-700">Live operations</p><h2 className="mt-1 text-2xl font-black text-gray-950">Recent Activity</h2></div><Link href="/reports" className="inline-flex items-center gap-2 font-bold text-violet-800">View reports <BarChart3 size={18} /></Link></div>
+                  {dashboard.activity.length === 0 ? <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-gray-500">No activity has been recorded today.</div> : <div className="mt-5 divide-y divide-gray-100">{dashboard.activity.slice(0,8).map((item) => <Link href={item.href} key={item.id} className="grid gap-2 py-4 transition hover:bg-slate-50 sm:grid-cols-[70px_120px_1fr_auto] sm:items-center sm:px-3"><p className="text-sm font-bold text-gray-500">{formatTime(item.time)}</p><p className="text-sm font-bold text-violet-800">{item.siteName}</p><div><p className="font-bold text-gray-950">{item.title}</p><p className="mt-1 text-sm text-gray-500">{item.detail}</p></div><ArrowRight size={18} className="text-violet-700" /></Link>)}</div>}
+                </section>
+              )}
+
+              {isVisible("sites") && currentUser.role === "operations" && selectedSite === "All Sites" && businessSites.length > 1 && (
+                <section style={{ order: widgetOrder("sites") }} className="mt-6 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+                  <div className="flex items-center gap-3"><PackageCheck size={24} className="text-violet-800" /><h2 className="text-2xl font-black text-gray-950">Sites at a Glance</h2></div>
+                  <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{businessSites.map((siteName) => { const sitePrep=getPrepItems().filter((item)=>item.site===siteName&&item.day==="today"); const siteComplete=sitePrep.filter((item)=>item.status==="approved").length; const siteOpenOrders=getOrders().filter((order)=>order.siteId===getSiteId(siteName)&&order.status==="Sent").length; return <button type="button" key={siteName} onClick={()=>setSelectedSite(siteName)} className="rounded-2xl border border-gray-200 p-5 text-left transition hover:border-violet-300 hover:bg-violet-50"><p className="text-lg font-black text-gray-950">{siteName}</p><div className="mt-4 grid grid-cols-2 gap-3"><div className="rounded-xl bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-gray-500">Prep</p><p className="mt-1 text-xl font-black text-gray-950">{siteComplete}/{sitePrep.length}</p></div><div className="rounded-xl bg-blue-50 p-3"><p className="text-xs font-bold uppercase text-blue-700">Orders</p><p className="mt-1 text-xl font-black text-blue-950">{siteOpenOrders}</p></div></div><span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-violet-800">Open site <ArrowRight size={16} /></span></button>; })}</div>
+                </section>
+              )}
+            </div>
           )}
         </div>
+
+        {editingDashboard && (
+          <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/55 p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Edit dashboard">
+            <div className="flex max-h-[92dvh] w-full max-w-2xl flex-col rounded-t-[2rem] bg-white shadow-2xl sm:rounded-[2rem]">
+              <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 sm:px-6">
+                <div><p className="text-sm font-bold uppercase tracking-wide text-violet-700">Personalise</p><h2 className="text-2xl font-black text-gray-950">Edit Dashboard</h2></div>
+                <button type="button" onClick={() => setEditingDashboard(false)} className="grid size-11 place-items-center rounded-xl border border-gray-200 text-gray-600" aria-label="Close"><X size={20} /></button>
+              </div>
+              <div className="overflow-y-auto px-5 py-5 sm:px-6">
+                <p className="text-sm text-gray-600">Choose what appears on your dashboard and the order it appears in. These preferences are saved for this business and login.</p>
+                <div className="mt-5 space-y-3">
+                  {draftPreferences.map((item, index) => (
+                    <div key={item.id} className="flex items-center gap-3 rounded-2xl border border-gray-200 p-4">
+                      <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
+                        <input type="checkbox" checked={item.visible} onChange={() => setDraftPreferences((current) => current.map((entry) => entry.id === item.id ? { ...entry, visible: !entry.visible } : entry))} className="size-5 accent-violet-800" />
+                        <span className="font-bold text-gray-950">{widgetLabels[item.id]}</span>
+                      </label>
+                      <div className="flex gap-1">
+                        <button type="button" disabled={index === 0} onClick={() => moveWidget(index, -1)} className="grid size-10 place-items-center rounded-xl border border-gray-200 text-gray-700 disabled:opacity-30" aria-label={`Move ${widgetLabels[item.id]} up`}><ChevronUp size={19} /></button>
+                        <button type="button" disabled={index === draftPreferences.length - 1} onClick={() => moveWidget(index, 1)} className="grid size-10 place-items-center rounded-xl border border-gray-200 text-gray-700 disabled:opacity-30" aria-label={`Move ${widgetLabels[item.id]} down`}><ChevronDown size={19} /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col-reverse gap-3 border-t border-gray-200 bg-white px-5 py-4 sm:flex-row sm:justify-between sm:px-6">
+                <button type="button" onClick={resetEditor} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-gray-300 px-5 py-3 font-bold text-gray-700"><RotateCcw size={18} /> Reset to default</button>
+                <button type="button" onClick={saveEditor} className="min-h-12 rounded-xl bg-violet-800 px-6 py-3 font-bold text-white hover:bg-violet-900">Save Dashboard</button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </ProtectedPage>
   );
