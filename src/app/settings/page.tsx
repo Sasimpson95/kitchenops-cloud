@@ -6,8 +6,12 @@ import {
   Building2,
   ChevronRight,
   FileClock,
+  HelpCircle,
+  Info,
+  MessageSquare,
   PlugZap,
   Settings2,
+  Sparkles,
   Tags,
   Store,
   UsersRound,
@@ -48,7 +52,7 @@ const sections = [
   {
     title: "Integrations",
     description:
-      "Manage Reserva, POS connections and future external services.",
+      "Manage optional external services when integrations become available.",
     href: "/settings/integrations",
     icon: PlugZap,
   },
@@ -58,6 +62,34 @@ const sections = [
       "Review changes, logins and important activity across KitchenOps.",
     href: "/settings/audit-log",
     icon: FileClock,
+  },
+  {
+    title: "Help Centre",
+    description:
+      "Read quick guides for the core KitchenOps workflows.",
+    href: "/settings/help",
+    icon: HelpCircle,
+  },
+  {
+    title: "Send Feedback",
+    description:
+      "Report a bug, suggest a feature or share general feedback.",
+    href: "/settings/feedback",
+    icon: MessageSquare,
+  },
+  {
+    title: "Release Notes",
+    description:
+      "See what has changed in recent KitchenOps previews.",
+    href: "/settings/release-notes",
+    icon: Sparkles,
+  },
+  {
+    title: "About KitchenOps",
+    description:
+      "Version information, product purpose and Simpson Software details.",
+    href: "/settings/about",
+    icon: Info,
   },
 ];
 
@@ -81,7 +113,7 @@ export default function SettingsPage() {
               </h1>
 
               <p className="mt-2 max-w-2xl text-gray-600">
-                Manage your business, sites, users and integrations from one place.
+                Manage your business, sites, users, support and product information from one place.
               </p>
             </div>
           </div>
@@ -126,7 +158,7 @@ export default function SettingsPage() {
               <p className="mt-1 text-sm text-violet-800">{KITCHENOPS_RELEASE_NAME}</p>
             </div>
             <span className="mt-2 inline-flex w-fit rounded-full bg-white px-3 py-1 text-xs font-bold text-violet-800 shadow-sm sm:mt-0">
-              Pre-v1.0 quality release
+              Launch preparation release
             </span>
           </section>
 
