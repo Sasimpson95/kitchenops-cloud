@@ -1,18 +1,10 @@
-type PrimaryButtonProps = {
-  children: React.ReactNode;
-  onClick?: () => void;
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+import Button from "./Button";
+
+type PrimaryButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  children: ReactNode;
 };
 
-export default function PrimaryButton({
-  children,
-  onClick,
-}: PrimaryButtonProps) {
-  return (
-    <button
-      onClick={onClick}
-      className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900"
-    >
-      {children}
-    </button>
-  );
+export default function PrimaryButton({ children, ...props }: PrimaryButtonProps) {
+  return <Button {...props}>{children}</Button>;
 }
