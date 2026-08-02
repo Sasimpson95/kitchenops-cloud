@@ -392,10 +392,9 @@ export default function DashboardPage() {
       (notification) => notification.href === "/inventory"
     ).length;
 
-    const handovers = siteNames.map((siteName) => ({
-      siteName,
-      ...getSiteHandover(siteName, "today"),
-    }));
+    const handovers = siteNames.map((siteName) =>
+      getSiteHandover(siteName, "today")
+    );
 
     const activity: ActivityItem[] = [
       ...wasteToday.map((record) => ({
