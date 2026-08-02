@@ -69,6 +69,7 @@ import {
 } from "@/lib/recipeCostingStore";
 
 import { RECIPE_UNITS, defaultRecipeUnit, type RecipeUnit } from "@/lib/unitConversion";
+import { useDebouncedValue } from "@/lib/useDebouncedValue";
 
 const COMMON_ALLERGENS = [
   "Celery",
@@ -916,6 +917,8 @@ function RecipesContent() {
     setSearch,
   ] = useState("");
 
+  const debouncedSearch = useDebouncedValue(search, 250);
+
   const [
     showArchived,
     setShowArchived,
@@ -1014,7 +1017,7 @@ function RecipesContent() {
   const filteredRecipes =
     useMemo(() => {
       const query =
-        search
+        debouncedSearch
           .trim()
           .toLowerCase();
 
@@ -1050,7 +1053,7 @@ function RecipesContent() {
         );
     }, [
       recipes,
-      search,
+      debouncedSearch,
       showArchived,
       version,
     ]);

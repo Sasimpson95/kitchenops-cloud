@@ -46,6 +46,7 @@ import {
 } from "@/lib/currentUser";
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import { useBusinessSites, siteNameToId } from "@/lib/useBusinessSites";
+import { useDebouncedValue } from "@/lib/useDebouncedValue";
 
 import {
   getProductStock,
@@ -114,6 +115,8 @@ function ProductsContent() {
 
   const [search, setSearch] =
     useState("");
+
+  const debouncedSearch = useDebouncedValue(search, 250);
 
   const [category, setCategory] =
     useState("All");
@@ -248,44 +251,34 @@ function ProductsContent() {
     searchParams,
   ]);
 
-  const baseProducts =
-    productList.filter(
-      (product) =>
-        view === "active"
-          ? product.active
-          : !product.active
-    );
+  const baseProducts = useMemo(
+    () =>
+      productList.filter((product) =>
+        view === "active" ? product.active : !product.active
+      ),
+    [productList, view]
+  );
 
-  const categories =
-    [
+  const categories = useMemo(
+    () => [
       "All",
-      ...Array.from(
-        new Set(
-          baseProducts.map(
-            (product) =>
-              product.category
-          )
-        )
-      ).sort(),
-    ];
+      ...Array.from(new Set(baseProducts.map((product) => product.category))).sort(),
+    ],
+    [baseProducts]
+  );
 
-  const supplierNames =
-    [
+  const supplierNames = useMemo(
+    () => [
       "All",
-      ...Array.from(
-        new Set(
-          baseProducts.map(
-            (product) =>
-              product.supplierName
-          )
-        )
-      ).sort(),
-    ];
+      ...Array.from(new Set(baseProducts.map((product) => product.supplierName))).sort(),
+    ],
+    [baseProducts]
+  );
 
   const filteredProducts =
     useMemo(() => {
       const query =
-        search
+        debouncedSearch
           .trim()
           .toLowerCase();
 
@@ -342,7 +335,7 @@ function ProductsContent() {
     }, [
       baseProducts,
       category,
-      search,
+      debouncedSearch,
       supplierFilter,
       suppliers,
     ]);

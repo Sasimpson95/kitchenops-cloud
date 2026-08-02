@@ -33,6 +33,7 @@ import { getCurrentUser } from "@/lib/currentUser";
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import { getPreferredSite, setPreferredSite } from "@/lib/uiPreferences";
 import { useBusinessSites } from "@/lib/useBusinessSites";
+import { useDebouncedValue } from "@/lib/useDebouncedValue";
 import {
   getInventoryMovements,
   getProductStock,
@@ -175,71 +176,42 @@ function buildRecords(
   siteId: string,
   movements: InventoryMovement[]
 ): InventoryProductRecord[] {
-  return products.map((product) => {
-    const stock = getProductStock(
-      getActiveBusinessId(),
-      siteId,
-      product.id
+  const businessId = getActiveBusinessId();
+  const movementsByProduct = new Map<number, InventoryMovement[]>();
+
+  for (const movement of movements) {
+    if (movement.businessId !== businessId || movement.siteId !== siteId) continue;
+    const current = movementsByProduct.get(movement.productId) ?? [];
+    current.push(movement);
+    movementsByProduct.set(movement.productId, current);
+  }
+
+  for (const productMovements of movementsByProduct.values()) {
+    productMovements.sort(
+      (first, second) =>
+        new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime()
     );
+  }
 
-    const productMovements = movements
-      .filter(
-        (movement) =>
-          movement.businessId ===
-            getActiveBusinessId() &&
-          movement.siteId === siteId &&
-          movement.productId ===
-            product.id
-      )
-      .sort(
-        (first, second) =>
-          new Date(
-            second.createdAt
-          ).getTime() -
-          new Date(
-            first.createdAt
-          ).getTime()
-      );
-
-    const trendValues =
-      getSevenDayTrend(
-        stock,
-        productMovements
-      );
-
+  return products.map((product) => {
+    const stock = getProductStock(businessId, siteId, product.id);
+    const productMovements = movementsByProduct.get(product.id) ?? [];
+    const trendValues = getSevenDayTrend(stock, productMovements);
     const sevenDayChange =
-      trendValues.length > 1
-        ? trendValues[
-            trendValues.length - 1
-          ] - trendValues[0]
-        : 0;
+      trendValues.length > 1 ? trendValues[trendValues.length - 1] - trendValues[0] : 0;
 
     return {
       product,
       stock,
       unitCost: getUnitCost(product),
-      stockValue: getStockValue(
-        product,
-        stock
-      ),
-      status: getInventoryStatus(
-        product,
-        stock
-      ),
-      lastMovement:
-        productMovements[0],
-      movementCount:
-        productMovements.length,
-
+      stockValue: getStockValue(product, stock),
+      status: getInventoryStatus(product, stock),
+      lastMovement: productMovements[0],
+      movementCount: productMovements.length,
       trendValues,
       sevenDayChange,
-
       trendDirection:
-        sevenDayChange > 0
-          ? "up"
-          : sevenDayChange < 0
-            ? "down"
-            : "flat",
+        sevenDayChange > 0 ? "up" : sevenDayChange < 0 ? "down" : "flat",
     };
   });
 }
@@ -253,6 +225,7 @@ export default function InventoryPage() {
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [selectedSite, setSelectedSite] = useState("All Sites");
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 250);
   const [statusFilter, setStatusFilter] = useState<"All" | InventoryStatus>("All");
   const [areaFilter, setAreaFilter] = useState("All Areas");
   const [categoryFilter, setCategoryFilter] = useState("All Categories");
@@ -369,7 +342,7 @@ export default function InventoryPage() {
     );
 
   const filteredRecords = useMemo(() => {
-    const term = search.trim().toLowerCase();
+    const term = debouncedSearch.trim().toLowerCase();
     const result = siteRecords.filter((record) => {
       const { product, status } = record;
       const matchesSearch =
@@ -395,15 +368,23 @@ export default function InventoryPage() {
         default: return a.product.name.localeCompare(b.product.name);
       }
     });
-  }, [siteRecords, search, statusFilter, areaFilter, categoryFilter, sort]);
+  }, [siteRecords, debouncedSearch, statusFilter, areaFilter, categoryFilter, sort]);
 
-  const stats = useMemo(() => ({
-    inventoryValue: siteRecords.reduce((total, record) => total + record.stockValue, 0),
-    trackedProducts: siteRecords.length,
-    lowStock: siteRecords.filter((record) => record.status === "Low Stock" || record.status === "Reorder").length,
-    outOfStock: siteRecords.filter((record) => record.status === "Out of Stock").length,
-    overstock: siteRecords.filter((record) => record.status === "Overstock").length,
-  }), [siteRecords]);
+  const stats = useMemo(
+    () =>
+      siteRecords.reduce(
+        (summary, record) => {
+          summary.inventoryValue += record.stockValue;
+          summary.trackedProducts += 1;
+          if (record.status === "Low Stock" || record.status === "Reorder") summary.lowStock += 1;
+          if (record.status === "Out of Stock") summary.outOfStock += 1;
+          if (record.status === "Overstock") summary.overstock += 1;
+          return summary;
+        },
+        { inventoryValue: 0, trackedProducts: 0, lowStock: 0, outOfStock: 0, overstock: 0 }
+      ),
+    [siteRecords]
+  );
 
   const siteMovements = useMemo(() => {
     if (!selectedSiteId) return [];

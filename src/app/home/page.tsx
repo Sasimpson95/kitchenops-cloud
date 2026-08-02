@@ -372,53 +372,117 @@ export default function DashboardPage() {
 
   const dashboard = useMemo(() => {
     if (!currentUser) return null;
+
+    // Read each store once per dashboard refresh. Several widgets share the same
+    // collections, so this avoids repeated parsing and filtering work.
+    const allPrepItems = getPrepItems();
+    const orders = getOrders();
+    const wasteRecords = getWasteRecords();
+    const transfers = getTransfers();
+    const stocktakes = getStocktakes();
+
     const siteNames = currentUser.role === "operations"
       ? selectedSite === "All Sites" ? businessSites : [selectedSite]
       : [currentUser.site];
+    const siteNameSet = new Set(siteNames);
     const siteIds = new Set(siteNames.map(getSiteId));
-    const prep = getPrepItems().filter((item) => siteNames.includes(item.site));
-    const todaysPrep = prep.filter((item) => item.day === "today");
-    const completedPrep = todaysPrep.filter((item) => item.status === "approved").length;
-    const awaitingPrep = todaysPrep.filter((item) => item.status === "awaitingApproval").length;
-    const allOrders = getOrders().filter((order) => siteIds.has(order.siteId));
+
+    const todaysPrep = allPrepItems.filter(
+      (item) => siteNameSet.has(item.site) && item.day === "today"
+    );
+    let completedPrep = 0;
+    let awaitingPrep = 0;
+    for (const item of todaysPrep) {
+      if (item.status === "approved") completedPrep += 1;
+      if (item.status === "awaitingApproval") awaitingPrep += 1;
+    }
+
+    const allOrders = orders.filter((order) => siteIds.has(order.siteId));
     const openOrders = allOrders.filter((order) => order.status === "Sent");
-    const wasteToday = getWasteRecords().filter(
+    const wasteToday = wasteRecords.filter(
       (record) => siteIds.has(record.siteId) && isToday(record.createdAt)
     );
     const wasteValue = wasteToday.reduce((total, record) => total + record.wasteValue, 0);
     const notifications = getNotifications(
       currentUser.role === "operations" ? selectedSite : currentUser.site
     );
-    const stockAlerts = notifications.filter(
-      (notification) => notification.href === "/inventory"
-    ).length;
+    const stockAlerts = notifications.reduce(
+      (count, notification) => count + (notification.href === "/inventory" ? 1 : 0),
+      0
+    );
     const handovers = siteNames.map((siteName) => getSiteHandover(siteName, "today"));
+
     const activity: ActivityItem[] = [
       ...wasteToday.map((record) => ({
         id: `waste-${record.id}`, time: record.createdAt, title: "Waste recorded",
         detail: `${record.quantity} ${record.inventoryUnit} ${record.productName}`,
         siteName: record.siteName, href: "/waste",
       })),
-      ...getTransfers().filter((transfer) => isToday(transfer.createdAt) && siteIds.has(transfer.fromSiteId)).map((transfer) => ({
-        id: `transfer-${transfer.id}`, time: transfer.createdAt, title: "Stock transfer updated",
-        detail: `${transfer.quantity} ${transfer.inventoryUnit} ${transfer.productName} to ${transfer.toSiteName}`,
-        siteName: transfer.fromSiteName, href: "/transfers",
-      })),
+      ...transfers
+        .filter((transfer) => isToday(transfer.createdAt) && siteIds.has(transfer.fromSiteId))
+        .map((transfer) => ({
+          id: `transfer-${transfer.id}`, time: transfer.createdAt, title: "Stock transfer updated",
+          detail: `${transfer.quantity} ${transfer.inventoryUnit} ${transfer.productName} to ${transfer.toSiteName}`,
+          siteName: transfer.fromSiteName, href: "/transfers",
+        })),
       ...allOrders.filter((order) => isToday(order.updatedAt)).map((order) => ({
         id: `order-${order.id}`, time: order.updatedAt, title: "Purchase order updated",
         detail: `${order.orderNumber} • ${order.supplierName} • ${order.status}`,
         siteName: order.siteName, href: "/purchasing",
       })),
-      ...getStocktakes().filter((stocktake) =>
-        siteIds.has(stocktake.siteId) && Boolean(stocktake.completedAt) &&
-        isToday(stocktake.completedAt ?? stocktake.updatedAt)
-      ).map((stocktake) => ({
-        id: `stocktake-${stocktake.id}`, time: stocktake.completedAt ?? stocktake.updatedAt,
-        title: "Stocktake completed", detail: stocktake.stocktakeNumber,
-        siteName: stocktake.siteName, href: "/stocktakes",
-      })),
-    ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-    return { siteNames, todaysPrep, completedPrep, awaitingPrep, openOrders, wasteToday, wasteValue, notifications, stockAlerts, handovers, activity };
+      ...stocktakes
+        .filter((stocktake) =>
+          siteIds.has(stocktake.siteId) && Boolean(stocktake.completedAt) &&
+          isToday(stocktake.completedAt ?? stocktake.updatedAt)
+        )
+        .map((stocktake) => ({
+          id: `stocktake-${stocktake.id}`, time: stocktake.completedAt ?? stocktake.updatedAt,
+          title: "Stocktake completed", detail: stocktake.stocktakeNumber,
+          siteName: stocktake.siteName, href: "/stocktakes",
+        })),
+    ]
+      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+      .slice(0, 20);
+
+    const prepBySite = new Map<string, { total: number; complete: number }>();
+    for (const item of allPrepItems) {
+      if (item.day !== "today") continue;
+      const summary = prepBySite.get(item.site) ?? { total: 0, complete: 0 };
+      summary.total += 1;
+      if (item.status === "approved") summary.complete += 1;
+      prepBySite.set(item.site, summary);
+    }
+
+    const openOrdersBySite = new Map<string, number>();
+    for (const order of orders) {
+      if (order.status !== "Sent") continue;
+      openOrdersBySite.set(order.siteId, (openOrdersBySite.get(order.siteId) ?? 0) + 1);
+    }
+
+    const siteSummaries = businessSites.map((siteName) => {
+      const prepSummary = prepBySite.get(siteName) ?? { total: 0, complete: 0 };
+      return {
+        siteName,
+        prepTotal: prepSummary.total,
+        prepComplete: prepSummary.complete,
+        openOrders: openOrdersBySite.get(getSiteId(siteName)) ?? 0,
+      };
+    });
+
+    return {
+      siteNames,
+      todaysPrep,
+      completedPrep,
+      awaitingPrep,
+      openOrders,
+      wasteToday,
+      wasteValue,
+      notifications,
+      stockAlerts,
+      handovers,
+      activity,
+      siteSummaries,
+    };
   }, [businessSites, currentUser, selectedSite, version]);
 
   if (!currentUser || !dashboard) {
@@ -585,7 +649,7 @@ export default function DashboardPage() {
               {isVisible("sites") && currentUser.role === "operations" && selectedSite === "All Sites" && businessSites.length > 1 && (
                 <section style={{ order: widgetOrder("sites") }} className="mt-6 rounded-2xl bg-white p-5 shadow-sm sm:p-6">
                   <div className="flex items-center gap-3"><PackageCheck size={24} className="text-violet-800" /><h2 className="text-2xl font-black text-gray-950">Sites at a Glance</h2></div>
-                  <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{businessSites.map((siteName) => { const sitePrep=getPrepItems().filter((item)=>item.site===siteName&&item.day==="today"); const siteComplete=sitePrep.filter((item)=>item.status==="approved").length; const siteOpenOrders=getOrders().filter((order)=>order.siteId===getSiteId(siteName)&&order.status==="Sent").length; return <button type="button" key={siteName} onClick={()=>setSelectedSite(siteName)} className="rounded-2xl border border-gray-200 p-5 text-left transition hover:border-violet-300 hover:bg-violet-50"><p className="text-lg font-black text-gray-950">{siteName}</p><div className="mt-4 grid grid-cols-2 gap-3"><div className="rounded-xl bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-gray-500">Prep</p><p className="mt-1 text-xl font-black text-gray-950">{siteComplete}/{sitePrep.length}</p></div><div className="rounded-xl bg-blue-50 p-3"><p className="text-xs font-bold uppercase text-blue-700">Orders</p><p className="mt-1 text-xl font-black text-blue-950">{siteOpenOrders}</p></div></div><span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-violet-800">Open site <ArrowRight size={16} /></span></button>; })}</div>
+                  <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{dashboard.siteSummaries.map((site) => <button type="button" key={site.siteName} onClick={()=>setSelectedSite(site.siteName)} className="rounded-2xl border border-gray-200 p-5 text-left transition hover:border-violet-300 hover:bg-violet-50"><p className="text-lg font-black text-gray-950">{site.siteName}</p><div className="mt-4 grid grid-cols-2 gap-3"><div className="rounded-xl bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-gray-500">Prep</p><p className="mt-1 text-xl font-black text-gray-950">{site.prepComplete}/{site.prepTotal}</p></div><div className="rounded-xl bg-blue-50 p-3"><p className="text-xs font-bold uppercase text-blue-700">Orders</p><p className="mt-1 text-xl font-black text-blue-950">{site.openOrders}</p></div></div><span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-violet-800">Open site <ArrowRight size={16} /></span></button>)}</div>
                 </section>
               )}
             </div>

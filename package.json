@@ -1,6 +1,6 @@
 {
   "name": "kitchenops-v1",
-  "version": "1.0.0-preview6c",
+  "version": "1.0.0-preview7",
   "private": true,
   "scripts": {
     "dev": "next dev",
