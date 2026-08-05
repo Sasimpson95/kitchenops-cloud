@@ -59,8 +59,10 @@ function getSiteId(
 }
 
 export default function PurchasingPage() {
-  const { sites: businessSites } = useBusinessSites();
-  const SITES = [{ id: "all-sites", name: "All Sites", active: true }, ...businessSites];
+  const { sites: businessSites, loading: sitesLoading } = useBusinessSites();
+  const SITES = businessSites.length > 1
+    ? [{ id: "all-sites", name: "All Sites", active: true }, ...businessSites]
+    : businessSites;
   const [currentUser, setCurrentUser] =
     useState<User | null>(null);
 
@@ -92,11 +94,9 @@ export default function PurchasingPage() {
     if (user) {
       setCurrentUser(user);
 
-      setSelectedSiteId(
-        user.role === "operations"
-          ? getPreferredSite("purchasing-site", "all-sites")
-          : getSiteId(user.site)
-      );
+      if (user.role !== "operations") {
+        setSelectedSiteId(getSiteId(user.site));
+      }
     }
 
     refreshPurchasing();
@@ -113,13 +113,30 @@ export default function PurchasingPage() {
   }, [refreshPurchasing]);
 
   useEffect(() => {
-    if (currentUser?.role !== "operations" || businessSites.length === 0) return;
-    const allowedSiteIds = ["all-sites", ...businessSites.map((site) => site.id)];
-    if (!allowedSiteIds.includes(selectedSiteId)) {
-      setSelectedSiteId("all-sites");
-      setPreferredSite("purchasing-site", "all-sites");
+    if (currentUser?.role !== "operations" || sitesLoading) return;
+
+    if (businessSites.length === 1) {
+      const onlySiteId = businessSites[0].id;
+      if (selectedSiteId !== onlySiteId) {
+        setSelectedSiteId(onlySiteId);
+        setPreferredSite("purchasing-site", onlySiteId);
+      }
+      return;
     }
-  }, [businessSites, currentUser, selectedSiteId]);
+
+    if (businessSites.length > 1) {
+      const allowedSiteIds = ["all-sites", ...businessSites.map((site) => site.id)];
+      const preferredSiteId = getPreferredSite("purchasing-site", "all-sites");
+      const nextSiteId = allowedSiteIds.includes(preferredSiteId)
+        ? preferredSiteId
+        : "all-sites";
+
+      if (selectedSiteId !== nextSiteId) {
+        setSelectedSiteId(nextSiteId);
+        setPreferredSite("purchasing-site", nextSiteId);
+      }
+    }
+  }, [businessSites, currentUser, selectedSiteId, sitesLoading]);
 
   const today = new Date()
     .toISOString()
@@ -240,7 +257,17 @@ export default function PurchasingPage() {
     refreshPurchasing();
   }
 
-  if (currentUser && businessSites.length === 0) {
+  if (!currentUser || sitesLoading) {
+    return (
+      <ProtectedPage>
+        <main className="flex min-h-screen items-center justify-center bg-slate-100">
+          <p className="font-semibold text-gray-600">Loading Purchasing...</p>
+        </main>
+      </ProtectedPage>
+    );
+  }
+
+  if (businessSites.length === 0) {
     return (
       <ProtectedPage>
         <main className="ko-page ko-enter">

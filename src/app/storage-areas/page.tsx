@@ -470,7 +470,7 @@ function AssignmentRow({
 }
 
 export default function StorageAreasPage() {
-  const { sites: SITES } = useBusinessSites();
+  const { sites: SITES, loading: sitesLoading } = useBusinessSites();
   const router =
     useRouter();
 
@@ -590,9 +590,11 @@ export default function StorageAreasPage() {
       (site) =>
         site.id ===
         selectedSiteId
-    ) ?? SITES[0];
+    ) ?? null;
 
   useEffect(() => {
+    if (sitesLoading || !currentUser) return;
+
     if (SITES.length === 0) {
       if (selectedSiteId) {
         setSelectedSiteId("");
@@ -600,14 +602,23 @@ export default function StorageAreasPage() {
       return;
     }
 
+    const assignedSite =
+      currentUser.role === "operations"
+        ? null
+        : SITES.find((site) => site.name === currentUser.site);
+
+    const defaultSiteId =
+      assignedSite?.id ??
+      (SITES.length === 1 ? SITES[0].id : SITES[0].id);
+
     const selectedSiteStillExists = SITES.some(
       (site) => site.id === selectedSiteId
     );
 
-    if (!selectedSiteStillExists) {
-      setSelectedSiteId(SITES[0].id);
+    if (!selectedSiteStillExists || (currentUser.role !== "operations" && selectedSiteId !== defaultSiteId)) {
+      setSelectedSiteId(defaultSiteId);
     }
-  }, [SITES, selectedSiteId]);
+  }, [SITES, currentUser, selectedSiteId, sitesLoading]);
 
   const areas =
     useMemo(
@@ -737,7 +748,7 @@ export default function StorageAreasPage() {
     }
   }
 
-  if (!currentUser) {
+  if (!currentUser || sitesLoading) {
     return (
       <ProtectedPage>
         <main className="flex min-h-screen items-center justify-center bg-slate-100">

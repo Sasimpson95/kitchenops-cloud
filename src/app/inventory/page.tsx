@@ -218,7 +218,7 @@ function buildRecords(
 
 export default function InventoryPage() {
   const router = useRouter();
-  const { options: SITE_OPTIONS, siteNames: SITE_NAMES } = useBusinessSites();
+  const { options: SITE_OPTIONS, siteNames: SITE_NAMES, loading: sitesLoading } = useBusinessSites();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
@@ -245,17 +245,32 @@ export default function InventoryPage() {
       return;
     }
     setCurrentUser(user);
-    setSelectedSite(user.role === "operations" ? getPreferredSite("inventory-site", "All Sites") : user.site);
+    if (user.role !== "operations") {
+      setSelectedSite(user.site);
+    }
     setLoading(false);
   }, [router]);
 
   useEffect(() => {
-    if (currentUser?.role !== "operations" || SITE_OPTIONS.length <= 1) return;
-    if (!SITE_OPTIONS.includes(selectedSite)) {
-      setSelectedSite("All Sites");
-      setPreferredSite("inventory-site", "All Sites");
+    if (currentUser?.role !== "operations" || sitesLoading) return;
+
+    if (SITE_NAMES.length === 1) {
+      const onlySite = SITE_NAMES[0];
+      if (selectedSite !== onlySite) {
+        setSelectedSite(onlySite);
+        setPreferredSite("inventory-site", onlySite);
+      }
+      return;
     }
-  }, [SITE_OPTIONS, currentUser, selectedSite]);
+
+    const preferredSite = getPreferredSite("inventory-site", "All Sites");
+    const nextSite = SITE_OPTIONS.includes(preferredSite) ? preferredSite : "All Sites";
+
+    if (selectedSite !== nextSite) {
+      setSelectedSite(nextSite);
+      setPreferredSite("inventory-site", nextSite);
+    }
+  }, [SITE_NAMES, SITE_OPTIONS, currentUser, selectedSite, sitesLoading]);
 
   useEffect(() => {
     refreshProducts();
@@ -420,7 +435,7 @@ export default function InventoryPage() {
     setShowAllMovements(false);
   }
 
-  if (loading || !currentUser) {
+  if (loading || sitesLoading || !currentUser) {
     return <ProtectedPage><main className="flex min-h-screen items-center justify-center bg-slate-100"><p className="font-semibold text-gray-600">Loading Inventory...</p></main></ProtectedPage>;
   }
 
