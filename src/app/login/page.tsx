@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -14,6 +15,8 @@ import {
 } from "next/navigation";
 
 import {
+  CheckCircle2,
+  ChevronDown,
   Eye,
   EyeOff,
   Loader2,
@@ -430,37 +433,100 @@ export default function LoginPage() {
 
   if (checkingSession) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100">
-        <Loader2 className="animate-spin text-violet-800" />
+      <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
+        <div className="text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-950 text-2xl font-bold text-white shadow-lg shadow-violet-950/20">
+            K
+          </div>
+          <p className="mt-5 text-lg font-bold text-slate-950">KitchenOps</p>
+          <p className="mt-1 text-sm text-slate-500">Loading your workspace...</p>
+          <Loader2 className="mx-auto mt-5 animate-spin text-violet-800" size={24} />
+        </div>
       </main>
     );
   }
 
   return (
     <main className="min-h-screen bg-slate-100">
-      <div className="mx-auto grid min-h-screen max-w-7xl lg:grid-cols-[1.05fr_0.95fr]">
-        <section className="hidden flex-col justify-between bg-violet-950 p-12 text-white lg:flex">
-          <div>
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl font-bold text-violet-950">
+      <div className="mx-auto grid min-h-screen max-w-[1440px] lg:grid-cols-[minmax(0,1.15fr)_minmax(440px,0.85fr)]">
+        <section className="relative hidden overflow-hidden bg-gradient-to-br from-violet-950 via-violet-900 to-fuchsia-800 px-10 py-10 text-white lg:flex lg:flex-col xl:px-14 xl:py-12">
+          <div className="pointer-events-none absolute -left-32 top-1/3 h-80 w-80 rounded-full bg-fuchsia-500/20 blur-3xl" />
+          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-violet-400/20 blur-3xl" />
+
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-xl font-bold text-violet-950 shadow-lg shadow-black/10">
               K
             </div>
-            <h1 className="mt-8 max-w-xl text-5xl font-bold leading-tight">
-              The operating system for modern hospitality.
-            </h1>
-            <p className="mt-6 max-w-lg text-lg leading-8 text-violet-100">
-              Plan prep, manage purchasing, control stock and keep every site connected.
-            </p>
+            <div>
+              <p className="text-lg font-bold">KitchenOps</p>
+              <p className="text-xs font-medium text-violet-200">by Simpson Software</p>
+            </div>
           </div>
-          <p className="text-sm text-violet-200">
-            KitchenOps Cloud
-          </p>
+
+          <div className="relative z-10 mt-10 max-w-2xl">
+            <h1 className="text-4xl font-bold leading-tight xl:text-5xl">
+              Run your kitchen with confidence.
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-violet-100 xl:text-lg xl:leading-8">
+              Manage stock, recipes, prep, purchasing and daily operations from one connected workspace.
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-violet-100">
+              {[
+                "Multi-site ready",
+                "Cloud synchronised",
+                "Built for hospitality",
+              ].map((item) => (
+                <span key={item} className="flex items-center gap-2">
+                  <CheckCircle2 size={17} className="text-fuchsia-200" />
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative z-10 mt-9 min-h-0 flex-1">
+            <div className="h-full max-h-[580px] overflow-hidden rounded-[28px] border border-white/20 bg-white/10 p-2 shadow-2xl shadow-black/30 backdrop-blur-sm">
+              <div className="flex items-center gap-2 rounded-t-[20px] border-b border-slate-200 bg-slate-50 px-4 py-3">
+                <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
+                <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                <span className="ml-3 rounded-full bg-white px-4 py-1 text-[11px] font-medium text-slate-500 shadow-sm">
+                  kitchenops.app/dashboard
+                </span>
+              </div>
+              <div className="relative h-[calc(100%-48px)] overflow-hidden rounded-b-[20px] bg-slate-100">
+                <Image
+                  src="/kitchenops-dashboard-preview.svg"
+                  alt="KitchenOps dashboard showing daily prep, stock attention, open orders and site performance"
+                  fill
+                  loading="eager"
+                  fetchPriority="high"
+                  unoptimized
+                  sizes="(min-width: 1024px) 58vw, 0px"
+                  className="object-cover object-top"
+                />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-100 to-transparent" />
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section className="flex items-center justify-center p-4 sm:p-8">
-          <div className="w-full max-w-md rounded-2xl bg-white p-7 shadow-sm sm:p-9">
-            <p className="font-semibold text-violet-800">
-              KitchenOps Cloud
-            </p>
+        <section className="flex items-center justify-center px-4 py-8 sm:px-8 lg:bg-slate-50 xl:px-14">
+          <div className="w-full max-w-md">
+            <div className="mb-6 text-center lg:hidden">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-950 text-xl font-bold text-white shadow-lg shadow-violet-950/20">
+                K
+              </div>
+              <p className="mt-3 text-xl font-bold text-slate-950">KitchenOps</p>
+              <p className="mt-1 text-sm text-slate-500">Run your kitchen with confidence.</p>
+            </div>
+
+            <div className="rounded-[28px] border border-slate-200 bg-white p-7 shadow-xl shadow-slate-900/5 sm:p-9">
+              <p className="font-semibold text-violet-800">
+                KitchenOps Cloud
+              </p>
+              <p className="mt-0.5 text-xs font-medium text-slate-400">by Simpson Software</p>
             <h2 className="mt-2 text-3xl font-bold text-gray-950">
               Welcome back
             </h2>
@@ -616,6 +682,32 @@ export default function LoginPage() {
                 </button>
               </form>
             )}
+            </div>
+
+            <details className="group mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white lg:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-sm font-semibold text-slate-800">
+                See KitchenOps in action
+                <ChevronDown size={18} className="transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="border-t border-slate-200 p-3">
+                <div className="relative aspect-[0.92] overflow-hidden rounded-xl bg-slate-100">
+                  <Image
+                    src="/kitchenops-dashboard-preview.svg"
+                    alt="KitchenOps dashboard preview"
+                    fill
+                    loading="eager"
+                    fetchPriority="high"
+                    unoptimized
+                    sizes="(max-width: 1023px) 100vw, 0px"
+                    className="object-cover object-top"
+                  />
+                </div>
+              </div>
+            </details>
+
+            <p className="mt-5 text-center text-xs text-slate-400">
+              © 2026 Simpson Software
+            </p>
           </div>
         </section>
       </div>

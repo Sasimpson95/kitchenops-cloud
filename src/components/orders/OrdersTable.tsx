@@ -8,6 +8,8 @@ import SearchBar from "@/components/ui/SearchBar";
 import StatusBadge from "@/components/ui/StatusBadge";
 import OrderDetailsModal from "@/components/orders/OrderDetailsModal";
 import EditOrderModal from "@/components/orders/EditOrderModal";
+import EmptyState from "@/components/ui/EmptyState";
+import { ShoppingCart } from "lucide-react";
 
 import type { PurchaseOrder } from "@/data/orders";
 
@@ -129,16 +131,17 @@ export default function OrdersTable() {
         </div>
 
         {filteredOrders.length === 0 ? (
-          <div className="mt-6 rounded-2xl bg-slate-50 p-10 text-center">
-            <h3 className="text-xl font-bold text-gray-950">
-              No orders found
-            </h3>
-
-            <p className="mt-2 text-gray-500">
-              Try another order number,
-              supplier or site.
-            </p>
-          </div>
+          <EmptyState
+            className="mt-6"
+            compact
+            icon={<ShoppingCart className="h-6 w-6" />}
+            title={orderList.length === 0 ? "No purchase orders yet" : "No orders match your search"}
+            description={
+              orderList.length === 0
+                ? "Create a purchase order from Purchasing to track what has been ordered, sent and received."
+                : "Try another order number, supplier or site."
+            }
+          />
         ) : (
           <div className="mt-6 overflow-x-auto rounded-2xl border border-gray-200">
             <table className="w-full min-w-[850px]">

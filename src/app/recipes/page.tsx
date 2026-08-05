@@ -23,6 +23,7 @@ import {
 } from "next/navigation";
 
 import ProtectedPage from "@/components/ProtectedPage";
+import EmptyState from "@/components/ui/EmptyState";
 
 import NewRecipeModal from "@/components/recipes/NewRecipeModal";
 import RecipeComponentCosts from "@/components/recipes/RecipeComponentCosts";
@@ -1285,38 +1286,17 @@ function RecipesContent() {
             {!selectedRecipe ||
             !selectedSettings ||
             !costing ? (
-              <section className="rounded-2xl bg-white p-12 text-center shadow-sm">
-                <Calculator
-                  size={42}
-                  className="mx-auto text-gray-400"
-                />
-
-                <h2 className="mt-4 text-2xl font-bold text-gray-950">
-                  {recipes.length === 0
-                    ? "No recipes yet"
-                    : "No recipe selected"}
-                </h2>
-
-                <p className="mx-auto mt-2 max-w-md text-gray-500">
-                  {recipes.length === 0
-                    ? "Create your first recipe from your product catalogue. Costs, yields, GP and allergens will then be kept together in one place."
-                    : "Choose a recipe from the list to view its costing and method."}
-                </p>
-
-                {recipes.length === 0 &&
-                  canManage && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setShowNewRecipe(true)
-                    }
-                    className="mt-6 inline-flex items-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900"
-                  >
-                    <Plus size={18} />
-                    Create First Recipe
-                  </button>
-                )}
-              </section>
+              <EmptyState
+                icon={<Calculator className="h-6 w-6" />}
+                title={recipes.length === 0 ? "No recipes yet" : "Select a recipe"}
+                description={
+                  recipes.length === 0
+                    ? "Recipes bring ingredients, yield, allergens, methods and food costs together, and can be added to the prep planner."
+                    : "Choose a recipe from the list to view its costing, ingredients and method."
+                }
+                actionLabel={recipes.length === 0 && canManage ? "Create First Recipe" : undefined}
+                onAction={recipes.length === 0 && canManage ? () => setShowNewRecipe(true) : undefined}
+              />
             ) : (
               <div className="space-y-6">
                 <section className="rounded-2xl bg-white p-6 shadow-sm">

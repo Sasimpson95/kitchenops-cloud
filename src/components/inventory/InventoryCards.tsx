@@ -3,6 +3,7 @@ import {
 } from "lucide-react";
 
 import InventoryCard from "@/components/inventory/InventoryCard";
+import EmptyState from "@/components/ui/EmptyState";
 
 import type {
   InventoryProductRecord,
@@ -21,21 +22,13 @@ export default function InventoryCards({
 }: InventoryCardsProps) {
   if (records.length === 0) {
     return (
-      <div className="mt-6 rounded-2xl bg-slate-50 p-10 text-center">
-        <PackageSearch
-          size={36}
-          className="mx-auto text-gray-400"
-        />
-
-        <h3 className="mt-4 text-xl font-bold text-gray-950">
-          No products found
-        </h3>
-
-        <p className="mt-2 text-gray-500">
-          Try changing the search or
-          filters.
-        </p>
-      </div>
+      <EmptyState
+        className="mt-6"
+        compact
+        icon={<PackageSearch className="h-6 w-6" />}
+        title="No inventory products found"
+        description="Try clearing the search or filters. Products appear here once they are active in the catalogue for this site."
+      />
     );
   }
 

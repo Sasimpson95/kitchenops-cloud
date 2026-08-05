@@ -14,6 +14,8 @@ import Card from "@/components/ui/Card";
 import StatusBadge from "@/components/ui/StatusBadge";
 import OrderDetailsModal from "@/components/orders/OrderDetailsModal";
 import EditOrderModal from "@/components/orders/EditOrderModal";
+import EmptyState from "@/components/ui/EmptyState";
+import { ShoppingCart } from "lucide-react";
 
 import type { PurchaseOrder } from "@/data/orders";
 
@@ -176,16 +178,21 @@ export default function RecentOrders({
         </div>
 
         {recentOrders.length === 0 ? (
-          <div className="mt-6 rounded-2xl bg-slate-50 p-10 text-center">
-            <h3 className="text-xl font-bold text-gray-950">
-              No orders yet
-            </h3>
-
-            <p className="mt-2 text-gray-500">
-              Create your first
-              supplier order.
-            </p>
-          </div>
+          <EmptyState
+            className="mt-6"
+            compact
+            icon={<ShoppingCart className="h-6 w-6" />}
+            title="No purchase orders yet"
+            description="Create your first supplier order to begin tracking approval, delivery and receiving."
+            secondaryAction={
+              <Link
+                href="/purchasing"
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-violet-200 bg-white px-5 py-3 font-semibold text-violet-800 transition hover:bg-violet-50"
+              >
+                Open Purchasing
+              </Link>
+            }
+          />
         ) : (
           <div className="mt-6 space-y-4">
             {recentOrders.map(

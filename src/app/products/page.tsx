@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 
 import ProtectedPage from "@/components/ProtectedPage";
+import EmptyState from "@/components/ui/EmptyState";
 import ProductFormModal, {
   EMPTY_PRODUCT_FORM,
   productToForm,
@@ -686,15 +687,26 @@ function ProductsContent() {
 
           {filteredProducts.length ===
           0 ? (
-            <div className="mt-8 rounded-2xl bg-white p-12 text-center shadow-sm">
-              <h2 className="text-2xl font-bold text-gray-950">
-                No products found
-              </h2>
-
-              <p className="mt-2 text-gray-600">
-                Try changing the search or filters.
-              </p>
-            </div>
+            <EmptyState
+              className="mt-8"
+              icon={<PackagePlus className="h-6 w-6" />}
+              title={
+                productList.length === 0
+                  ? "No products yet"
+                  : view === "archived" && baseProducts.length === 0
+                    ? "No archived products"
+                    : "No products match your filters"
+              }
+              description={
+                productList.length === 0
+                  ? "Products are the ingredients and items you buy, count, use in recipes and record as waste."
+                  : view === "archived" && baseProducts.length === 0
+                    ? "Archived products will appear here when you remove them from the active catalogue."
+                    : "Try clearing the search or choosing different category and supplier filters."
+              }
+              actionLabel={productList.length === 0 && canManageProducts ? "Create First Product" : undefined}
+              onAction={productList.length === 0 && canManageProducts ? openAdd : undefined}
+            />
           ) : (
             <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {filteredProducts.map(

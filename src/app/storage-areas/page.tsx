@@ -26,6 +26,7 @@ import {
 } from "next/navigation";
 
 import ProtectedPage from "@/components/ProtectedPage";
+import EmptyState from "@/components/ui/EmptyState";
 
 import type {
   User,
@@ -685,13 +686,16 @@ export default function StorageAreasPage() {
           updated.name
         );
       } else {
+        if (!selectedSite) {
+          setError(
+            "Please wait for your site to load before creating a storage area."
+          );
+          return;
+        }
+
         createStorageArea({
-          siteId:
-            selectedSite.id,
-
-          siteName:
-            selectedSite.name,
-
+          siteId: selectedSite.id,
+          siteName: selectedSite.name,
           name,
           description,
         });
@@ -887,16 +891,18 @@ export default function StorageAreasPage() {
           </div>
 
           {areas.length === 0 ? (
-            <div className="mt-8 rounded-2xl bg-white p-12 text-center shadow-sm">
-              <MapPin
-                size={40}
-                className="mx-auto text-gray-400"
-              />
-
-              <h2 className="mt-4 text-2xl font-bold text-gray-950">
-                No storage areas
-              </h2>
-            </div>
+            <EmptyState
+              className="mt-8"
+              icon={<MapPin className="h-6 w-6" />}
+              title={showArchived ? "No archived storage areas" : "No storage areas yet"}
+              description={
+                showArchived
+                  ? "Archived storage areas will appear here until they are restored or permanently removed."
+                  : "Create areas such as Dry Store, Fridge or Freezer so products can be organised and found quickly."
+              }
+              actionLabel={!showArchived ? "Create First Storage Area" : undefined}
+              onAction={!showArchived ? openCreate : undefined}
+            />
           ) : (
             <div className="mt-8 space-y-5">
               {areas.map(

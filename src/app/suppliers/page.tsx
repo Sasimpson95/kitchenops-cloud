@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 
 import ProtectedPage from "@/components/ProtectedPage";
+import EmptyState from "@/components/ui/EmptyState";
 import SupplierModal from "@/components/suppliers/SupplierModal";
 
 import type { User } from "@/config/roles";
@@ -401,15 +402,26 @@ export default function SuppliersPage() {
 
           {filteredSuppliers.length ===
           0 ? (
-            <div className="mt-8 rounded-2xl bg-white p-12 text-center shadow-sm">
-              <h2 className="text-2xl font-bold text-gray-950">
-                No suppliers found
-              </h2>
-
-              <p className="mt-3 text-gray-600">
-                Try another search.
-              </p>
-            </div>
+            <EmptyState
+              className="mt-8"
+              icon={<Plus className="h-6 w-6" />}
+              title={
+                supplierList.length === 0
+                  ? "No suppliers yet"
+                  : view === "archived" && archivedSuppliers.length === 0
+                    ? "No archived suppliers"
+                    : "No suppliers match your search"
+              }
+              description={
+                supplierList.length === 0
+                  ? "Suppliers connect your product catalogue to purchase orders, deliveries and stock costs."
+                  : view === "archived" && archivedSuppliers.length === 0
+                    ? "Archived suppliers will appear here while their historic products and orders remain linked."
+                    : "Try clearing the search or switching between active and archived suppliers."
+              }
+              actionLabel={supplierList.length === 0 && canManageSuppliers ? "Add First Supplier" : undefined}
+              onAction={supplierList.length === 0 && canManageSuppliers ? openAddSupplier : undefined}
+            />
           ) : (
             <div className="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
               {filteredSuppliers.map(
