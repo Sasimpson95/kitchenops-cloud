@@ -99,7 +99,9 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
         // prevents a shared device briefly showing the previous staff/site.
         setAccessAllowed(true);
 
-        stopOperationalPolling = startOperationalPolling();
+        const operationalPollMs =
+          pathname === "/production" || pathname === "/home" ? 3000 : 12000;
+        stopOperationalPolling = startOperationalPolling(operationalPollMs);
         stopInventoryRetry = startInventorySyncRetry();
         stopCatalogRetry = startCatalogSyncRetry();
         sessionTimer = window.setInterval(() => {

@@ -5,6 +5,8 @@ import ProtectedPage from "@/components/ProtectedPage";
 import { PageHeader, SectionCard } from "@/components/ui";
 
 const notes = [
+  { version: "RC4", title: "Prep Reliability Hardening", items: ["Stale-write protection for cross-device Prep edits", "Automatic Prep and Dashboard cloud refresh", "Manager approval directly inside Prep", "Generated Android URL validation"] },
+  { version: "RC3", title: "Release Security & Database Reconciliation", items: ["Next.js 16.3.0 security upgrade", "Zero production dependency vulnerabilities", "Supabase migration history reconciled", "Production schema drift eliminated"] },
   { version: "RC2", title: "Data Integrity & Security Hardening", items: ["Shared prep, orders, waste, stocktakes and transfers", "Atomic cross-device inventory movements", "Server-enforced site and role boundaries", "Staff PIN rate limiting and live session validation", "Shared recipes and storage assignments"] },
   { version: "Preview 8", title: "Launch Experience", items: ["First-run welcome", "Help centre", "Feedback tools", "About and version information", "Launch-facing Settings organisation"] },
   { version: "Preview 7", title: "Performance", items: ["Faster dashboard calculations", "Debounced product, recipe and inventory search", "More efficient inventory movement indexing"] },

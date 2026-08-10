@@ -29,12 +29,33 @@ type OperationalChange = {
   siteKeys?: string[];
   data?: JsonRecord;
   deleted?: boolean;
+  expectedUpdatedAt?: string | null;
 };
 
 type Config = {
   key: string;
   event: string;
 };
+
+type ConflictPayload = {
+  error?: string;
+  conflict?: {
+    kind?: OperationalKind;
+    id?: string;
+  };
+};
+
+class OperationalConflictError extends Error {
+  readonly kind: OperationalKind;
+  readonly id: string;
+
+  constructor(kind: OperationalKind, id: string, message: string) {
+    super(message);
+    this.name = "OperationalConflictError";
+    this.kind = kind;
+    this.id = id;
+  }
+}
 
 const CONFIG: Record<OperationalKind, Config> = {
   prep: { key: "kitchenops-prep-plan", event: "kitchenops-prep-changed" },
@@ -83,6 +104,12 @@ function writeLocal(kind: OperationalKind, records: JsonRecord[]): void {
 
 function recordId(record: JsonRecord): string {
   return String(record.id ?? "").trim();
+}
+
+function recordUpdatedAt(record: JsonRecord | undefined): string | null {
+  if (!record || typeof record.updatedAt !== "string") return null;
+  const value = record.updatedAt.trim();
+  return value || null;
 }
 
 function getSiteKeys(kind: OperationalKind, record: JsonRecord): string[] {
@@ -137,6 +164,10 @@ function sameRecord(first: JsonRecord, second: JsonRecord): boolean {
   return JSON.stringify(first) === JSON.stringify(second);
 }
 
+function changeKey(change: OperationalChange): string {
+  return `${change.businessId}:${change.kind}:${change.id}`;
+}
+
 function readPending(): OperationalChange[] {
   return readJsonArray<OperationalChange>(PENDING_KEY).filter(
     (change) =>
@@ -152,14 +183,28 @@ function savePending(changes: OperationalChange[]): void {
 }
 
 function queueChanges(changes: OperationalChange[]): void {
-  const pending = readPending();
   const merged = new Map<string, OperationalChange>();
 
-  for (const change of pending) {
-    merged.set(`${change.businessId}:${change.kind}:${change.id}`, change);
+  for (const change of readPending()) {
+    merged.set(changeKey(change), change);
   }
+
   for (const change of changes) {
-    merged.set(`${change.businessId}:${change.kind}:${change.id}`, change);
+    const key = changeKey(change);
+    const pending = merged.get(key);
+
+    // Preserve the revision the device originally edited. If two local prep
+    // edits happen before the first one reaches the server, replacing the
+    // expected revision with the intermediate local timestamp would create a
+    // false conflict even though the cloud record has not changed.
+    if (change.kind === "prep" && pending) {
+      merged.set(key, {
+        ...change,
+        expectedUpdatedAt: pending.expectedUpdatedAt ?? null,
+      });
+    } else {
+      merged.set(key, change);
+    }
   }
 
   savePending(Array.from(merged.values()));
@@ -174,9 +219,29 @@ async function sendChanges(changes: OperationalChange[]): Promise<void> {
   });
 
   if (!response.ok) {
-    const result = (await response.json().catch(() => ({}))) as { error?: string };
+    const result = (await response.json().catch(() => ({}))) as ConflictPayload;
+    if (
+      response.status === 409 &&
+      result.conflict?.kind &&
+      result.conflict.id
+    ) {
+      throw new OperationalConflictError(
+        result.conflict.kind,
+        result.conflict.id,
+        result.error ?? "This record changed on another device."
+      );
+    }
     throw new Error(result.error ?? "Operational data could not be saved.");
   }
+}
+
+function scheduleConflictRefresh(): void {
+  if (typeof window === "undefined") return;
+  window.setTimeout(() => {
+    void hydrateOperationalData({ force: true }).catch((error) => {
+      console.warn("Conflict refresh failed:", error);
+    });
+  }, 0);
 }
 
 export async function flushPendingOperationalChanges(): Promise<void> {
@@ -195,16 +260,27 @@ export async function flushPendingOperationalChanges(): Promise<void> {
       if (activePending.length === 0) return;
 
       const batch = activePending.slice(0, 200);
-      await sendChanges(batch);
 
-      const applied = new Set(
-        batch.map((change) => `${change.businessId}:${change.kind}:${change.id}`)
-      );
-      savePending(
-        readPending().filter(
-          (change) => !applied.has(`${change.businessId}:${change.kind}:${change.id}`)
-        )
-      );
+      try {
+        await sendChanges(batch);
+      } catch (error) {
+        if (error instanceof OperationalConflictError) {
+          const conflictedKey = `${businessId}:${error.kind}:${error.id}`;
+          savePending(
+            readPending().filter((change) => changeKey(change) !== conflictedKey)
+          );
+          toast.warning(
+            "Prep updated elsewhere",
+            "KitchenOps found a newer prep change from another device. The latest version is being refreshed so nothing is overwritten."
+          );
+          scheduleConflictRefresh();
+          continue;
+        }
+        throw error;
+      }
+
+      const applied = new Set(batch.map(changeKey));
+      savePending(readPending().filter((change) => !applied.has(changeKey(change))));
     }
   })()
     .catch((error) => {
@@ -246,7 +322,14 @@ export function syncOperationalCollection(
     if (!old || !sameRecord(old, record)) {
       const siteKeys = getSiteKeys(kind, record);
       if (siteKeys.length > 0) {
-        changes.push({ businessId, kind, id, siteKeys, data: record });
+        changes.push({
+          businessId,
+          kind,
+          id,
+          siteKeys,
+          data: record,
+          expectedUpdatedAt: kind === "prep" ? recordUpdatedAt(old) : undefined,
+        });
       }
     }
   }
@@ -254,7 +337,13 @@ export function syncOperationalCollection(
   for (const record of before) {
     const id = recordId(record);
     if (id && !afterById.has(id)) {
-      changes.push({ businessId, kind, id, deleted: true });
+      changes.push({
+        businessId,
+        kind,
+        id,
+        deleted: true,
+        expectedUpdatedAt: kind === "prep" ? recordUpdatedAt(record) : undefined,
+      });
     }
   }
 
@@ -283,7 +372,10 @@ function applyPendingOverlay(
 
 export async function hydrateOperationalData(options?: { force?: boolean }): Promise<void> {
   if (typeof window === "undefined") return;
-  if (hydrationPromise && !options?.force) return hydrationPromise;
+
+  // Never allow overlapping hydrations. A forced refresh means "run as soon as
+  // possible", not "race another response and let whichever finishes last win".
+  if (hydrationPromise) return hydrationPromise;
 
   hydrationPromise = (async () => {
     const session = await getCloudSession();
@@ -323,13 +415,17 @@ export async function hydrateOperationalData(options?: { force?: boolean }): Pro
             const cloud = cloudById.get(recordId(record));
             return !cloud || !sameRecord(cloud, record);
           })
-          .map((record) => ({
-            businessId,
-            kind,
-            id: recordId(record),
-            siteKeys: getSiteKeys(kind, record),
-            data: record,
-          }))
+          .map((record) => {
+            const cloud = cloudById.get(recordId(record));
+            return {
+              businessId,
+              kind,
+              id: recordId(record),
+              siteKeys: getSiteKeys(kind, record),
+              data: record,
+              expectedUpdatedAt: kind === "prep" ? recordUpdatedAt(cloud) : undefined,
+            };
+          })
           .filter((change) => change.id && change.siteKeys.length > 0);
 
         if (migrationChanges.length > 0) {
@@ -370,13 +466,21 @@ export function startOperationalPolling(intervalMs = 12000): () => void {
     if (document.visibilityState === "visible") refresh();
   };
   const onOnline = () => refresh();
+  const onFocus = () => refresh();
+  const onPageShow = () => refresh();
 
+  // A newly opened workflow should not have to wait for the first interval.
+  window.setTimeout(refresh, 250);
   document.addEventListener("visibilitychange", onVisibility);
   window.addEventListener("online", onOnline);
+  window.addEventListener("focus", onFocus);
+  window.addEventListener("pageshow", onPageShow);
 
   return () => {
     window.clearInterval(timer);
     document.removeEventListener("visibilitychange", onVisibility);
     window.removeEventListener("online", onOnline);
+    window.removeEventListener("focus", onFocus);
+    window.removeEventListener("pageshow", onPageShow);
   };
 }

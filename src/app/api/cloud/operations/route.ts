@@ -23,6 +23,7 @@ type OperationalChange = {
   siteKeys?: string[];
   data?: unknown;
   deleted?: boolean;
+  expectedUpdatedAt?: string | null;
 };
 
 const KINDS = new Set<OperationalKind>([
@@ -44,6 +45,16 @@ const CHEF_READ_KINDS = new Set<OperationalKind>([
 
 function fail(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
+}
+
+function prepConflict(id: string) {
+  return NextResponse.json(
+    {
+      error: "This prep changed on another device. KitchenOps will refresh the latest version before another edit is saved.",
+      conflict: { kind: "prep", id },
+    },
+    { status: 409 }
+  );
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -75,6 +86,23 @@ function deriveSiteKeys(
 
 function samePrimitive(a: unknown, b: unknown): boolean {
   return a === b || (a == null && b == null);
+}
+
+function recordUpdatedAt(data: Record<string, unknown> | null): string | null {
+  if (!data || typeof data.updatedAt !== "string") return null;
+  const value = data.updatedAt.trim();
+  return value || null;
+}
+
+function prepRevisionMatches(
+  existingData: Record<string, unknown> | null,
+  expectedUpdatedAt: string | null | undefined
+): boolean {
+  // RC4 prep writes must declare the exact revision they edited. Older
+  // clients that do not send a revision are rejected rather than being
+  // allowed to overwrite a newer chef/manager change.
+  if (expectedUpdatedAt === undefined) return false;
+  return recordUpdatedAt(existingData) === expectedUpdatedAt;
 }
 
 function validateChefPrepUpdate(
@@ -220,6 +248,13 @@ export async function PUT(request: NextRequest) {
         // that another device has already applied.
         if (!existing) continue;
 
+        if (
+          kind === "prep" &&
+          !prepRevisionMatches(asRecord(existing.data), rawChange.expectedUpdatedAt)
+        ) {
+          return prepConflict(id);
+        }
+
         const { error } = await admin
           .from("cloud_operational_records")
           .delete()
@@ -267,6 +302,15 @@ export async function PUT(request: NextRequest) {
         }
       }
 
+      let existingPrepRecord: Awaited<ReturnType<typeof canAccessExistingRecord>> = null;
+      if (kind === "prep") {
+        existingPrepRecord = await canAccessExistingRecord({ context, kind, id });
+        const existingPrepData = asRecord(existingPrepRecord?.data);
+        if (!prepRevisionMatches(existingPrepData, rawChange.expectedUpdatedAt)) {
+          return prepConflict(id);
+        }
+      }
+
       if (context.role === "chef") {
         if (kind === "waste") {
           data.recordedBy = context.staffName ?? data.recordedBy;
@@ -278,11 +322,10 @@ export async function PUT(request: NextRequest) {
             return fail("Waste records cannot be edited after submission.", 403);
           }
         } else if (kind === "prep") {
-          const existing = await canAccessExistingRecord({ context, kind, id });
-          if (!existing) {
+          if (!existingPrepRecord) {
             return fail("Chef permission does not allow creating prep items.", 403);
           }
-          const currentData = asRecord(existing.data);
+          const currentData = asRecord(existingPrepRecord.data);
           if (!currentData) return fail("The prep record is invalid.", 409);
           const validationError = validateChefPrepUpdate(
             currentData,

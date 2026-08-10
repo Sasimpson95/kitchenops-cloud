@@ -43,6 +43,7 @@ import type {
 
 import {
   addPrepItem,
+  approvePrepItem,
   getPrepHistory,
   getPrepItems,
   removePrepItem,
@@ -135,6 +136,26 @@ export default function PrepPlannerPage() {
     editingQuantity,
     setEditingQuantity,
   ] = useState(1);
+
+  const [
+    approvingItem,
+    setApprovingItem,
+  ] = useState<ProductionItem | null>(null);
+
+  const [
+    approvalQuantity,
+    setApprovalQuantity,
+  ] = useState(1);
+
+  const [
+    addRemainingToTomorrow,
+    setAddRemainingToTomorrow,
+  ] = useState(false);
+
+  const [
+    approvalError,
+    setApprovalError,
+  ] = useState("");
 
   const [error, setError] =
     useState("");
@@ -332,6 +353,12 @@ export default function PrepPlannerPage() {
       (item) =>
         item.status === "approved"
     ).length;
+
+  const awaitingApprovalToday =
+    todayItems.filter(
+      (item) =>
+        item.status === "awaitingApproval"
+    );
 
   const siteSummaries = useMemo(() => {
     return SITES.filter(
@@ -555,6 +582,49 @@ export default function PrepPlannerPage() {
         caughtError instanceof Error
           ? caughtError.message
           : "Prep quantity could not be changed."
+      );
+    }
+  }
+
+  function openApproval(
+    item: ProductionItem
+  ): void {
+    if (!canEdit || item.status !== "awaitingApproval") return;
+    if (item.site !== selectedSite) return;
+
+    setApprovingItem(item);
+    setApprovalQuantity(Math.max(1, item.produced || item.planned));
+    setAddRemainingToTomorrow(false);
+    setApprovalError("");
+  }
+
+  function closeApproval(): void {
+    setApprovingItem(null);
+    setApprovalQuantity(1);
+    setAddRemainingToTomorrow(false);
+    setApprovalError("");
+  }
+
+  function approveSelectedPrep(): void {
+    if (!approvingItem || !currentUser) return;
+
+    try {
+      approvePrepItem({
+        id: approvingItem.id,
+        approvedQuantity: approvalQuantity,
+        addRemainingToTomorrow,
+        approvedBy: currentUser.name || "Manager",
+      });
+      toast.success(
+        "Prep approved",
+        `${approvingItem.name} has been approved from the Prep Planner.`
+      );
+      closeApproval();
+    } catch (caughtError) {
+      setApprovalError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Prep could not be approved."
       );
     }
   }
@@ -818,7 +888,7 @@ export default function PrepPlannerPage() {
             </div>
           ) : (
             <>
-              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+              <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <div className="rounded-2xl bg-white p-5 shadow-sm">
                   <p className="text-sm text-gray-500">
                     Today&apos;s Prep
@@ -826,6 +896,16 @@ export default function PrepPlannerPage() {
 
                   <p className="mt-1 text-3xl font-bold text-gray-950">
                     {todayItems.length}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-yellow-50 p-5 shadow-sm">
+                  <p className="text-sm text-yellow-700">
+                    Awaiting Approval
+                  </p>
+
+                  <p className="mt-1 text-3xl font-bold text-yellow-900">
+                    {awaitingApprovalToday.length}
                   </p>
                 </div>
 
@@ -849,6 +929,26 @@ export default function PrepPlannerPage() {
                   </p>
                 </div>
               </div>
+
+              {canEdit && awaitingApprovalToday.length > 0 && (
+                <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-yellow-200 bg-yellow-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="font-bold text-yellow-950">
+                      {awaitingApprovalToday.length} prep {awaitingApprovalToday.length === 1 ? "item is" : "items are"} awaiting approval
+                    </p>
+                    <p className="mt-1 text-sm text-yellow-800">
+                      Review and approve chef submissions directly in Prep.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDay("today")}
+                    className="rounded-xl bg-yellow-900 px-5 py-3 font-semibold text-white transition hover:bg-yellow-950"
+                  >
+                    Review Today&apos;s Approvals
+                  </button>
+                </div>
+              )}
 
               <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
                 <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
@@ -1130,6 +1230,20 @@ export default function PrepPlannerPage() {
                                         />
                                       </button>
                                     </>
+                                  )}
+
+                                {canEdit &&
+                                  item.status ===
+                                    "awaitingApproval" && (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        openApproval(item)
+                                      }
+                                      className="flex-1 rounded-xl bg-violet-800 px-4 py-3 font-semibold text-white transition hover:bg-violet-900"
+                                    >
+                                      Approve Prep
+                                    </button>
                                   )}
 
                                 {item.status ===
@@ -1481,6 +1595,84 @@ export default function PrepPlannerPage() {
                   className="flex-1 rounded-xl bg-violet-800 py-3 font-semibold text-white transition hover:bg-violet-900"
                 >
                   Save Quantity
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {approvingItem && canEdit && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
+              <p className="text-center text-sm font-semibold text-violet-800">
+                {approvingItem.site}
+              </p>
+
+              <h2 className="mt-1 text-center text-2xl font-bold text-gray-950">
+                Approve Prep
+              </h2>
+
+              <p className="mt-2 text-center text-gray-600">
+                {approvingItem.emoji} {approvingItem.name}
+              </p>
+
+              <div className="mt-5 rounded-2xl bg-yellow-50 p-4 text-sm text-yellow-900">
+                <strong>{approvingItem.chef || "Chef"}</strong> submitted {approvingItem.produced} {approvingItem.produced === 1 ? "batch" : "batches"}.
+              </div>
+
+              <label className="mt-6 block text-sm font-semibold text-gray-700">
+                Approved quantity
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={approvalQuantity}
+                  onChange={(event) =>
+                    setApprovalQuantity(
+                      Math.max(1, Number(event.target.value) || 1)
+                    )
+                  }
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 text-lg font-bold outline-none focus:border-violet-800"
+                />
+              </label>
+
+              {approvingItem.planned > approvalQuantity && (
+                <label className="mt-4 flex items-start gap-3 rounded-xl border border-gray-200 bg-slate-50 p-4 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={addRemainingToTomorrow}
+                    onChange={(event) =>
+                      setAddRemainingToTomorrow(event.target.checked)
+                    }
+                    className="mt-1 h-4 w-4"
+                  />
+                  <span>
+                    Add the remaining {Math.max(approvingItem.planned - approvalQuantity, 0)} batch(es) to tomorrow&apos;s prep.
+                  </span>
+                </label>
+              )}
+
+              {approvalError && (
+                <div className="mt-5 rounded-2xl bg-red-50 p-4 font-semibold text-red-800">
+                  {approvalError}
+                </div>
+              )}
+
+              <div className="mt-8 flex gap-3">
+                <button
+                  type="button"
+                  onClick={closeApproval}
+                  className="flex-1 rounded-xl border border-gray-300 py-3 font-semibold transition hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={approveSelectedPrep}
+                  className="flex-1 rounded-xl bg-violet-800 py-3 font-semibold text-white transition hover:bg-violet-900"
+                >
+                  Approve Prep
                 </button>
               </div>
             </div>

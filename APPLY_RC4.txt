@@ -1,0 +1,37 @@
+KitchenOps 1.0.0 RC4 — replacement-file bundle
+
+IMPORTANT
+- Apply this bundle OVER the current clean RC3 project at:
+  C:\Users\steph\Desktop\kitchenops-cloud-clean
+- Do not delete the existing project first.
+- This bundle intentionally does not replace package-lock.json or Supabase migrations.
+  RC4 adds no database migration; your current RC3 project already has the verified 001-013 history and the secure Next.js 16.3.0 lockfile.
+
+After copying the replacement files, update only the root package-lock version metadata:
+
+node -e "const fs=require('fs');const p=require('./package-lock.json');p.version='1.0.0-rc4';p.packages[''].version='1.0.0-rc4';fs.writeFileSync('package-lock.json',JSON.stringify(p,null,2)+'\\n')"
+
+Then run:
+
+npm run typecheck
+npm run build
+npm audit --omit=dev
+npm run android:sync
+npm run android:check
+git diff --check
+
+Expected:
+- Typecheck PASS
+- Build PASS
+- 0 production vulnerabilities
+- Android source/generated URLs both point to https://kitchenops-cloud.vercel.app/login
+- No git diff whitespace errors
+
+RC4 regression focus:
+1. PC Manager/Operations creates/changes Today's Prep.
+2. Android Chef sees it automatically within ~3 seconds without refresh.
+3. Chef submits prep for approval.
+4. PC sees Awaiting Approval automatically.
+5. Manager approves directly from Prep -> Today -> Approve Prep.
+6. Android sees Approved automatically.
+7. Stale-edit race: leave Change Quantity open on PC, update/submit the same prep on Android, then save the stale PC edit. The stale write must be rejected and the latest cloud state restored.

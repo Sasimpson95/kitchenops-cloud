@@ -1,6 +1,6 @@
 {
   "name": "kitchenops-v1",
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc4",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint && npm run build",
     "android:check": "node scripts/check-android-config.mjs",
-    "android:sync": "npm run android:check && npx cap sync android",
+    "android:sync": "node scripts/check-android-config.mjs --source-only && npx cap sync android && node scripts/check-android-config.mjs",
     "android:open": "npm run android:sync && npx cap open android",
-    "android:copy": "npm run android:check && npx cap copy android"
+    "android:copy": "node scripts/check-android-config.mjs --source-only && npx cap copy android && node scripts/check-android-config.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.2",
@@ -23,7 +23,7 @@
     "@supabase/ssr": "^0.12.2",
     "@supabase/supabase-js": "^2.110.5",
     "lucide-react": "^1.24.0",
-    "next": "^16.3.0",
+    "next": "16.3.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -34,7 +34,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "^16.3.0",
+    "eslint-config-next": "16.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

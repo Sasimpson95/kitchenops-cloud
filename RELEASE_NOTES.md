@@ -1,3 +1,22 @@
+# KitchenOps RC4 — Prep Reliability Hardening
+
+## Fixed
+
+- Prevented stale Prep edits from overwriting newer changes made on another device.
+- Added automatic Prep/Dashboard cloud refresh without requiring manual reload.
+- Added manager/operations Prep approval directly inside the Prep Planner.
+- Strengthened Android configuration validation so stale generated Capacitor URLs fail the release gate.
+- Updated RC release notes and Version 1.0 release-candidate metadata.
+
+# KitchenOps RC3 — Release Security & Database Reconciliation
+
+## Fixed
+
+- Upgraded Next.js to 16.3.0 and cleared production dependency vulnerabilities.
+- Reconciled Supabase migration history with the live KitchenOps schema.
+- Verified migrations 001–013 reproduce production with no schema drift.
+- Promoted the hardened build to 1.0.0-rc3 for production testing.
+
 # KitchenOps RC2 — Data Integrity & Security Hardening
 
 ## Fixed
