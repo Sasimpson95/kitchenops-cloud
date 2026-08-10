@@ -23,7 +23,23 @@ type OperationalChange = {
   siteKeys?: string[];
   data?: unknown;
   deleted?: boolean;
+  expectedRevision?: string | null;
+  // Compatibility with RC4 clients while browsers/app WebViews refresh.
   expectedUpdatedAt?: string | null;
+};
+
+type ExistingOperationalRecord = {
+  kind: OperationalKind;
+  record_id: string;
+  site_keys: string[];
+  data: unknown;
+  updated_at: string;
+};
+
+type RevisionAck = {
+  kind: OperationalKind;
+  id: string;
+  revision: string | null;
 };
 
 const KINDS = new Set<OperationalKind>([
@@ -50,7 +66,8 @@ function fail(message: string, status: number) {
 function prepConflict(id: string) {
   return NextResponse.json(
     {
-      error: "This prep changed on another device. KitchenOps will refresh the latest version before another edit is saved.",
+      error:
+        "This prep changed on another device. KitchenOps will refresh the latest version before another edit is saved.",
       conflict: { kind: "prep", id },
     },
     { status: 409 }
@@ -79,9 +96,7 @@ function deriveSiteKeys(
     values = [String(data.siteId ?? "")];
   }
 
-  return Array.from(
-    new Set(values.map((value) => value.trim()).filter(Boolean))
-  );
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 }
 
 function samePrimitive(a: unknown, b: unknown): boolean {
@@ -94,15 +109,42 @@ function recordUpdatedAt(data: Record<string, unknown> | null): string | null {
   return value || null;
 }
 
-function prepRevisionMatches(
-  existingData: Record<string, unknown> | null,
-  expectedUpdatedAt: string | null | undefined
-): boolean {
-  // RC4 prep writes must declare the exact revision they edited. Older
-  // clients that do not send a revision are rejected rather than being
-  // allowed to overwrite a newer chef/manager change.
-  if (expectedUpdatedAt === undefined) return false;
-  return recordUpdatedAt(existingData) === expectedUpdatedAt;
+function nextRevision(previous?: string | null): string {
+  const previousMs = previous ? Date.parse(previous) : Number.NaN;
+  const timestamp = Number.isFinite(previousMs)
+    ? Math.max(Date.now(), previousMs + 1)
+    : Date.now();
+  return new Date(timestamp).toISOString();
+}
+
+function resolveExpectedPrepRevision(
+  existing: ExistingOperationalRecord | null,
+  change: OperationalChange
+): { valid: true; revision: string | null } | { valid: false } {
+  if (change.expectedRevision !== undefined) {
+    if (change.expectedRevision === null) {
+      return { valid: true, revision: null };
+    }
+    const revision = change.expectedRevision.trim();
+    return revision ? { valid: true, revision } : { valid: false };
+  }
+
+  // RC4 used the prep payload's updatedAt value as its comparison token.
+  // Validate that legacy token, then convert it to the server row revision so
+  // the actual mutation can still be applied atomically.
+  if (change.expectedUpdatedAt !== undefined) {
+    if (!existing) {
+      return change.expectedUpdatedAt === null
+        ? { valid: true, revision: null }
+        : { valid: false };
+    }
+    if (recordUpdatedAt(asRecord(existing.data)) !== change.expectedUpdatedAt) {
+      return { valid: false };
+    }
+    return { valid: true, revision: existing.updated_at };
+  }
+
+  return { valid: false };
 }
 
 function validateChefPrepUpdate(
@@ -148,11 +190,11 @@ async function canAccessExistingRecord(input: {
   context: CloudRequestContext;
   kind: OperationalKind;
   id: string;
-}) {
+}): Promise<ExistingOperationalRecord | null> {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("cloud_operational_records")
-    .select("kind, record_id, site_keys, data")
+    .select("kind, record_id, site_keys, data, updated_at")
     .eq("business_id", input.context.businessId)
     .eq("kind", input.kind)
     .eq("record_id", input.id)
@@ -166,7 +208,7 @@ async function canAccessExistingRecord(input: {
     if (!data.site_keys.some((key: string) => accessKeys.includes(key))) return null;
   }
 
-  return data;
+  return data as ExistingOperationalRecord;
 }
 
 export async function GET() {
@@ -230,6 +272,8 @@ export async function PUT(request: NextRequest) {
       validSiteKeys.add(siteNameToKey(String(site.name)));
     }
 
+    const revisions: RevisionAck[] = [];
+
     for (const rawChange of body.changes) {
       const kind = rawChange.kind;
       const id = rawChange.id?.trim();
@@ -244,15 +288,25 @@ export async function PUT(request: NextRequest) {
         }
 
         const existing = await canAccessExistingRecord({ context, kind, id });
-        // Deletes are idempotent so an offline retry can safely repeat a delete
-        // that another device has already applied.
         if (!existing) continue;
 
-        if (
-          kind === "prep" &&
-          !prepRevisionMatches(asRecord(existing.data), rawChange.expectedUpdatedAt)
-        ) {
-          return prepConflict(id);
+        if (kind === "prep") {
+          const expected = resolveExpectedPrepRevision(existing, rawChange);
+          if (!expected.valid || !expected.revision) return prepConflict(id);
+
+          const { data: deleted, error } = await admin
+            .from("cloud_operational_records")
+            .delete()
+            .eq("business_id", context.businessId)
+            .eq("kind", kind)
+            .eq("record_id", id)
+            .eq("updated_at", expected.revision)
+            .select("updated_at")
+            .maybeSingle();
+          if (error) throw error;
+          if (!deleted) return prepConflict(id);
+          revisions.push({ kind, id, revision: null });
+          continue;
         }
 
         const { error } = await admin
@@ -266,17 +320,10 @@ export async function PUT(request: NextRequest) {
       }
 
       const data = asRecord(rawChange.data);
-      if (!data) {
-        return fail("Operational record data is required.", 400);
-      }
+      if (!data) return fail("Operational record data is required.", 400);
 
-      // Never trust client-supplied site metadata. Derive access keys from the
-      // actual record payload so a manipulated request cannot disguise one
-      // site's data as another site's record.
       const siteKeys = deriveSiteKeys(kind, data);
-      if (siteKeys.length === 0) {
-        return fail("Operational record site is required.", 400);
-      }
+      if (siteKeys.length === 0) return fail("Operational record site is required.", 400);
       if (String(data.id ?? "").trim() !== id) {
         return fail("Operational record identity does not match its payload.", 400);
       }
@@ -293,22 +340,73 @@ export async function PUT(request: NextRequest) {
         if (!belongsToAssignedSite) {
           return fail("This record belongs to another KitchenOps site.", 403);
         }
-
-        if (
-          kind !== "transfers" &&
-          (siteKeys.length !== 1 || !accessKeys.includes(siteKeys[0]))
-        ) {
+        if (kind !== "transfers" && (siteKeys.length !== 1 || !accessKeys.includes(siteKeys[0]))) {
           return fail("This record belongs to another KitchenOps site.", 403);
         }
       }
 
-      let existingPrepRecord: Awaited<ReturnType<typeof canAccessExistingRecord>> = null;
       if (kind === "prep") {
-        existingPrepRecord = await canAccessExistingRecord({ context, kind, id });
-        const existingPrepData = asRecord(existingPrepRecord?.data);
-        if (!prepRevisionMatches(existingPrepData, rawChange.expectedUpdatedAt)) {
-          return prepConflict(id);
+        const existingPrepRecord = await canAccessExistingRecord({ context, kind, id });
+        const expected = resolveExpectedPrepRevision(existingPrepRecord, rawChange);
+        if (!expected.valid) return prepConflict(id);
+
+        if (context.role === "chef") {
+          if (!existingPrepRecord) {
+            return fail("Chef permission does not allow creating prep items.", 403);
+          }
+          const currentData = asRecord(existingPrepRecord.data);
+          if (!currentData) return fail("The prep record is invalid.", 409);
+          const validationError = validateChefPrepUpdate(currentData, data, context.staffName);
+          if (validationError) return fail(validationError, 403);
         }
+
+        if (existingPrepRecord) {
+          if (!expected.revision) return prepConflict(id);
+          const revision = nextRevision(existingPrepRecord.updated_at);
+          const { data: updated, error } = await admin
+            .from("cloud_operational_records")
+            .update({
+              site_keys: siteKeys,
+              data,
+              updated_at: revision,
+            })
+            .eq("business_id", context.businessId)
+            .eq("kind", kind)
+            .eq("record_id", id)
+            .eq("updated_at", expected.revision)
+            .select("updated_at")
+            .maybeSingle();
+          if (error) throw error;
+          if (!updated) return prepConflict(id);
+          revisions.push({ kind, id, revision: String(updated.updated_at) });
+          continue;
+        }
+
+        if (expected.revision !== null) return prepConflict(id);
+        if (context.role === "chef") {
+          return fail("Chef permission does not allow creating prep items.", 403);
+        }
+
+        const revision = nextRevision();
+        const { data: inserted, error } = await admin
+          .from("cloud_operational_records")
+          .insert({
+            business_id: context.businessId,
+            kind,
+            record_id: id,
+            site_keys: siteKeys,
+            data,
+            updated_at: revision,
+          })
+          .select("updated_at")
+          .single();
+
+        if (error) {
+          if (error.code === "23505") return prepConflict(id);
+          throw error;
+        }
+        revisions.push({ kind, id, revision: String(inserted.updated_at) });
+        continue;
       }
 
       if (context.role === "chef") {
@@ -318,21 +416,7 @@ export async function PUT(request: NextRequest) {
           data.siteId = context.siteId ?? data.siteId;
           data.siteName = context.siteName ?? data.siteName;
           const existing = await canAccessExistingRecord({ context, kind, id });
-          if (existing) {
-            return fail("Waste records cannot be edited after submission.", 403);
-          }
-        } else if (kind === "prep") {
-          if (!existingPrepRecord) {
-            return fail("Chef permission does not allow creating prep items.", 403);
-          }
-          const currentData = asRecord(existingPrepRecord.data);
-          if (!currentData) return fail("The prep record is invalid.", 409);
-          const validationError = validateChefPrepUpdate(
-            currentData,
-            data,
-            context.staffName
-          );
-          if (validationError) return fail(validationError, 403);
+          if (existing) return fail("Waste records cannot be edited after submission.", 403);
         } else {
           return fail("Chef permission does not allow this change.", 403);
         }
@@ -349,11 +433,10 @@ export async function PUT(request: NextRequest) {
         },
         { onConflict: "business_id,kind,record_id" }
       );
-
       if (error) throw error;
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, revisions });
   } catch (error) {
     return fail(
       error instanceof Error ? error.message : "Operational data could not be saved.",

@@ -29,6 +29,8 @@ type OperationalChange = {
   siteKeys?: string[];
   data?: JsonRecord;
   deleted?: boolean;
+  expectedRevision?: string | null;
+  // RC4 compatibility only. RC5 never creates this field.
   expectedUpdatedAt?: string | null;
 };
 
@@ -37,15 +39,23 @@ type Config = {
   event: string;
 };
 
+type RevisionAck = {
+  kind: OperationalKind;
+  id: string;
+  revision: string | null;
+};
+
 type ConflictPayload = {
   error?: string;
   conflict?: {
     kind?: OperationalKind;
     id?: string;
   };
+  revisions?: RevisionAck[];
 };
 
 class OperationalConflictError extends Error {
+  readonly code = "OPERATIONAL_CONFLICT";
   readonly kind: OperationalKind;
   readonly id: string;
 
@@ -55,6 +65,17 @@ class OperationalConflictError extends Error {
     this.kind = kind;
     this.id = id;
   }
+}
+
+function isOperationalConflictError(error: unknown): error is OperationalConflictError {
+  if (error instanceof OperationalConflictError) return true;
+  if (typeof error !== "object" || error === null) return false;
+  const candidate = error as { code?: unknown; kind?: unknown; id?: unknown };
+  return (
+    candidate.code === "OPERATIONAL_CONFLICT" &&
+    typeof candidate.kind === "string" &&
+    typeof candidate.id === "string"
+  );
 }
 
 const CONFIG: Record<OperationalKind, Config> = {
@@ -69,6 +90,8 @@ const CONFIG: Record<OperationalKind, Config> = {
 
 const MIGRATION_PREFIX = "kitchenops-operational-cloud-migrated";
 const PENDING_KEY = "kitchenops-pending-operational-changes";
+const REVISION_KEY = "kitchenops-operational-cloud-revisions-v1";
+const RC4_PENDING_BACKUP_KEY = "kitchenops-rc4-prep-pending-backup";
 let hydrationPromise: Promise<void> | null = null;
 let flushPromise: Promise<void> | null = null;
 
@@ -104,12 +127,6 @@ function writeLocal(kind: OperationalKind, records: JsonRecord[]): void {
 
 function recordId(record: JsonRecord): string {
   return String(record.id ?? "").trim();
-}
-
-function recordUpdatedAt(record: JsonRecord | undefined): string | null {
-  if (!record || typeof record.updatedAt !== "string") return null;
-  const value = record.updatedAt.trim();
-  return value || null;
 }
 
 function getSiteKeys(kind: OperationalKind, record: JsonRecord): string[] {
@@ -164,22 +181,94 @@ function sameRecord(first: JsonRecord, second: JsonRecord): boolean {
   return JSON.stringify(first) === JSON.stringify(second);
 }
 
-function changeKey(change: OperationalChange): string {
+function changeKey(change: Pick<OperationalChange, "businessId" | "kind" | "id">): string {
   return `${change.businessId}:${change.kind}:${change.id}`;
 }
 
 function readPending(): OperationalChange[] {
   return readJsonArray<OperationalChange>(PENDING_KEY).filter(
-    (change) =>
-      Boolean(change.businessId) &&
-      Boolean(change.kind) &&
-      Boolean(change.id)
+    (change) => Boolean(change.businessId) && Boolean(change.kind) && Boolean(change.id)
   );
 }
 
 function savePending(changes: OperationalChange[]): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(PENDING_KEY, JSON.stringify(changes));
+}
+
+function readRevisions(): Record<string, string | null> {
+  if (typeof window === "undefined") return {};
+  const raw = window.localStorage.getItem(REVISION_KEY);
+  if (!raw) return {};
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return asRecord(parsed) as Record<string, string | null> | null ?? {};
+  } catch {
+    return {};
+  }
+}
+
+function saveRevisions(revisions: Record<string, string | null>): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(REVISION_KEY, JSON.stringify(revisions));
+}
+
+function revisionKey(businessId: string, kind: OperationalKind, id: string): string {
+  return `${businessId}:${kind}:${id}`;
+}
+
+function getRevision(businessId: string, kind: OperationalKind, id: string): string | null {
+  const value = readRevisions()[revisionKey(businessId, kind, id)];
+  return typeof value === "string" && value ? value : null;
+}
+
+function setRevision(
+  businessId: string,
+  kind: OperationalKind,
+  id: string,
+  revision: string | null
+): void {
+  const revisions = readRevisions();
+  const key = revisionKey(businessId, kind, id);
+  if (revision === null) delete revisions[key];
+  else revisions[key] = revision;
+  saveRevisions(revisions);
+}
+
+function replacePrepRevisions(businessId: string, rows: CloudOperationalRow[]): void {
+  const revisions = readRevisions();
+  const prefix = `${businessId}:prep:`;
+  for (const key of Object.keys(revisions)) {
+    if (key.startsWith(prefix)) delete revisions[key];
+  }
+  for (const row of rows) {
+    if (row.kind !== "prep" || !row.record_id || !row.updated_at) continue;
+    revisions[revisionKey(businessId, "prep", row.record_id)] = row.updated_at;
+  }
+  saveRevisions(revisions);
+}
+
+function quarantineLegacyRc4PrepPending(): void {
+  if (typeof window === "undefined") return;
+  const pending = readPending();
+  const legacyPrep = pending.filter(
+    (change) =>
+      change.kind === "prep" &&
+      change.expectedRevision === undefined &&
+      change.expectedUpdatedAt !== undefined
+  );
+  if (legacyPrep.length === 0) return;
+
+  const previousBackup = readJsonArray<OperationalChange>(RC4_PENDING_BACKUP_KEY);
+  window.localStorage.setItem(
+    RC4_PENDING_BACKUP_KEY,
+    JSON.stringify([...previousBackup, ...legacyPrep])
+  );
+  savePending(pending.filter((change) => !legacyPrep.includes(change)));
+  toast.warning(
+    "Prep sync reset",
+    "KitchenOps cleared an RC4 prep retry that could block cross-device updates. The latest cloud prep will be loaded."
+  );
 }
 
 function queueChanges(changes: OperationalChange[]): void {
@@ -193,14 +282,13 @@ function queueChanges(changes: OperationalChange[]): void {
     const key = changeKey(change);
     const pending = merged.get(key);
 
-    // Preserve the revision the device originally edited. If two local prep
-    // edits happen before the first one reaches the server, replacing the
-    // expected revision with the intermediate local timestamp would create a
-    // false conflict even though the cloud record has not changed.
+    // Keep the server revision the local edit originally started from until
+    // that queued write is acknowledged. A later local edit can replace the
+    // payload, but it must not pretend it started from a newer cloud revision.
     if (change.kind === "prep" && pending) {
       merged.set(key, {
         ...change,
-        expectedUpdatedAt: pending.expectedUpdatedAt ?? null,
+        expectedRevision: pending.expectedRevision ?? null,
       });
     } else {
       merged.set(key, change);
@@ -210,29 +298,33 @@ function queueChanges(changes: OperationalChange[]): void {
   savePending(Array.from(merged.values()));
 }
 
-async function sendChanges(changes: OperationalChange[]): Promise<void> {
-  const payload = changes.map(({ businessId: _businessId, ...change }) => change);
+async function sendChanges(changes: OperationalChange[]): Promise<RevisionAck[]> {
+  const payload = changes.map(({ businessId: _businessId, expectedUpdatedAt: _legacy, ...change }) => change);
   const response = await fetch("/api/cloud/operations", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ changes: payload }),
   });
 
+  const result = (await response.json().catch(() => ({}))) as ConflictPayload;
+
   if (!response.ok) {
-    const result = (await response.json().catch(() => ({}))) as ConflictPayload;
-    if (
-      response.status === 409 &&
-      result.conflict?.kind &&
-      result.conflict.id
-    ) {
-      throw new OperationalConflictError(
-        result.conflict.kind,
-        result.conflict.id,
-        result.error ?? "This record changed on another device."
-      );
+    if (response.status === 409) {
+      const fallbackPrep = changes.length === 1 && changes[0].kind === "prep" ? changes[0] : null;
+      const kind = result.conflict?.kind ?? fallbackPrep?.kind;
+      const id = result.conflict?.id ?? fallbackPrep?.id;
+      if (kind && id) {
+        throw new OperationalConflictError(
+          kind,
+          id,
+          result.error ?? "This record changed on another device."
+        );
+      }
     }
     throw new Error(result.error ?? "Operational data could not be saved.");
   }
+
+  return result.revisions ?? [];
 }
 
 function scheduleConflictRefresh(): void {
@@ -244,6 +336,57 @@ function scheduleConflictRefresh(): void {
   }, 0);
 }
 
+function removeOrAdvanceAcknowledgedChanges(
+  businessId: string,
+  batch: OperationalChange[],
+  revisions: RevisionAck[]
+): void {
+  const sentByKey = new Map(batch.map((change) => [changeKey(change), change]));
+  const revisionByKey = new Map(
+    revisions.map((revision) => [
+      revisionKey(businessId, revision.kind, revision.id),
+      revision.revision,
+    ])
+  );
+
+  for (const revision of revisions) {
+    setRevision(businessId, revision.kind, revision.id, revision.revision);
+  }
+
+  const nextPending: OperationalChange[] = [];
+  for (const current of readPending()) {
+    const sent = sentByKey.get(changeKey(current));
+    if (!sent) {
+      nextPending.push(current);
+      continue;
+    }
+
+    if (JSON.stringify(current) === JSON.stringify(sent)) {
+      continue;
+    }
+
+    // The user made another local edit while this request was in flight. Keep
+    // that newer payload, but advance its base revision to the version the
+    // server just accepted so the second write does not false-conflict.
+    if (current.kind === "prep") {
+      const acceptedRevision = revisionByKey.get(
+        revisionKey(businessId, current.kind, current.id)
+      );
+      nextPending.push({
+        ...current,
+        expectedRevision:
+          acceptedRevision !== undefined
+            ? acceptedRevision
+            : current.expectedRevision ?? null,
+      });
+    } else {
+      nextPending.push(current);
+    }
+  }
+
+  savePending(nextPending);
+}
+
 export async function flushPendingOperationalChanges(): Promise<void> {
   if (typeof window === "undefined") return;
   if (flushPromise) return flushPromise;
@@ -253,34 +396,37 @@ export async function flushPendingOperationalChanges(): Promise<void> {
       const businessId = getActiveBusinessId();
       if (!businessId) return;
 
-      const allPending = readPending();
-      const activePending = allPending.filter(
+      const activePending = readPending().filter(
         (change) => change.businessId === businessId
       );
       if (activePending.length === 0) return;
 
-      const batch = activePending.slice(0, 200);
+      // Prep writes are sent one at a time. That makes a 409 conflict
+      // unambiguous even if an older cached API response omits conflict details.
+      const prepChange = activePending.find((change) => change.kind === "prep");
+      const batch = prepChange
+        ? [prepChange]
+        : activePending.filter((change) => change.kind !== "prep").slice(0, 200);
 
       try {
-        await sendChanges(batch);
+        const revisions = await sendChanges(batch);
+        removeOrAdvanceAcknowledgedChanges(businessId, batch, revisions);
       } catch (error) {
-        if (error instanceof OperationalConflictError) {
+        if (isOperationalConflictError(error)) {
           const conflictedKey = `${businessId}:${error.kind}:${error.id}`;
           savePending(
             readPending().filter((change) => changeKey(change) !== conflictedKey)
           );
+          setRevision(businessId, error.kind, error.id, null);
           toast.warning(
             "Prep updated elsewhere",
-            "KitchenOps found a newer prep change from another device. The latest version is being refreshed so nothing is overwritten."
+            "KitchenOps found a newer prep change from another device. Your stale edit was not saved and the latest cloud version is being loaded."
           );
           scheduleConflictRefresh();
           continue;
         }
         throw error;
       }
-
-      const applied = new Set(batch.map(changeKey));
-      savePending(readPending().filter((change) => !applied.has(changeKey(change))));
     }
   })()
     .catch((error) => {
@@ -328,7 +474,7 @@ export function syncOperationalCollection(
           id,
           siteKeys,
           data: record,
-          expectedUpdatedAt: kind === "prep" ? recordUpdatedAt(old) : undefined,
+          expectedRevision: kind === "prep" ? getRevision(businessId, kind, id) : undefined,
         });
       }
     }
@@ -342,7 +488,7 @@ export function syncOperationalCollection(
         kind,
         id,
         deleted: true,
-        expectedUpdatedAt: kind === "prep" ? recordUpdatedAt(record) : undefined,
+        expectedRevision: kind === "prep" ? getRevision(businessId, kind, id) : undefined,
       });
     }
   }
@@ -370,11 +516,8 @@ function applyPendingOverlay(
   return Array.from(merged.values());
 }
 
-export async function hydrateOperationalData(options?: { force?: boolean }): Promise<void> {
+export async function hydrateOperationalData(_options?: { force?: boolean }): Promise<void> {
   if (typeof window === "undefined") return;
-
-  // Never allow overlapping hydrations. A forced refresh means "run as soon as
-  // possible", not "race another response and let whichever finishes last win".
   if (hydrationPromise) return hydrationPromise;
 
   hydrationPromise = (async () => {
@@ -382,6 +525,9 @@ export async function hydrateOperationalData(options?: { force?: boolean }): Pro
     const businessId = session.business?.id;
     if (!businessId) return;
 
+    // RC4 could leave a stale prep retry permanently overlaying newer cloud
+    // data. Preserve it for diagnostics, but never resend it under RC5.
+    quarantineLegacyRc4PrepPending();
     await flushPendingOperationalChanges();
 
     const response = await fetch("/api/cloud/operations", { cache: "no-store" });
@@ -393,14 +539,16 @@ export async function hydrateOperationalData(options?: { force?: boolean }): Pro
 
     const payload = (await response.json()) as { records?: CloudOperationalRow[] };
     const rows = payload.records ?? [];
+    replacePrepRevisions(businessId, rows);
+
     const migrationKey = `${MIGRATION_PREFIX}::${businessId}`;
     const firstMigration =
       session.user?.role === "operations" &&
       window.localStorage.getItem(migrationKey) !== "yes";
 
     for (const kind of Object.keys(CONFIG) as OperationalKind[]) {
-      const rawCloudRecords = rows
-        .filter((row) => row.kind === kind)
+      const kindRows = rows.filter((row) => row.kind === kind);
+      const rawCloudRecords = kindRows
         .map((row) => asRecord(row.data))
         .filter((record): record is JsonRecord => record !== null);
 
@@ -415,22 +563,18 @@ export async function hydrateOperationalData(options?: { force?: boolean }): Pro
             const cloud = cloudById.get(recordId(record));
             return !cloud || !sameRecord(cloud, record);
           })
-          .map((record) => {
-            const cloud = cloudById.get(recordId(record));
-            return {
-              businessId,
-              kind,
-              id: recordId(record),
-              siteKeys: getSiteKeys(kind, record),
-              data: record,
-              expectedUpdatedAt: kind === "prep" ? recordUpdatedAt(cloud) : undefined,
-            };
-          })
+          .map((record) => ({
+            businessId,
+            kind,
+            id: recordId(record),
+            siteKeys: getSiteKeys(kind, record),
+            data: record,
+            expectedRevision:
+              kind === "prep" ? getRevision(businessId, kind, recordId(record)) : undefined,
+          }))
           .filter((change) => change.id && change.siteKeys.length > 0);
 
-        if (migrationChanges.length > 0) {
-          queueChanges(migrationChanges);
-        }
+        if (migrationChanges.length > 0) queueChanges(migrationChanges);
       } else {
         writeLocal(kind, applyPendingOverlay(kind, rawCloudRecords, businessId));
       }
@@ -469,7 +613,6 @@ export function startOperationalPolling(intervalMs = 12000): () => void {
   const onFocus = () => refresh();
   const onPageShow = () => refresh();
 
-  // A newly opened workflow should not have to wait for the first interval.
   window.setTimeout(refresh, 250);
   document.addEventListener("visibilitychange", onVisibility);
   window.addEventListener("online", onOnline);

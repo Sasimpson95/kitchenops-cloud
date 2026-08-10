@@ -1,0 +1,23 @@
+KITCHENOPS 1.0.0 RC5 HOTFIX
+
+1. Extract this ZIP over your existing:
+   C:\Users\steph\Desktop\kitchenops-cloud-clean
+
+2. Choose Replace files in the destination.
+
+3. Do NOT delete the project folder first.
+
+4. Update the existing secure package-lock version only:
+   node -e "const fs=require('fs');const p=require('./package-lock.json');p.version='1.0.0-rc5';p.packages[''].version='1.0.0-rc5';fs.writeFileSync('package-lock.json',JSON.stringify(p,null,2)+'\\n')"
+
+5. Run the release gates:
+   npm run typecheck
+   npm run build
+   npm audit --omit=dev
+   npm run android:sync
+   npm run android:check
+   git diff --check
+
+6. Stop and report any failure before committing/deploying.
+
+No Supabase migration is required.

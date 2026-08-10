@@ -1,3 +1,13 @@
+# KitchenOps Release Notes
+
+## 1.0.0 RC5 — Cross-device Prep Sync Hotfix
+
+- Replaced Prep payload timestamps with authoritative server row revisions for concurrency control.
+- Prep updates/deletes now use atomic revision-checked database mutations.
+- A stale edit can no longer block later cloud hydration or cross-device refresh.
+- RC4 stale Prep retry entries are quarantined rather than resent.
+- Newer local edits made while an earlier sync is in flight are preserved and advanced to the accepted server revision.
+
 # KitchenOps RC4 — Prep Reliability Hardening
 
 ## Fixed
