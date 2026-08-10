@@ -46,7 +46,7 @@ import {
   getCurrentUser,
 } from "@/lib/currentUser";
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
-import { useBusinessSites, siteNameToId } from "@/lib/useBusinessSites";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 import { useDebouncedValue } from "@/lib/useDebouncedValue";
 
 import {
@@ -716,7 +716,7 @@ function ProductsContent() {
                     currentUser.role === "operations"
                       ? sites
                       : sites.filter((site) =>
-                          site.id === siteNameToId(currentUser.site) ||
+                          site.id === currentUser.siteId ||
                           site.name === currentUser.site
                         );
                   const stock = relevantSites.reduce(

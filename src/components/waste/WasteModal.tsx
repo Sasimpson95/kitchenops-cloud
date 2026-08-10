@@ -49,7 +49,7 @@ export default function WasteModal({
   onClose,
   onSaved,
 }: WasteModalProps) {
-  const { siteNames: SITE_OPTIONS } = useBusinessSites();
+  const { sites, siteNames: SITE_OPTIONS } = useBusinessSites();
   const isOperations = currentUser.role === "operations";
 
   const [siteName, setSiteName] = useState(
@@ -65,7 +65,10 @@ export default function WasteModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const siteId = getSiteId(siteName);
+  const siteId =
+    (!isOperations && currentUser.siteId) ||
+    sites.find((site) => site.name === siteName)?.id ||
+    getSiteId(siteName);
 
   const selectedProduct = useMemo(
     () =>
@@ -74,7 +77,7 @@ export default function WasteModal({
   );
 
   const availableStock = selectedProduct
-    ? getProductStock("current-business", siteId, selectedProduct.id)
+    ? getProductStock(getActiveBusinessId(), siteId, selectedProduct.id)
     : 0;
 
   const filteredProducts = useMemo(() => {
@@ -113,6 +116,11 @@ export default function WasteModal({
 
     if (!selectedProduct) {
       setError("Choose a product.");
+      return;
+    }
+
+    if (!siteId) {
+      setError("Choose a valid KitchenOps site.");
       return;
     }
 

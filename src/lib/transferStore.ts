@@ -1,3 +1,4 @@
+import { syncOperationalCollection } from "@/lib/cloud/operationalSync";
 import type { Product } from "@/data/products";
 import { getCurrentUser } from "@/lib/currentUser";
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
@@ -72,8 +73,19 @@ function emitTransfersChanged(): void {
 
 function saveTransfers(transfers: StockTransfer[]): void {
   if (typeof window === "undefined") return;
+
+  let previous: StockTransfer[] = [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    previous = Array.isArray(parsed) ? (parsed as StockTransfer[]) : [];
+  } catch {
+    previous = [];
+  }
+
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(transfers));
   emitTransfersChanged();
+  syncOperationalCollection("transfers", previous, transfers);
 }
 
 function getSite(siteId: string) {

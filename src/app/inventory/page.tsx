@@ -218,7 +218,7 @@ function buildRecords(
 
 export default function InventoryPage() {
   const router = useRouter();
-  const { options: SITE_OPTIONS, siteNames: SITE_NAMES, loading: sitesLoading } = useBusinessSites();
+  const { sites, options: SITE_OPTIONS, siteNames: SITE_NAMES, loading: sitesLoading } = useBusinessSites();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
@@ -235,6 +235,13 @@ export default function InventoryPage() {
   const [historyRecord, setHistoryRecord] = useState<InventoryProductRecord | null>(null);
 
   const isOperations = currentUser?.role === "operations";
+  const resolveSiteId = useCallback(
+    (siteName: string) =>
+      (currentUser?.site === siteName ? currentUser.siteId : undefined) ??
+      sites.find((site) => site.name === siteName)?.id ??
+      getSiteId(siteName),
+    [currentUser, sites]
+  );
   const refreshProducts = useCallback(() => setProducts(getActiveProducts()), []);
   const refreshInventory = useCallback(() => setMovements(getInventoryMovements()), []);
 
@@ -283,7 +290,7 @@ export default function InventoryPage() {
     };
   }, [refreshProducts, refreshInventory]);
 
-  const selectedSiteId = selectedSite === "All Sites" ? null : getSiteId(selectedSite);
+  const selectedSiteId = selectedSite === "All Sites" ? null : resolveSiteId(selectedSite);
 
   const siteRecords = useMemo(
     () => (selectedSiteId ? buildRecords(products, selectedSiteId, movements) : []),
@@ -411,7 +418,7 @@ export default function InventoryPage() {
 
   const siteSummaries = useMemo(() =>
     SITE_OPTIONS.filter((site) => site !== "All Sites").map((site) => {
-      const records = buildRecords(products, getSiteId(site), movements);
+      const records = buildRecords(products, resolveSiteId(site), movements);
       return {
         site,
         inventoryValue: records.reduce((total, record) => total + record.stockValue, 0),
@@ -419,7 +426,7 @@ export default function InventoryPage() {
         lowStock: records.filter((record) => record.status === "Low Stock" || record.status === "Reorder").length,
         outOfStock: records.filter((record) => record.status === "Out of Stock").length,
         overstock: records.filter((record) => record.status === "Overstock").length,
-        movementsToday: movements.filter((movement) => movement.siteId === getSiteId(site) && isToday(movement.createdAt)).length,
+        movementsToday: movements.filter((movement) => movement.siteId === resolveSiteId(site) && isToday(movement.createdAt)).length,
       };
     }), [products, movements]);
 

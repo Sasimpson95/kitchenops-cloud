@@ -1104,8 +1104,6 @@ function RecipesContent() {
 
   const canManage =
     currentUser?.role ===
-      "manager" ||
-    currentUser?.role ===
       "operations";
 
   if (!currentUser) {

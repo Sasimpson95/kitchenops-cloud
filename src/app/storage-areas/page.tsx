@@ -73,15 +73,6 @@ import {
 
 
 
-function getSiteId(
-  siteName: string
-): string {
-  return siteName
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-");
-}
-
 function ProductPicker({
   area,
   products,

@@ -1,3 +1,5 @@
+import { syncOperationalCollection } from "@/lib/cloud/operationalSync";
+
 const STORAGE_KEY = "kitchenops-site-handovers";
 const ROLLOVER_KEY = "kitchenops-handover-rollover-date";
 const HANDOVER_CHANGED_EVENT = "kitchenops-handover-changed";
@@ -8,6 +10,7 @@ export type SiteHandover = {
   id: string;
   siteName: string;
   day: HandoverDay;
+  effectiveDate: string;
   notes: string[];
   updatedBy: string;
   updatedAt: string;
@@ -18,7 +21,6 @@ function createId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
-
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
@@ -27,6 +29,17 @@ function localDateKey(date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function addDays(dateKey: string, days: number): string {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const value = new Date(year, month - 1, day);
+  value.setDate(value.getDate() + days);
+  return localDateKey(value);
+}
+
+function dateForDay(day: HandoverDay, baseDate = localDateKey()): string {
+  return day === "today" ? baseDate : addDays(baseDate, 1);
 }
 
 function emitChanged(): void {
@@ -43,10 +56,16 @@ function normaliseRecord(value: Partial<SiteHandover>): SiteHandover | null {
     return null;
   }
 
+  const marker =
+    typeof window !== "undefined"
+      ? window.localStorage.getItem(ROLLOVER_KEY) || localDateKey()
+      : localDateKey();
+
   return {
     id: value.id,
     siteName: value.siteName,
     day: value.day,
+    effectiveDate: value.effectiveDate || dateForDay(value.day, marker),
     notes: Array.isArray(value.notes)
       ? value.notes.map(String).map((note) => note.trim()).filter(Boolean)
       : [],
@@ -66,9 +85,18 @@ function readRawHandovers(): SiteHandover[] {
     const parsed: unknown = JSON.parse(saved);
     if (!Array.isArray(parsed)) return [];
 
-    return parsed
+    const normalised = parsed
       .map((record) => normaliseRecord(record as Partial<SiteHandover>))
       .filter((record): record is SiteHandover => record !== null);
+
+    // Persist the date-aware shape locally before first cloud migration. This
+    // is intentionally a direct write: syncOperationalCollection will migrate
+    // the normalised records once the authenticated cloud layer starts.
+    if (JSON.stringify(parsed) !== JSON.stringify(normalised)) {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalised));
+    }
+
+    return normalised;
   } catch {
     return [];
   }
@@ -76,21 +104,24 @@ function readRawHandovers(): SiteHandover[] {
 
 function writeRawHandovers(records: SiteHandover[]): void {
   if (typeof window === "undefined") return;
+
+  const previous = readRawHandovers();
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  syncOperationalCollection("handovers", previous, records);
 }
 
 /**
- * Handover is intentionally simple: managers write tomorrow's notes today.
- * On the first read after the local calendar date changes, yesterday's
- * "tomorrow" notes become today's handover and a fresh tomorrow is created.
+ * The effective date travels with each handover record. That makes rollover
+ * idempotent across multiple devices: if another device already rolled the
+ * records for today, this device detects the dates and does not roll them again.
  */
 export function rollOverHandoversIfNeeded(): void {
   if (typeof window === "undefined") return;
 
   const todayKey = localDateKey();
+  const tomorrowKey = addDays(todayKey, 1);
   const previousKey = window.localStorage.getItem(ROLLOVER_KEY);
 
-  // First run: keep any existing records as-is and establish today's marker.
   if (!previousKey) {
     window.localStorage.setItem(ROLLOVER_KEY, todayKey);
     return;
@@ -103,29 +134,52 @@ export function rollOverHandoversIfNeeded(): void {
   const rolled: SiteHandover[] = [];
 
   for (const siteName of sites) {
-    const tomorrow = current.find(
-      (record) => record.siteName === siteName && record.day === "tomorrow"
+    const currentToday = current.find(
+      (record) =>
+        record.siteName === siteName &&
+        record.day === "today" &&
+        record.effectiveDate === todayKey
     );
 
-    rolled.push({
-      id: tomorrow?.id ?? createId(),
-      siteName,
-      day: "today",
-      notes: tomorrow?.notes ?? [],
-      updatedBy: tomorrow?.updatedBy ?? "Unknown",
-      updatedAt: tomorrow?.updatedAt ?? new Date().toISOString(),
-      visibleToChefs: tomorrow?.visibleToChefs === true,
-    });
+    const plannedForToday = current.find(
+      (record) =>
+        record.siteName === siteName &&
+        record.day === "tomorrow" &&
+        record.effectiveDate === todayKey
+    );
+
+    const futureTomorrow = current.find(
+      (record) =>
+        record.siteName === siteName &&
+        record.day === "tomorrow" &&
+        record.effectiveDate === tomorrowKey
+    );
+
+    const sourceToday = currentToday ?? plannedForToday;
 
     rolled.push({
-      id: createId(),
+      id: sourceToday?.id ?? createId(),
       siteName,
-      day: "tomorrow",
-      notes: [],
-      updatedBy: "Unknown",
-      updatedAt: new Date().toISOString(),
-      visibleToChefs: false,
+      day: "today",
+      effectiveDate: todayKey,
+      notes: sourceToday?.notes ?? [],
+      updatedBy: sourceToday?.updatedBy ?? "Unknown",
+      updatedAt: sourceToday?.updatedAt ?? new Date().toISOString(),
+      visibleToChefs: sourceToday?.visibleToChefs === true,
     });
+
+    rolled.push(
+      futureTomorrow ?? {
+        id: createId(),
+        siteName,
+        day: "tomorrow",
+        effectiveDate: tomorrowKey,
+        notes: [],
+        updatedBy: "Unknown",
+        updatedAt: new Date().toISOString(),
+        visibleToChefs: false,
+      }
+    );
   }
 
   writeRawHandovers(rolled);
@@ -140,8 +194,12 @@ export function getHandovers(): SiteHandover[] {
 }
 
 export function getSiteHandover(siteName: string, day: HandoverDay): SiteHandover {
+  const expectedDate = dateForDay(day);
   const existing = getHandovers().find(
-    (record) => record.siteName === siteName && record.day === day
+    (record) =>
+      record.siteName === siteName &&
+      record.day === day &&
+      record.effectiveDate === expectedDate
   );
 
   if (existing) return existing;
@@ -150,6 +208,7 @@ export function getSiteHandover(siteName: string, day: HandoverDay): SiteHandove
     id: createId(),
     siteName,
     day,
+    effectiveDate: expectedDate,
     notes: [],
     updatedBy: "Unknown",
     updatedAt: new Date().toISOString(),
@@ -165,11 +224,13 @@ export function saveSiteHandover(input: {
   visibleToChefs?: boolean;
 }): SiteHandover {
   const cleanedNotes = input.notes.map((note) => note.trim()).filter(Boolean);
+  const effectiveDate = dateForDay(input.day);
 
   if (typeof window === "undefined") {
     return {
       id: createId(),
       ...input,
+      effectiveDate,
       notes: cleanedNotes,
       visibleToChefs: input.visibleToChefs === true,
       updatedAt: new Date().toISOString(),
@@ -179,13 +240,17 @@ export function saveSiteHandover(input: {
   rollOverHandoversIfNeeded();
   const current = readRawHandovers();
   const existing = current.find(
-    (record) => record.siteName === input.siteName && record.day === input.day
+    (record) =>
+      record.siteName === input.siteName &&
+      record.day === input.day &&
+      record.effectiveDate === effectiveDate
   );
 
   const updated: SiteHandover = {
     id: existing?.id ?? createId(),
     siteName: input.siteName,
     day: input.day,
+    effectiveDate,
     notes: cleanedNotes,
     updatedBy: input.updatedBy.trim() || "Unknown",
     updatedAt: new Date().toISOString(),
@@ -195,7 +260,11 @@ export function saveSiteHandover(input: {
   writeRawHandovers([
     ...current.filter(
       (record) =>
-        !(record.siteName === input.siteName && record.day === input.day)
+        !(
+          record.siteName === input.siteName &&
+          record.day === input.day &&
+          record.effectiveDate === effectiveDate
+        )
     ),
     updated,
   ]);

@@ -95,7 +95,7 @@ export default function PurchasingPage() {
       setCurrentUser(user);
 
       if (user.role !== "operations") {
-        setSelectedSiteId(getSiteId(user.site));
+        setSelectedSiteId(user.siteId ?? getSiteId(user.site));
       }
     }
 

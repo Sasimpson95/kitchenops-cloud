@@ -4,7 +4,7 @@ import {
   starterSuppliers,
 } from "@/data/suppliers";
 
-import { scheduleCloudCatalogSave } from "@/lib/cloud/catalogSync";
+import { syncCloudCatalogCollection } from "@/lib/cloud/catalogSync";
 
 const STORAGE_KEY =
   "kitchenops-suppliers";
@@ -266,13 +266,15 @@ export function saveSuppliers(
     return;
   }
 
+  const previous = getSuppliers();
+
   window.localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify(suppliers)
   );
 
   emitSuppliersChanged();
-  scheduleCloudCatalogSave();
+  syncCloudCatalogCollection("suppliers", previous, suppliers);
 }
 
 export function createSupplier(

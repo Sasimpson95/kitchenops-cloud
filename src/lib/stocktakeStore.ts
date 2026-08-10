@@ -1,3 +1,4 @@
+import { syncOperationalCollection } from "@/lib/cloud/operationalSync";
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import type { Product } from "@/data/products";
 
@@ -175,12 +176,18 @@ function emitStocktakesChanged(): void {
 function saveStocktakes(stocktakes: Stocktake[]): void {
   if (typeof window === "undefined") return;
 
-  window.localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(stocktakes)
-  );
+  let previous: Stocktake[] = [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    previous = Array.isArray(parsed) ? (parsed as Stocktake[]) : [];
+  } catch {
+    previous = [];
+  }
 
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stocktakes));
   emitStocktakesChanged();
+  syncOperationalCollection("stocktakes", previous, stocktakes);
 }
 
 function getNextStocktakeNumber(

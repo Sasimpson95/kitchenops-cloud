@@ -45,3 +45,9 @@ next-env.d.ts
 *.keystore
 keystore.properties
 /android/app/release/
+
+# Local database backups
+/backups/
+
+# Supabase CLI temporary files
+/supabase/.temp/

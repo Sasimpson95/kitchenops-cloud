@@ -1,15 +1,16 @@
-import {
-  NextRequest,
-  NextResponse,
-} from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
+import {
+  checkPinRateLimit,
+  clearSuccessfulPinAttempts,
+  getAuthClientKey,
+  recordFailedPinAttempt,
+} from "@/lib/auth/rateLimit";
 import {
   STAFF_COOKIE_NAME,
   createStaffSessionToken,
 } from "@/lib/auth/staffSession";
-import {
-  createClient,
-} from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 type StaffLoginBody = {
   businessCode?: string;
@@ -30,39 +31,61 @@ type StaffLoginResult = {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as StaffLoginBody;
+    const body = (await request.json()) as StaffLoginBody;
     const businessCode = body.businessCode?.trim().toUpperCase();
     const siteId = body.siteId?.trim();
     const staffId = body.staffId?.trim();
     const pin = body.pin?.trim();
 
-    if (!businessCode || !siteId || !staffId || !pin) {
+    const uuidPattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    if (
+      !businessCode ||
+      !/^[A-Z0-9_-]{3,32}$/.test(businessCode) ||
+      !siteId ||
+      !uuidPattern.test(siteId) ||
+      !staffId ||
+      !uuidPattern.test(staffId) ||
+      !pin ||
+      !/^\d{4}$/.test(pin)
+    ) {
       return NextResponse.json(
-        { error: "Business, site, staff member and PIN are required." },
+        { error: "Enter a valid business, site, staff member and 4-digit PIN." },
         { status: 400 }
       );
     }
 
-    const supabase = await createClient();
-    const { data, error } = await supabase.rpc(
-      "verify_staff_pin",
-      {
-        requested_business_code: businessCode,
-        requested_site_id: siteId,
-        requested_staff_id: staffId,
-        supplied_pin: pin,
-      }
-    );
+    const clientKey = getAuthClientKey(request);
+    const limit = await checkPinRateLimit({
+      clientKey,
+      businessCode,
+      siteId,
+      staffId,
+    });
 
-    if (error) {
-      console.error("verify_staff_pin failed:", error);
+    if (!limit.allowed) {
       return NextResponse.json(
-        { error: error.message },
-        { status: 401 }
+        { error: "Too many incorrect PIN attempts. Try again in 15 minutes." },
+        { status: 429 }
       );
     }
 
-    if (!data) {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase.rpc("verify_staff_pin", {
+      requested_business_code: businessCode,
+      requested_site_id: siteId,
+      requested_staff_id: staffId,
+      supplied_pin: pin,
+    });
+
+    if (error || !data) {
+      await recordFailedPinAttempt({
+        clientKey,
+        businessCode,
+        siteId,
+        staffId,
+      });
       return NextResponse.json(
         { error: "Incorrect PIN or inactive account." },
         { status: 401 }
@@ -84,6 +107,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    await clearSuccessfulPinAttempts({
+      clientKey,
+      businessCode,
+      siteId,
+      staffId,
+    });
+
     const expiresAt = Date.now() + 12 * 60 * 60 * 1000;
     const response = NextResponse.json({
       success: true,
@@ -91,6 +121,7 @@ export async function POST(request: NextRequest) {
         name: session.name,
         role: session.role,
         site: session.siteName,
+        siteId: session.siteId,
       },
     });
 
@@ -110,12 +141,7 @@ export async function POST(request: NextRequest) {
   } catch (caughtError) {
     console.error("Staff login route error:", caughtError);
     return NextResponse.json(
-      {
-        error:
-          caughtError instanceof Error
-            ? caughtError.message
-            : "Staff login failed.",
-      },
+      { error: "Staff login failed. Please try again." },
       { status: 500 }
     );
   }

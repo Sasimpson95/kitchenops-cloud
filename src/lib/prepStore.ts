@@ -1,4 +1,5 @@
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
+import { syncOperationalCollection } from "@/lib/cloud/operationalSync";
 import {
   type ProductionDay,
   type ProductionItem,
@@ -100,6 +101,13 @@ function localDateString(
   return `${year}-${month}-${day}`;
 }
 
+function addDays(dateKey: string, days: number): string {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const value = new Date(year, month - 1, day);
+  value.setDate(value.getDate() + days);
+  return localDateString(value);
+}
+
 function readPrepHistory(): PrepHistoryRecord[] {
   if (typeof window === "undefined") {
     return [];
@@ -116,32 +124,33 @@ function readPrepHistory(): PrepHistoryRecord[] {
   }
 }
 
-function archiveTodayItems(
-  items: ProductionItem[],
-  scheduledDate: string
-): void {
+function archiveTodayItems(items: ProductionItem[]): void {
   if (typeof window === "undefined" || items.length === 0) return;
 
   const existing = readPrepHistory();
-  const additions: PrepHistoryRecord[] = items.map((item) => ({
-    id: `${scheduledDate}-${item.id}-${item.updatedAt}`,
-    prepItemId: item.id,
-    site: item.site,
-    name: item.name,
-    emoji: item.emoji,
-    planned: item.planned,
-    produced: item.produced,
-    status: item.status,
-    chef: item.chef,
-    approvedBy: item.approvedBy,
-    completedAt: item.completedAt,
-    scheduledDate,
-    archivedAt: now(),
-  }));
+  const additions: PrepHistoryRecord[] = items.map((item) => {
+    const scheduledDate = item.scheduledDate || localDateString();
+    return {
+      id: `${scheduledDate}-${item.id}-${item.updatedAt}`,
+      prepItemId: item.id,
+      site: item.site,
+      name: item.name,
+      emoji: item.emoji,
+      planned: item.planned,
+      produced: item.produced,
+      status: item.status,
+      chef: item.chef,
+      approvedBy: item.approvedBy,
+      completedAt: item.completedAt,
+      scheduledDate,
+      archivedAt: now(),
+    };
+  });
 
   const known = new Set(existing.map((record) => record.id));
   const merged = [...existing, ...additions.filter((record) => !known.has(record.id))];
   window.localStorage.setItem(PREP_HISTORY_KEY, JSON.stringify(merged));
+  syncOperationalCollection("prep_history", existing, merged);
 }
 
 function rolloverPrepPlanIfNeeded(
@@ -154,28 +163,43 @@ function rolloverPrepPlanIfNeeded(
 
   if (!planDate) {
     window.localStorage.setItem(PREP_PLAN_DATE_KEY, today);
-    return items;
   }
 
-  if (planDate === today) return items;
-
-  archiveTodayItems(
-    items.filter((item) => item.day === "today"),
-    planDate
+  const expired = items.filter(
+    (item) => (item.scheduledDate || today) < today
   );
+  if (expired.length > 0) archiveTodayItems(expired);
 
-  const rolled = items
-    .filter((item) => item.day === "tomorrow")
-    .map((item) => ({
-      ...item,
-      day: "today" as const,
-      updatedAt: now(),
-    }));
+  const active = items
+    .filter((item) => {
+      const scheduledDate = item.scheduledDate || today;
+      return scheduledDate >= today;
+    })
+    .map((item) => {
+      const scheduledDate = item.scheduledDate || today;
+      return {
+        ...item,
+        scheduledDate,
+        day: scheduledDate <= today ? ("today" as const) : ("tomorrow" as const),
+      };
+    });
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(rolled));
-  window.localStorage.setItem(PREP_PLAN_DATE_KEY, today);
-  emitPrepChanged();
-  return rolled;
+  // A stale device may wake after another device has already rolled the plan.
+  // Per-record dates make this idempotent: only genuinely expired items archive.
+  const changed =
+    planDate !== today ||
+    active.length !== items.length ||
+    active.some((item, index) =>
+      item.day !== items[index]?.day ||
+      item.scheduledDate !== items[index]?.scheduledDate
+    );
+
+  if (changed) {
+    savePrepItems(active);
+    window.localStorage.setItem(PREP_PLAN_DATE_KEY, today);
+  }
+
+  return active;
 }
 
 export function getPrepHistory(): PrepHistoryRecord[] {
@@ -259,6 +283,15 @@ function normalisePrepItem(
         ? "tomorrow"
         : "today",
 
+    scheduledDate:
+      item.scheduledDate ||
+      addDays(
+        (typeof window !== "undefined"
+          ? window.localStorage.getItem(PREP_PLAN_DATE_KEY)
+          : null) || localDateString(),
+        item.day === "tomorrow" ? 1 : 0
+      ),
+
     chef: item.chef,
     readyTime: item.readyTime,
     approvedBy: item.approvedBy,
@@ -291,16 +324,14 @@ function initialisePrepPlan(): ProductionItem[] {
 function getNextPrepId(
   items: ProductionItem[]
 ): number {
-  return (
-    items.reduce(
-      (highestId, item) =>
-        Math.max(
-          highestId,
-          item.id
-        ),
-      0
-    ) + 1
+  const highestExisting = items.reduce(
+    (highestId, item) => Math.max(highestId, item.id),
+    0
   );
+  // Numeric IDs are retained for backwards compatibility, but are generated
+  // from time + entropy so two devices do not create the same prep record.
+  const distributedId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
+  return Math.max(highestExisting + 1, distributedId);
 }
 
 export function getPrepItems(): ProductionItem[] {
@@ -361,12 +392,22 @@ export function savePrepItems(
     return;
   }
 
+  let previous: ProductionItem[] = [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    previous = Array.isArray(parsed) ? (parsed as ProductionItem[]) : [];
+  } catch {
+    previous = [];
+  }
+
   window.localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify(items)
   );
 
   emitPrepChanged();
+  syncOperationalCollection("prep", previous, items);
 }
 
 export function addPrepItem(
@@ -452,6 +493,7 @@ export function addPrepItem(
 
     status: "planned",
     day: input.day,
+    scheduledDate: addDays(localDateString(), input.day === "tomorrow" ? 1 : 0),
 
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -752,6 +794,8 @@ function applyApprovedProduction(
                   planned:
                     item.planned +
                     remaining,
+                  scheduledDate:
+                    addDays(localDateString(), 1),
                   updatedAt:
                     timestamp,
                 }
@@ -785,6 +829,9 @@ function applyApprovedProduction(
 
           day:
             "tomorrow",
+
+          scheduledDate:
+            addDays(localDateString(), 1),
 
           createdAt:
             timestamp,

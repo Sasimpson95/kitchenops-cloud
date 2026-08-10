@@ -30,8 +30,8 @@ import type { ReactNode } from "react";
 import ProtectedPage from "@/components/ProtectedPage";
 import type { User } from "@/config/roles";
 import type { ProductionItem } from "@/data/production";
-import { createClient } from "@/lib/supabase/client";
 import { getCurrentUser } from "@/lib/currentUser";
+import { useBusinessSites } from "@/lib/useBusinessSites";
 import {
   getDefaultDashboardPreferences,
   loadDashboardPreferences,
@@ -318,7 +318,11 @@ export default function DashboardPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [selectedSite, setSelectedSite] = useState("All Sites");
-  const [businessSites, setBusinessSites] = useState<string[]>([]);
+  const { sites: businessSiteRecords } = useBusinessSites();
+  const businessSites = useMemo(
+    () => businessSiteRecords.map((site) => site.name),
+    [businessSiteRecords]
+  );
   const [version, setVersion] = useState(0);
   const [editingDashboard, setEditingDashboard] = useState(false);
   const [preferences, setPreferences] = useState<DashboardWidgetPreference[]>([]);
@@ -335,30 +339,7 @@ export default function DashboardPage() {
     setPreferences(loadDashboardPreferences(user.role, user.name, user.site));
   }, [router]);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function loadSites(): Promise<void> {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: membership } = await supabase
-        .from("business_memberships")
-        .select("business_id")
-        .eq("auth_user_id", user.id)
-        .eq("active", true)
-        .maybeSingle();
-      if (!membership) return;
-      const { data: sites } = await supabase
-        .from("sites")
-        .select("name")
-        .eq("business_id", membership.business_id)
-        .eq("active", true)
-        .order("name");
-      if (!cancelled) setBusinessSites((sites ?? []).map((site) => site.name));
-    }
-    void loadSites();
-    return () => { cancelled = true; };
-  }, []);
+
 
   useEffect(() => {
     const refresh = () => setVersion((value) => value + 1);
@@ -385,7 +366,13 @@ export default function DashboardPage() {
       ? selectedSite === "All Sites" ? businessSites : [selectedSite]
       : [currentUser.site];
     const siteNameSet = new Set(siteNames);
-    const siteIds = new Set(siteNames.map(getSiteId));
+    const siteIds = new Set(
+      siteNames.map((siteName) =>
+        (currentUser.site === siteName ? currentUser.siteId : undefined) ??
+        businessSiteRecords.find((site) => site.name === siteName)?.id ??
+        getSiteId(siteName)
+      )
+    );
 
     const todaysPrep = allPrepItems.filter(
       (item) => siteNameSet.has(item.site) && item.day === "today"
@@ -465,7 +452,11 @@ export default function DashboardPage() {
         siteName,
         prepTotal: prepSummary.total,
         prepComplete: prepSummary.complete,
-        openOrders: openOrdersBySite.get(getSiteId(siteName)) ?? 0,
+        openOrders:
+          openOrdersBySite.get(
+            businessSiteRecords.find((site) => site.name === siteName)?.id ??
+              getSiteId(siteName)
+          ) ?? 0,
       };
     });
 
@@ -483,7 +474,7 @@ export default function DashboardPage() {
       activity,
       siteSummaries,
     };
-  }, [businessSites, currentUser, selectedSite, version]);
+  }, [businessSiteRecords, businessSites, currentUser, selectedSite, version]);
 
   if (!currentUser || !dashboard) {
     return (

@@ -4,25 +4,77 @@ import {
   STAFF_COOKIE_NAME,
   readStaffSessionToken,
 } from "@/lib/auth/staffSession";
+import { siteNameToKey } from "@/lib/siteKey";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type CloudRequestContext = {
   businessId: string;
   role: "operations" | "manager" | "chef";
+  staffId?: string;
+  staffName?: string;
+  /** Canonical Supabase site UUID. */
   siteId?: string;
+  siteName?: string;
+  /** Legacy/name-derived key retained for prep/handover compatibility. */
+  siteKey?: string;
 };
+
+export function getContextSiteAccessKeys(context: CloudRequestContext): string[] {
+  return Array.from(
+    new Set([context.siteId, context.siteKey].map((value) => value?.trim()).filter(Boolean) as string[])
+  );
+}
 
 export async function getCloudRequestContext(): Promise<CloudRequestContext | null> {
   const cookieStore = await cookies();
-  const staff = readStaffSessionToken(
+  const signedStaff = readStaffSessionToken(
     cookieStore.get(STAFF_COOKIE_NAME)?.value
   );
 
-  if (staff) {
+  if (signedStaff) {
+    const admin = createAdminClient();
+    const { data: staff, error } = await admin
+      .from("staff_members")
+      .select(`
+        id,
+        business_id,
+        site_id,
+        name,
+        role,
+        active,
+        businesses!inner (
+          id,
+          active
+        ),
+        sites!inner (
+          id,
+          name,
+          active
+        )
+      `)
+      .eq("id", signedStaff.staffId)
+      .eq("business_id", signedStaff.businessId)
+      .maybeSingle();
+
+    if (error || !staff || !staff.active) return null;
+
+    const rawBusiness = staff.businesses;
+    const business = Array.isArray(rawBusiness) ? rawBusiness[0] : rawBusiness;
+    const rawSite = staff.sites;
+    const site = Array.isArray(rawSite) ? rawSite[0] : rawSite;
+
+    if (!business?.active || !site?.active) return null;
+    if (staff.role !== "manager" && staff.role !== "chef") return null;
+
     return {
-      businessId: staff.businessId,
+      businessId: staff.business_id,
       role: staff.role,
-      siteId: staff.siteId,
+      staffId: staff.id,
+      staffName: staff.name,
+      siteId: staff.site_id,
+      siteName: site.name,
+      siteKey: siteNameToKey(site.name),
     };
   }
 

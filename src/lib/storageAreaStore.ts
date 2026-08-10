@@ -1,4 +1,4 @@
-import { scheduleCloudCatalogSave } from "@/lib/cloud/catalogSync";
+import { syncCloudCatalogCollection } from "@/lib/cloud/catalogSync";
 
 const STORAGE_KEY = "kitchenops-storage-areas";
 const STORAGE_AREAS_CHANGED_EVENT =
@@ -63,13 +63,22 @@ function emitChanged(): void {
 function save(records: StorageArea[]): void {
   if (typeof window === "undefined") return;
 
+  let previous: StorageArea[] = [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    previous = Array.isArray(parsed) ? (parsed as StorageArea[]) : [];
+  } catch {
+    previous = [];
+  }
+
   window.localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify(records)
   );
 
   emitChanged();
-  scheduleCloudCatalogSave();
+  syncCloudCatalogCollection("storageAreas", previous, records);
 }
 
 function normalise(

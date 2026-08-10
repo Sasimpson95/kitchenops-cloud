@@ -8,7 +8,7 @@ import {
   getSuppliers,
 } from "@/lib/supplierStore";
 
-import { scheduleCloudCatalogSave } from "@/lib/cloud/catalogSync";
+import { syncCloudCatalogCollection } from "@/lib/cloud/catalogSync";
 
 const STORAGE_KEY = "kitchenops-products";
 const PRODUCTS_CHANGED_EVENT =
@@ -610,13 +610,15 @@ export function saveProducts(
     return;
   }
 
+  const previous = getProducts();
+
   window.localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify(products)
   );
 
   emitProductsChanged();
-  scheduleCloudCatalogSave();
+  syncCloudCatalogCollection("products", previous, products);
 }
 
 export function createProduct(

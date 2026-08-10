@@ -1,3 +1,16 @@
+# KitchenOps RC2 — Data Integrity & Security Hardening
+
+## Fixed
+
+- Shared prep, orders, waste, stocktakes, transfers and current handovers across devices.
+- Replaced whole-stock snapshot writes with atomic, idempotent inventory movements.
+- Added server-side site/role enforcement and live staff-session revalidation.
+- Added persistent staff PIN rate limiting and removed direct public access to staff-login RPCs.
+- Shared recipes and storage assignments across devices.
+- Standardised site-scoped stock writes on Supabase site UUIDs.
+- Removed legacy unprotected dashboard/prep prototype routes.
+- Aligned Android and web version metadata to 1.0.0-rc2.
+
 # KitchenOps RC1.4
 
 ## Improved

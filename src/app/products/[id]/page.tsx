@@ -263,9 +263,9 @@ export default function ProductPage({
       }
 
       const assignedSiteId =
-        getSiteId(
-          currentUser.site
-        );
+        currentUser.siteId ??
+        allSiteStocks.find((site) => site.siteName === currentUser.site)?.siteId ??
+        getSiteId(currentUser.site);
 
       return allSiteStocks.filter(
         (site) =>

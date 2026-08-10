@@ -18,10 +18,6 @@ type TransferModalProps = {
   onCompleted: () => void;
 };
 
-function siteNameToId(siteName: string): string {
-  return siteName.trim().toLowerCase().replace(/\s+/g, "-");
-}
-
 function formatQuantity(value: number): string {
   return new Intl.NumberFormat("en-GB", {
     maximumFractionDigits: 2,
@@ -35,10 +31,11 @@ export default function TransferModal({
   onCompleted,
 }: TransferModalProps) {
   const { sites: TRANSFER_SITES } = useBusinessSites();
-  const managerSiteId = siteNameToId(currentUser.site);
   const isOperations = currentUser.role === "operations";
 
-  const [fromSiteId, setFromSiteId] = useState(isOperations ? "" : managerSiteId);
+  const [fromSiteId, setFromSiteId] = useState(
+    isOperations ? "" : currentUser.siteId ?? ""
+  );
   const [toSiteId, setToSiteId] = useState("");
   const [productId, setProductId] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -49,8 +46,21 @@ export default function TransferModal({
 
   useEffect(() => {
     setTransferSites(TRANSFER_SITES);
-    if (isOperations && !fromSiteId && TRANSFER_SITES[0]) setFromSiteId(TRANSFER_SITES[0].id);
-  }, [TRANSFER_SITES, fromSiteId, isOperations]);
+    if (isOperations && !fromSiteId && TRANSFER_SITES[0]) {
+      setFromSiteId(TRANSFER_SITES[0].id);
+      return;
+    }
+
+    if (!isOperations) {
+      const assignedSiteId =
+        currentUser.siteId ??
+        TRANSFER_SITES.find((site) => site.name === currentUser.site)?.id ??
+        "";
+      if (assignedSiteId && fromSiteId !== assignedSiteId) {
+        setFromSiteId(assignedSiteId);
+      }
+    }
+  }, [TRANSFER_SITES, currentUser.site, currentUser.siteId, fromSiteId, isOperations]);
 
   useEffect(() => { setToSiteId(""); }, [fromSiteId]);
 

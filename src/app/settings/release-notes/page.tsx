@@ -5,6 +5,7 @@ import ProtectedPage from "@/components/ProtectedPage";
 import { PageHeader, SectionCard } from "@/components/ui";
 
 const notes = [
+  { version: "RC2", title: "Data Integrity & Security Hardening", items: ["Shared prep, orders, waste, stocktakes and transfers", "Atomic cross-device inventory movements", "Server-enforced site and role boundaries", "Staff PIN rate limiting and live session validation", "Shared recipes and storage assignments"] },
   { version: "Preview 8", title: "Launch Experience", items: ["First-run welcome", "Help centre", "Feedback tools", "About and version information", "Launch-facing Settings organisation"] },
   { version: "Preview 7", title: "Performance", items: ["Faster dashboard calculations", "Debounced product, recipe and inventory search", "More efficient inventory movement indexing"] },
   { version: "Preview 6C", title: "Premium Polish", items: ["Branded toast notifications", "Loading skeletons", "Improved confirmations and accessibility"] },

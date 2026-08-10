@@ -1,3 +1,4 @@
+import { syncOperationalCollection } from "@/lib/cloud/operationalSync";
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import type { Product } from "@/data/products";
 import {
@@ -86,8 +87,18 @@ function emitWasteChanged(): void {
 function saveWasteRecords(records: WasteRecord[]): void {
   if (typeof window === "undefined") return;
 
+  let previous: WasteRecord[] = [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    previous = Array.isArray(parsed) ? (parsed as WasteRecord[]) : [];
+  } catch {
+    previous = [];
+  }
+
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
   emitWasteChanged();
+  syncOperationalCollection("waste", previous, records);
 }
 
 function getNextWasteNumber(records: WasteRecord[]): string {

@@ -1,3 +1,4 @@
+import { syncCloudCatalogCollection } from "@/lib/cloud/catalogSync";
 import type { RecipeUnit } from "@/lib/unitConversion";
 
 export type RecipeIngredient = {
@@ -96,12 +97,15 @@ export function saveRecipes(
     return;
   }
 
+  const previous = getRecipes();
+
   window.localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify(updatedRecipes)
   );
 
   emitRecipesChanged();
+  syncCloudCatalogCollection("recipes", previous, updatedRecipes);
 }
 
 export function addRecipe(

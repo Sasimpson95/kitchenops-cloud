@@ -21,6 +21,9 @@ export type ProductionItem = {
   status: ProductionStatus;
   day: ProductionDay;
 
+  /** Local calendar date this prep belongs to (YYYY-MM-DD). */
+  scheduledDate?: string;
+
   chef?: string;
   readyTime?: string;
   approvedBy?: string;

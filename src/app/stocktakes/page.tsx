@@ -74,7 +74,7 @@ function getSiteId(
 
 export default function StocktakesPage() {
   const router = useRouter();
-  const { options: SITE_OPTIONS } = useBusinessSites();
+  const { sites, options: SITE_OPTIONS } = useBusinessSites();
 
   const [
     currentUser,
@@ -107,6 +107,14 @@ export default function StocktakesPage() {
     selectedSite,
     setSelectedSite,
   ] = useState("All Sites");
+
+  const resolveSiteId = useCallback(
+    (siteName: string) =>
+      (currentUser?.site === siteName ? currentUser.siteId : undefined) ??
+      sites.find((site) => site.name === siteName)?.id ??
+      getSiteId(siteName),
+    [currentUser, sites]
+  );
 
   const [
     activeStocktakeId,
@@ -264,7 +272,7 @@ export default function StocktakesPage() {
   const selectedSiteId =
     selectedSite === "All Sites"
       ? null
-      : getSiteId(selectedSite);
+      : resolveSiteId(selectedSite);
 
   const selectedSiteStocktakes =
     selectedSiteId
@@ -303,7 +311,7 @@ export default function StocktakesPage() {
         site !== "All Sites"
     ).map((site) => {
       const siteId =
-        getSiteId(site);
+        resolveSiteId(site);
 
       const siteStocktakes =
         stocktakeList.filter(

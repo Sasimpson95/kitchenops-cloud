@@ -1,3 +1,4 @@
+import { syncOperationalCollection } from "@/lib/cloud/operationalSync";
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import {
   type OrderStatus,
@@ -423,16 +424,20 @@ export function getOrders(): PurchaseOrder[] {
 export function saveOrders(
   orders: PurchaseOrder[]
 ): void {
-  if (typeof window === "undefined") {
-    return;
+  if (typeof window === "undefined") return;
+
+  let previous: PurchaseOrder[] = [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    previous = Array.isArray(parsed) ? (parsed as PurchaseOrder[]) : [];
+  } catch {
+    previous = [];
   }
 
-  window.localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(orders)
-  );
-
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
   emitOrdersChanged();
+  syncOperationalCollection("orders", previous, orders);
 }
 
 export function subscribeToOrderChanges(

@@ -1,3 +1,5 @@
+import { syncCloudCatalogCollection } from "@/lib/cloud/catalogSync";
+
 const STORAGE_KEY =
   "kitchenops-product-location-assignments";
 
@@ -60,12 +62,15 @@ function save(
     return;
   }
 
+  const previous = getProductLocationAssignments();
+
   window.localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify(assignments)
   );
 
   emitChanged();
+  syncCloudCatalogCollection("productLocations", previous, assignments);
 }
 
 function normalise(
