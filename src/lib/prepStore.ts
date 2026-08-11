@@ -1,5 +1,6 @@
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import { syncOperationalCollection } from "@/lib/cloud/operationalSync";
+import { getCurrentUser } from "@/lib/currentUser";
 import {
   type ProductionDay,
   type ProductionItem,
@@ -168,7 +169,8 @@ function rolloverPrepPlanIfNeeded(
   const expired = items.filter(
     (item) => (item.scheduledDate || today) < today
   );
-  if (expired.length > 0) archiveTodayItems(expired);
+  const isChef = getCurrentUser()?.role === "chef";
+  if (!isChef && expired.length > 0) archiveTodayItems(expired);
 
   const active = items
     .filter((item) => {
@@ -194,7 +196,7 @@ function rolloverPrepPlanIfNeeded(
       item.scheduledDate !== items[index]?.scheduledDate
     );
 
-  if (changed) {
+  if (changed && !isChef) {
     savePrepItems(active);
     window.localStorage.setItem(PREP_PLAN_DATE_KEY, today);
   }

@@ -1,0 +1,7 @@
+KitchenOps RC6 hotfix
+
+Extract over the existing kitchenops-cloud-clean project and replace matching files.
+Do not delete the project folder first.
+Do not replace package-lock.json.
+
+Then update the lockfile version metadata and run the normal RC gates.

@@ -1,5 +1,6 @@
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import { getCloudSession } from "@/lib/cloudSession";
+import { getCurrentUser } from "@/lib/currentUser";
 import { siteNameToKey } from "@/lib/siteKey";
 import { toast } from "@/lib/toast";
 
@@ -65,6 +66,22 @@ class OperationalConflictError extends Error {
     this.kind = kind;
     this.id = id;
   }
+}
+
+
+class OperationalRejectedError extends Error {
+  readonly code = "OPERATIONAL_REJECTED";
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "OperationalRejectedError";
+    this.status = status;
+  }
+}
+
+function isOperationalRejectedError(error: unknown): error is OperationalRejectedError {
+  return error instanceof OperationalRejectedError;
 }
 
 function isOperationalConflictError(error: unknown): error is OperationalConflictError {
@@ -321,7 +338,10 @@ async function sendChanges(changes: OperationalChange[]): Promise<RevisionAck[]>
         );
       }
     }
-    throw new Error(result.error ?? "Operational data could not be saved.");
+    throw new OperationalRejectedError(
+      response.status,
+      result.error ?? "Operational data could not be saved."
+    );
   }
 
   return result.revisions ?? [];
@@ -425,6 +445,24 @@ export async function flushPendingOperationalChanges(): Promise<void> {
           scheduleConflictRefresh();
           continue;
         }
+
+        // A permission rejection is permanent for the current user. Retrying it
+        // forever only creates repeated warnings and can overlay stale local data.
+        // Drop exactly the rejected batch, then reload the authoritative cloud copy.
+        if (isOperationalRejectedError(error) && error.status === 403) {
+          const rejectedKeys = new Set(batch.map((change) => changeKey(change)));
+          savePending(
+            readPending().filter((change) => !rejectedKeys.has(changeKey(change)))
+          );
+          for (const change of batch) {
+            if (change.kind === "prep") {
+              setRevision(businessId, change.kind, change.id, null);
+            }
+          }
+          scheduleConflictRefresh();
+          continue;
+        }
+
         throw error;
       }
     }
@@ -460,12 +498,22 @@ export function syncOperationalCollection(
   const beforeById = new Map(before.map((record) => [recordId(record), record]));
   const afterById = new Map(after.map((record) => [recordId(record), record]));
   const changes: OperationalChange[] = [];
+  const currentUser = getCurrentUser();
+  const isChef = currentUser?.role === "chef";
 
   for (const record of after) {
     const id = recordId(record);
     if (!id) continue;
     const old = beforeById.get(id);
     if (!old || !sameRecord(old, record)) {
+      // Mirror server permissions on the client so read-only hydration/rollover
+      // can never manufacture writes the Chef role is guaranteed to reject.
+      if (isChef) {
+        if (kind === "prep" && !old) continue;
+        if (kind === "waste" && old) continue;
+        if (kind !== "prep" && kind !== "waste") continue;
+      }
+
       const siteKeys = getSiteKeys(kind, record);
       if (siteKeys.length > 0) {
         changes.push({
@@ -483,6 +531,9 @@ export function syncOperationalCollection(
   for (const record of before) {
     const id = recordId(record);
     if (id && !afterById.has(id)) {
+      // The API intentionally forbids all Chef deletes. Automatic day rollover
+      // must therefore remain a read-only operation on Chef devices.
+      if (isChef) continue;
       changes.push({
         businessId,
         kind,

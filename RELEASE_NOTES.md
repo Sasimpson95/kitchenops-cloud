@@ -1,3 +1,9 @@
+# KitchenOps 1.0.0 RC6
+
+- Fixed Chef devices repeatedly queuing server-forbidden operational deletes during automatic rollover.
+- Permanent 403 sync rejections are now removed from the retry queue and cloud state is reloaded.
+- Prep and handover rollover are read-only on Chef devices.
+
 # KitchenOps Release Notes
 
 ## 1.0.0 RC5 — Cross-device Prep Sync Hotfix

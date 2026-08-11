@@ -1,2 +1,2 @@
-export const KITCHENOPS_VERSION = "1.0.0-rc5";
-export const KITCHENOPS_RELEASE_NAME = "Release Candidate 5";
+export const KITCHENOPS_VERSION = "1.0.0-rc6";
+export const KITCHENOPS_RELEASE_NAME = "Release Candidate 6";

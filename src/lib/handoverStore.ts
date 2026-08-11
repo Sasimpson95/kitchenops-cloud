@@ -1,4 +1,5 @@
 import { syncOperationalCollection } from "@/lib/cloud/operationalSync";
+import { getCurrentUser } from "@/lib/currentUser";
 
 const STORAGE_KEY = "kitchenops-site-handovers";
 const ROLLOVER_KEY = "kitchenops-handover-rollover-date";
@@ -117,6 +118,10 @@ function writeRawHandovers(records: SiteHandover[]): void {
  */
 export function rollOverHandoversIfNeeded(): void {
   if (typeof window === "undefined") return;
+
+  // Chef handover access is read-only. Rollover changes record identities and
+  // would otherwise be interpreted as forbidden cloud deletes/creates.
+  if (getCurrentUser()?.role === "chef") return;
 
   const todayKey = localDateKey();
   const tomorrowKey = addDays(todayKey, 1);
