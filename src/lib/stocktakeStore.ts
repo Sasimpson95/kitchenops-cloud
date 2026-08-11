@@ -44,6 +44,10 @@ export type StocktakeItem = {
   countUnit: string;
   /** Number of inventory units represented by one count unit. */
   inventoryUnitsPerCountUnit: number;
+  /** Units enabled for data entry on this product. */
+  stocktakeUnits: string[];
+  /** Exact quantities entered in each enabled unit. */
+  countedByUnit: Record<string, number> | null;
   location: string;
 
   /** Expected quantity expressed in count units. */
@@ -221,6 +225,7 @@ function getNextStocktakeNumber(
 function getStocktakeCountingSetup(product: Product): {
   countUnit: string;
   inventoryUnitsPerCountUnit: number;
+  stocktakeUnits: string[];
 } {
   const inventoryUnit =
     product.inventoryUnit?.trim() || "Each";
@@ -234,20 +239,30 @@ function getStocktakeCountingSetup(product: Product): {
       ? product.purchaseQuantity
       : 1;
 
-  // "Each" means staff count the physical purchase unit.
-  // Example: Milk bought as a 2 L Bottle is counted as Bottles,
-  // while Inventory remains in Litres for recipe costing.
-  if (product.countMethod === "Each") {
+  const allowed = Array.from(new Set([purchaseUnit, inventoryUnit]));
+  const configured = Array.isArray(product.stocktakeUnits)
+    ? product.stocktakeUnits.filter((unit) =>
+        allowed.some((allowedUnit) =>
+          allowedUnit.toLowerCase() === unit.trim().toLowerCase()
+        )
+      )
+    : allowed;
+  const stocktakeUnits = configured.length > 0 ? configured : allowed;
+
+  // Preserve the purchase unit as the conversion anchor whenever it differs
+  // from Inventory. Product-level checkboxes decide which inputs are visible.
+  if (purchaseUnit.toLowerCase() !== inventoryUnit.toLowerCase()) {
     return {
       countUnit: purchaseUnit,
-      inventoryUnitsPerCountUnit:
-        purchaseQuantity,
+      inventoryUnitsPerCountUnit: purchaseQuantity,
+      stocktakeUnits,
     };
   }
 
   return {
     countUnit: inventoryUnit,
     inventoryUnitsPerCountUnit: 1,
+    stocktakeUnits,
   };
 }
 
@@ -279,6 +294,19 @@ function normaliseItem(
       0.000001,
       Number(item.inventoryUnitsPerCountUnit) || 1
     ),
+    stocktakeUnits:
+      Array.isArray(item.stocktakeUnits) && item.stocktakeUnits.length > 0
+        ? item.stocktakeUnits.map(String)
+        : Array.from(
+            new Set([item.countUnit || item.inventoryUnit || "Each", item.inventoryUnit || "Each"])
+          ),
+    countedByUnit:
+      item.countedByUnit && typeof item.countedByUnit === "object"
+        ? Object.fromEntries(
+            Object.entries(item.countedByUnit)
+              .map(([unit, quantity]) => [unit, Math.max(0, Number(quantity) || 0)])
+          )
+        : null,
     location: item.location || "Not assigned",
 
     expectedQuantity: Math.max(
@@ -409,7 +437,8 @@ export function refreshOpenStocktakeCountingSetups(
         Math.abs(
           item.inventoryUnitsPerCountUnit -
             setup.inventoryUnitsPerCountUnit
-        ) < 0.000001
+        ) < 0.000001 &&
+        JSON.stringify(item.stocktakeUnits) === JSON.stringify(setup.stocktakeUnits)
       ) {
         return item;
       }
@@ -435,6 +464,8 @@ export function refreshOpenStocktakeCountingSetups(
         countUnit: setup.countUnit,
         inventoryUnitsPerCountUnit:
           setup.inventoryUnitsPerCountUnit,
+        stocktakeUnits: setup.stocktakeUnits,
+        countedByUnit: item.countedByUnit,
         expectedQuantity:
           expectedInventoryQuantity /
           setup.inventoryUnitsPerCountUnit,
@@ -827,6 +858,11 @@ export function startStocktake(
                 inventoryUnitsPerCountUnit:
                   getStocktakeCountingSetup(product).inventoryUnitsPerCountUnit,
 
+                stocktakeUnits:
+                  getStocktakeCountingSetup(product).stocktakeUnits,
+
+                countedByUnit: null,
+
                 location:
                   assignment.storageAreaName,
 
@@ -896,6 +932,11 @@ export function startStocktake(
               inventoryUnitsPerCountUnit:
                 getStocktakeCountingSetup(product).inventoryUnitsPerCountUnit,
 
+              stocktakeUnits:
+                getStocktakeCountingSetup(product).stocktakeUnits,
+
+              countedByUnit: null,
+
               location:
                 "Not assigned",
 
@@ -960,7 +1001,8 @@ export function saveStocktakeCount(
   stocktakeId: string,
   itemId: string,
   countedQuantity: number,
-  nextIndex?: number
+  nextIndex?: number,
+  countedByUnit?: Record<string, number>
 ): Stocktake {
   const quantity = Number(countedQuantity);
 
@@ -997,6 +1039,14 @@ export function saveStocktakeCount(
         ? {
             ...item,
             countedQuantity: quantity,
+            countedByUnit: countedByUnit
+              ? Object.fromEntries(
+                  Object.entries(countedByUnit).map(([unit, value]) => [
+                    unit,
+                    Math.max(0, Number(value) || 0),
+                  ])
+                )
+              : item.countedByUnit,
           }
         : item
     );

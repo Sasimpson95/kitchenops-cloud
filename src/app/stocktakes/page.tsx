@@ -420,7 +420,8 @@ export default function StocktakesPage() {
   function handleSaveCount(
     itemId: string,
     quantity: number,
-    nextIndex: number
+    nextIndex: number,
+    countedByUnit?: Record<string, number>
   ): void {
     if (!activeStocktake) {
       return;
@@ -433,7 +434,8 @@ export default function StocktakesPage() {
         activeStocktake.id,
         itemId,
         quantity,
-        nextIndex
+        nextIndex,
+        countedByUnit
       );
     } catch (caughtError) {
       setError(

@@ -47,6 +47,7 @@ export type ProductFormState = {
   purchaseQuantity: number;
   inventoryUnit: string;
   countMethod: CountMethod;
+  stocktakeUnits: string[];
 
   minimumStock: number;
   maximumStock: number;
@@ -82,6 +83,7 @@ export const EMPTY_PRODUCT_FORM: ProductFormState = {
   purchaseQuantity: 1,
   inventoryUnit: "",
   countMethod: "Each",
+  stocktakeUnits: [],
 
   minimumStock: 0,
   maximumStock: 0,
@@ -137,6 +139,11 @@ export function productToForm(
 
     countMethod:
       product.countMethod,
+
+    stocktakeUnits:
+      product.stocktakeUnits?.length
+        ? product.stocktakeUnits
+        : Array.from(new Set([product.orderUnit, product.inventoryUnit].filter(Boolean))),
 
     minimumStock:
       product.minimumStock,
@@ -332,6 +339,21 @@ export default function ProductFormModal({
             ...form.alternativeSupplierIds,
             supplierId,
           ]
+    );
+  }
+
+  function toggleStocktakeUnit(unit: string): void {
+    const selected = form.stocktakeUnits.some(
+      (value) => value.trim().toLowerCase() === unit.trim().toLowerCase()
+    );
+
+    onChange(
+      "stocktakeUnits",
+      selected
+        ? form.stocktakeUnits.filter(
+            (value) => value.trim().toLowerCase() !== unit.trim().toLowerCase()
+          )
+        : [...form.stocktakeUnits, unit]
     );
   }
 
@@ -789,6 +811,59 @@ export default function ProductFormModal({
                   Portion
                 </option>
               </select>
+            </Field>
+
+            <Field label="Stocktake Units" fullWidth>
+              <div className="rounded-2xl border border-gray-200 bg-slate-50 p-4">
+                <p className="text-sm text-gray-600">
+                  Choose exactly which measurements staff may enter during a stocktake.
+                  KitchenOps will convert them back to the inventory unit automatically.
+                </p>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {Array.from(
+                    new Set([form.orderUnit, form.inventoryUnit].filter(Boolean))
+                  ).map((unit) => {
+                    const checked = form.stocktakeUnits.some(
+                      (value) => value.trim().toLowerCase() === unit.trim().toLowerCase()
+                    );
+
+                    const description =
+                      unit.trim().toLowerCase() === form.orderUnit.trim().toLowerCase() &&
+                      form.orderUnit.trim().toLowerCase() !== form.inventoryUnit.trim().toLowerCase()
+                        ? `1 ${unit} = ${form.purchaseQuantity || 1} ${form.inventoryUnit || "inventory units"}`
+                        : `Count directly in ${unit}`;
+
+                    return (
+                      <label
+                        key={unit}
+                        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
+                          checked
+                            ? "border-violet-300 bg-violet-50"
+                            : "border-gray-200 bg-white"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleStocktakeUnit(unit)}
+                          className="mt-1 h-5 w-5 accent-violet-800"
+                        />
+                        <span>
+                          <span className="block font-bold text-gray-900">{unit}</span>
+                          <span className="mt-1 block text-xs text-gray-500">{description}</span>
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+
+                {form.stocktakeUnits.length === 0 && (
+                  <p className="mt-3 text-sm font-semibold text-red-700">
+                    Select at least one stocktake unit.
+                  </p>
+                )}
+              </div>
             </Field>
 
             <Field label="Storage Area (Optional)">

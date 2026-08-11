@@ -861,7 +861,7 @@ function ProductsContent() {
                           product.active && (
                             <>
                               <Link
-                                href={`/products/${product.id}`}
+                                href={`/products/${product.id}?edit=1`}
                                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-3 font-semibold text-gray-700 transition hover:bg-slate-50"
                               >
                                 <Edit3

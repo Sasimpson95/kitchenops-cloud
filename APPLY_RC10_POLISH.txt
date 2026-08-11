@@ -1,0 +1,11 @@
+KitchenOps RC10 polish patch
+
+Fixes KOPS-RC-027:
+Products > Open & Edit now opens the product edit modal directly.
+View Product continues to open the normal product details page.
+
+Extract this ZIP over your existing kitchenops-cloud-clean folder and replace existing files.
+Then run:
+  npm run typecheck
+  npm run build
+  git diff --check

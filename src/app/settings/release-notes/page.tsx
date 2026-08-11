@@ -5,6 +5,7 @@ import ProtectedPage from "@/components/ProtectedPage";
 import { PageHeader, SectionCard } from "@/components/ui";
 
 const notes = [
+  { version: "RC10", title: "Configurable Stocktake Units", items: ["Products explicitly choose which stocktake units staff can enter", "Milk-style products can enable Bottle and Litre without showing Each", "Case-based products can enable Case and Each", "Entered unit splits are preserved when reopening, reviewing and completing a stocktake"] },
   { version: "RC9", title: "Stocktake Pack & Loose Count Clarity", items: ["Pack conversions are shown clearly while counting", "Discrete packs support full packs plus loose Each counts", "Milk-style products show bottle counts with litre inventory equivalents", "Review and results show both physical count and inventory equivalent"] },
   { version: "RC7", title: "Stocktake Count Unit Hotfix", items: ["Stocktake now follows the configured Count Method", "Each-counted products use their physical purchase unit such as Bottle", "Pack-size conversion preserves base inventory quantities and recipe costing", "Stocktake variance values use the correct inventory-unit conversion"] },
   { version: "RC6", title: "Chef Sync Queue Hotfix", items: ["Chef devices no longer queue server-forbidden operational deletes", "Permanent permission rejections are removed instead of retried forever", "Prep and handover rollover remain read-only for Chef sessions"] },

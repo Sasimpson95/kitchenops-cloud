@@ -40,6 +40,7 @@ export type CreateProductInput = {
   purchaseQuantity: number;
   inventoryUnit: string;
   countMethod: CountMethod;
+  stocktakeUnits: string[];
 
   minimumStock: number;
   maximumStock: number;
@@ -189,6 +190,30 @@ function uniquePositiveIds(
   );
 }
 
+function normaliseStocktakeUnits(
+  value: unknown,
+  orderUnit: string,
+  inventoryUnit: string
+): string[] {
+  const allowed = Array.from(
+    new Set([orderUnit, inventoryUnit].map((unit) => unit.trim()).filter(Boolean))
+  );
+
+  if (!Array.isArray(value)) return allowed;
+
+  const selected = value
+    .map(String)
+    .map((unit) => unit.trim())
+    .filter(Boolean)
+    .filter((unit) =>
+      allowed.some((allowedUnit) =>
+        allowedUnit.toLowerCase() === unit.toLowerCase()
+      )
+    );
+
+  return Array.from(new Set(selected.length > 0 ? selected : allowed));
+}
+
 function normaliseProduct(
   product: Partial<Product> & {
     id: number;
@@ -244,6 +269,9 @@ function normaliseProduct(
     product.storageArea?.trim() ||
     legacyLocation;
 
+  const orderUnit = cleanOrderUnit(product.orderUnit?.trim() || "Each");
+  const inventoryUnit = product.inventoryUnit?.trim() || "Each";
+
   return {
     id: product.id,
 
@@ -283,11 +311,7 @@ function normaliseProduct(
         (id) => id !== supplierId
       ),
 
-    orderUnit:
-      cleanOrderUnit(
-        product.orderUnit?.trim() ||
-          "Each"
-      ),
+    orderUnit,
 
     purchaseQuantity: Math.max(
       0.000001,
@@ -303,16 +327,17 @@ function normaliseProduct(
           )
     ),
 
-    inventoryUnit:
-      product.inventoryUnit?.trim() ||
-      "Each",
+    inventoryUnit,
 
     countMethod:
       product.countMethod ||
-      inferCountMethod(
-        product.inventoryUnit?.trim() ||
-          "Each"
-      ),
+      inferCountMethod(inventoryUnit),
+
+    stocktakeUnits: normaliseStocktakeUnits(
+      product.stocktakeUnits,
+      orderUnit,
+      inventoryUnit
+    ),
 
     minimumStock: Math.max(
       0,
@@ -441,6 +466,21 @@ function validateProductInput(
   if (!input.inventoryUnit.trim()) {
     throw new Error(
       "Enter an inventory unit."
+    );
+  }
+
+  const allowedStocktakeUnits = Array.from(
+    new Set([input.orderUnit.trim(), input.inventoryUnit.trim()].filter(Boolean))
+  );
+  const validStocktakeUnits = input.stocktakeUnits.filter((unit) =>
+    allowedStocktakeUnits.some(
+      (allowed) => allowed.toLowerCase() === unit.trim().toLowerCase()
+    )
+  );
+
+  if (validStocktakeUnits.length === 0) {
+    throw new Error(
+      "Select at least one stocktake unit."
     );
   }
 

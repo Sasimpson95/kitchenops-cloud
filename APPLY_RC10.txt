@@ -1,0 +1,10 @@
+KitchenOps 1.0.0 RC10
+
+Replace the project files, then run:
+
+npm run typecheck
+npm run build
+npm audit --omit=dev
+npm run android:sync
+npm run android:check
+git diff --check

@@ -32,6 +32,9 @@ export type Product = {
   inventoryUnit: string;
   countMethod: CountMethod;
 
+  /** Units staff are allowed to use while counting this product. */
+  stocktakeUnits: string[];
+
   minimumStock: number;
   maximumStock: number;
   reorderPoint: number;

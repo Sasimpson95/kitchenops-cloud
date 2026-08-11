@@ -2,6 +2,8 @@ export type StocktakeUnitSetup = {
   countUnit: string;
   inventoryUnit: string;
   inventoryUnitsPerCountUnit: number;
+  stocktakeUnits?: string[];
+  countedByUnit?: Record<string, number> | null;
 };
 
 export function formatStocktakeNumber(value: number): string {
@@ -110,6 +112,47 @@ export function formatCountQuantity(
     setup.countUnit,
     countQuantity
   )}`;
+}
+
+export function isStocktakeUnitEnabled(
+  setup: StocktakeUnitSetup,
+  unit: string
+): boolean {
+  const configured = setup.stocktakeUnits;
+  if (!configured || configured.length === 0) return true;
+  return configured.some(
+    (value) => value.trim().toLowerCase() === unit.trim().toLowerCase()
+  );
+}
+
+export function formatPreferredStocktakeQuantity(
+  countQuantity: number,
+  setup: StocktakeUnitSetup
+): string {
+  if (isStocktakeUnitEnabled(setup, setup.countUnit)) {
+    return formatCountQuantity(countQuantity, setup);
+  }
+
+  return formatInventoryEquivalent(countQuantity, setup);
+}
+
+export function formatEnteredStocktakeUnits(
+  setup: StocktakeUnitSetup,
+  fallbackCountQuantity: number
+): string {
+  const entries = setup.countedByUnit
+    ? Object.entries(setup.countedByUnit).filter(([, quantity]) => quantity > 0)
+    : [];
+
+  if (entries.length === 0) {
+    return formatCountQuantity(fallbackCountQuantity, setup);
+  }
+
+  return entries
+    .map(([unit, quantity]) =>
+      `${formatStocktakeNumber(quantity)} ${displayUnit(unit, quantity)}`
+    )
+    .join(" + ");
 }
 
 export function formatInventoryEquivalent(

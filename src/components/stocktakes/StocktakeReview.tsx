@@ -12,7 +12,8 @@ import type {
 } from "@/lib/stocktakeStore";
 import {
   displayUnit,
-  formatCountQuantity,
+  formatEnteredStocktakeUnits,
+  formatPreferredStocktakeQuantity,
   formatInventoryEquivalent,
   formatStocktakeNumber,
   hasUnitConversion,
@@ -189,7 +190,7 @@ export default function StocktakeReview({
                     </p>
 
                     <p className="font-bold text-gray-950">
-                      {formatCountQuantity(item.expectedQuantity, item)}
+                      {formatPreferredStocktakeQuantity(item.expectedQuantity, item)}
                     </p>
                     {hasUnitConversion(item) && (
                       <p className="mt-1 text-xs text-gray-500">
@@ -204,7 +205,7 @@ export default function StocktakeReview({
                     </p>
 
                     <p className="font-bold text-gray-950">
-                      {formatCountQuantity(item.countedQuantity ?? 0, item)}
+                      {formatEnteredStocktakeUnits(item, item.countedQuantity ?? 0)}
                     </p>
                     {hasUnitConversion(item) && (
                       <p className="mt-1 text-xs text-gray-500">

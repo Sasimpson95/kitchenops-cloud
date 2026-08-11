@@ -23,6 +23,7 @@ import {
   displayUnit,
   formatCountQuantity,
   formatInventoryEquivalent,
+  formatPreferredStocktakeQuantity,
   formatStocktakeNumber,
   hasUnitConversion,
   toInventoryQuantity,
@@ -34,7 +35,8 @@ type StocktakeCounterProps = {
   onSaveCount: (
     itemId: string,
     quantity: number,
-    nextIndex: number
+    nextIndex: number,
+    countedByUnit?: Record<string, number>
   ) => void;
   onMove: (index: number) => void;
   onBackToAreas: () => void;
@@ -78,18 +80,26 @@ export default function StocktakeCounter({
     if (!currentAreaItem) return;
 
     const counted = currentAreaItem.countedQuantity;
+    const savedByUnit = currentAreaItem.countedByUnit;
     if (counted === null || counted === undefined) {
       setCountValue("");
       setInventoryValue("");
+    } else if (savedByUnit) {
+      setCountValue(
+        savedByUnit[currentAreaItem.countUnit] !== undefined
+          ? String(savedByUnit[currentAreaItem.countUnit])
+          : ""
+      );
+      setInventoryValue(
+        savedByUnit[currentAreaItem.inventoryUnit] !== undefined
+          ? String(savedByUnit[currentAreaItem.inventoryUnit])
+          : ""
+      );
     } else if (hasUnitConversion(currentAreaItem)) {
-      // Restore an existing aggregate count as full count units plus a remainder
-      // in the inventory unit. Staff can then adjust either field independently.
-      const factor = currentAreaItem.inventoryUnitsPerCountUnit;
-      const totalInventory = counted * factor;
-      const wholeCountUnits = Math.floor(counted + 1e-9);
-      const remainder = Math.max(0, totalInventory - wholeCountUnits * factor);
-      setCountValue(String(wholeCountUnits));
-      setInventoryValue(remainder > 0.000001 ? String(Number(remainder.toFixed(4))) : "");
+      // Legacy RC9 counts did not preserve the split. Keep the full value in
+      // the physical count unit rather than exposing a confusing decimal remainder.
+      setCountValue(String(Number(counted.toFixed(4))));
+      setInventoryValue("");
     } else {
       setCountValue(String(counted));
       setInventoryValue("");
@@ -102,6 +112,7 @@ export default function StocktakeCounter({
   }, [
     currentAreaItem?.id,
     currentAreaItem?.countedQuantity,
+    currentAreaItem?.countedByUnit,
     currentAreaItem?.inventoryUnitsPerCountUnit,
   ]);
 
@@ -112,29 +123,47 @@ export default function StocktakeCounter({
   ).length;
   const areaComplete = countedCount === areaItems.length;
 
-  const conversionVisible = hasUnitConversion(currentAreaItem);
+  const conversionAvailable = hasUnitConversion(currentAreaItem);
+  const enabledUnits = currentAreaItem.stocktakeUnits?.length
+    ? currentAreaItem.stocktakeUnits
+    : Array.from(new Set([currentAreaItem.countUnit, currentAreaItem.inventoryUnit]));
+  const unitEnabled = (unit: string) =>
+    enabledUnits.some((value) => value.trim().toLowerCase() === unit.trim().toLowerCase());
+  const countUnitEnabled = unitEnabled(currentAreaItem.countUnit);
+  const inventoryUnitEnabled = unitEnabled(currentAreaItem.inventoryUnit);
+  const conversionVisible = conversionAvailable && countUnitEnabled && inventoryUnitEnabled;
+
   const parsedCountUnits = countValue.trim() === "" ? 0 : Number(countValue);
   const parsedInventoryUnits = inventoryValue.trim() === "" ? 0 : Number(inventoryValue);
   const inventoryUnitIsEach = currentAreaItem.inventoryUnit.trim().toLowerCase() === "each";
+  const countUnitIsEach = currentAreaItem.countUnit.trim().toLowerCase() === "each";
   const validInventoryInput =
     Number.isFinite(parsedInventoryUnits) &&
     parsedInventoryUnits >= 0 &&
     (!inventoryUnitIsEach || Number.isInteger(parsedInventoryUnits));
-  const validCountInput = Number.isFinite(parsedCountUnits) && parsedCountUnits >= 0;
-  const hasAnyInput = countValue.trim() !== "" || inventoryValue.trim() !== "";
+  const validCountInput =
+    Number.isFinite(parsedCountUnits) &&
+    parsedCountUnits >= 0 &&
+    (!countUnitIsEach || Number.isInteger(parsedCountUnits));
+  const hasAnyInput =
+    (countUnitEnabled && countValue.trim() !== "") ||
+    (inventoryUnitEnabled && inventoryValue.trim() !== "") ||
+    (!conversionAvailable && countValue.trim() !== "");
 
   const countedInventory =
     !hasAnyInput || !validCountInput || !validInventoryInput
       ? null
-      : conversionVisible
-        ? parsedCountUnits * currentAreaItem.inventoryUnitsPerCountUnit +
-          parsedInventoryUnits
+      : conversionAvailable
+        ? (countUnitEnabled
+            ? parsedCountUnits * currentAreaItem.inventoryUnitsPerCountUnit
+            : 0) +
+          (inventoryUnitEnabled ? parsedInventoryUnits : 0)
         : parsedCountUnits;
 
   const parsedCount =
     countedInventory === null
       ? null
-      : conversionVisible
+      : conversionAvailable
         ? countedInventory / currentAreaItem.inventoryUnitsPerCountUnit
         : countedInventory;
 
@@ -186,10 +215,15 @@ export default function StocktakeCounter({
     }
 
     const nextIndex = findNextUncountedIndex(currentAreaItem.index);
+    const countedByUnit: Record<string, number> = {};
+    if (countUnitEnabled) countedByUnit[currentAreaItem.countUnit] = parsedCountUnits;
+    if (inventoryUnitEnabled) countedByUnit[currentAreaItem.inventoryUnit] = parsedInventoryUnits;
+
     onSaveCount(
       currentAreaItem.id,
       parsedCount,
-      nextIndex ?? currentAreaItem.index
+      nextIndex ?? currentAreaItem.index,
+      countedByUnit
     );
 
     const remainingUncounted = areaItems.filter(
@@ -343,10 +377,10 @@ export default function StocktakeCounter({
             {areaName}
           </div>
 
-          {conversionVisible && (
+          {conversionAvailable && (
             <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-violet-200 bg-violet-50 px-5 py-4 text-left">
               <p className="text-sm font-bold text-violet-950">
-                Count using either unit
+                Stocktake units
               </p>
               <p className="mt-1 text-sm text-violet-800">
                 1 {displayUnit(currentAreaItem.countUnit, 1)} = {formatStocktakeNumber(
@@ -357,10 +391,8 @@ export default function StocktakeCounter({
                 )}
               </p>
               <p className="mt-1 text-xs text-violet-700">
-                Enter any combination of {displayUnit(currentAreaItem.countUnit, 2)} and {displayUnit(
-                  currentAreaItem.inventoryUnit,
-                  2
-                )}. KitchenOps totals both into the inventory unit.
+                This product can be counted in {enabledUnits.map((unit) => displayUnit(unit, 2)).join(" + ")}.
+                KitchenOps converts the total into {displayUnit(currentAreaItem.inventoryUnit, 2)}.
               </p>
             </div>
           )}
@@ -369,9 +401,9 @@ export default function StocktakeCounter({
             <div className="rounded-2xl bg-white p-5 shadow-sm">
               <p className="text-sm text-gray-500">Expected</p>
               <p className="mt-1 text-2xl font-bold text-gray-950">
-                {formatCountQuantity(currentAreaItem.expectedQuantity, currentAreaItem)}
+                {formatPreferredStocktakeQuantity(currentAreaItem.expectedQuantity, currentAreaItem)}
               </p>
-              {conversionVisible && (
+              {conversionAvailable && (
                 <p className="mt-2 text-xs font-medium text-gray-500">
                   Inventory: {formatStocktakeNumber(expectedInventory)} {displayUnit(
                     currentAreaItem.inventoryUnit,
@@ -384,58 +416,65 @@ export default function StocktakeCounter({
             <div className="rounded-2xl bg-white p-5 shadow-sm">
               <p className="text-sm font-semibold text-gray-700">Counted</p>
 
-              {conversionVisible ? (
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <label
-                      htmlFor="stocktake-count"
-                      className="text-xs font-semibold uppercase tracking-wide text-gray-500"
-                    >
-                      {displayUnit(currentAreaItem.countUnit, 2)}
-                    </label>
-                    <input
-                      ref={inputRef}
-                      id="stocktake-count"
-                      type="number"
-                      min={0}
-                      step={1}
-                      value={countValue}
-                      onChange={(event) => setCountValue(event.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="0"
-                      className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-3 text-center text-2xl font-bold outline-none focus:border-violet-800"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      You can type fractions such as 1.5. Arrow buttons move by 1.
-                    </p>
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="stocktake-inventory-count"
-                      className="text-xs font-semibold uppercase tracking-wide text-gray-500"
-                    >
-                      {displayUnit(currentAreaItem.inventoryUnit, 2)}
-                    </label>
-                    <input
-                      id="stocktake-inventory-count"
-                      type="number"
-                      min={0}
-                      step={inventoryUnitIsEach ? 1 : 0.01}
-                      value={inventoryValue}
-                      onChange={(event) => setInventoryValue(event.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="0"
-                      className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-3 text-center text-2xl font-bold outline-none focus:border-violet-800"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      Add any quantity counted directly in {displayUnit(currentAreaItem.inventoryUnit, 2)}.
-                    </p>
-                  </div>
-                  {!validInventoryInput && (
+              {conversionAvailable ? (
+                <div className={`mt-3 grid gap-3 ${conversionVisible ? "sm:grid-cols-2" : "grid-cols-1"}`}>
+                  {countUnitEnabled && (
+                    <div>
+                      <label
+                        htmlFor="stocktake-count"
+                        className="text-xs font-semibold uppercase tracking-wide text-gray-500"
+                      >
+                        {displayUnit(currentAreaItem.countUnit, 2)}
+                      </label>
+                      <input
+                        ref={inputRef}
+                        id="stocktake-count"
+                        type="number"
+                        min={0}
+                        step={1}
+                        value={countValue}
+                        onChange={(event) => setCountValue(event.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="0"
+                        className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-3 text-center text-2xl font-bold outline-none focus:border-violet-800"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Type decimals such as 1.5 when part of a {currentAreaItem.countUnit.toLowerCase()} is being counted. Arrows move by 1.
+                      </p>
+                    </div>
+                  )}
+
+                  {inventoryUnitEnabled && (
+                    <div>
+                      <label
+                        htmlFor="stocktake-inventory-count"
+                        className="text-xs font-semibold uppercase tracking-wide text-gray-500"
+                      >
+                        {displayUnit(currentAreaItem.inventoryUnit, 2)}
+                      </label>
+                      <input
+                        ref={!countUnitEnabled ? inputRef : undefined}
+                        id="stocktake-inventory-count"
+                        type="number"
+                        min={0}
+                        step={inventoryUnitIsEach ? 1 : 0.01}
+                        value={inventoryValue}
+                        onChange={(event) => setInventoryValue(event.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="0"
+                        className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-3 text-center text-2xl font-bold outline-none focus:border-violet-800"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Count directly in {displayUnit(currentAreaItem.inventoryUnit, 2)}.
+                      </p>
+                    </div>
+                  )}
+
+                  {(!validInventoryInput || !validCountInput) && (
                     <p className="sm:col-span-2 text-xs font-semibold text-red-700">
-                      {inventoryUnitIsEach
+                      {(inventoryUnitIsEach && !validInventoryInput) || (countUnitIsEach && !validCountInput)
                         ? "Each must be entered as a whole number."
-                        : "Enter a valid inventory quantity."}
+                        : "Enter a valid quantity."}
                     </p>
                   )}
                 </div>
@@ -459,7 +498,7 @@ export default function StocktakeCounter({
                 </>
               )}
 
-              {conversionVisible && countedInventory !== null && (
+              {conversionAvailable && countedInventory !== null && (
                 <p className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-xs font-semibold text-gray-600">
                   Inventory total: {formatStocktakeNumber(countedInventory)} {displayUnit(
                     currentAreaItem.inventoryUnit,
@@ -490,11 +529,12 @@ export default function StocktakeCounter({
               >
                 {liveDifference === null
                   ? "—"
-                  : `${liveDifference > 0 ? "+" : ""}${formatStocktakeNumber(
-                      liveDifference
-                    )} ${displayUnit(currentAreaItem.countUnit, liveDifference)}`}
+                  : `${liveDifference > 0 ? "+" : liveDifference < 0 ? "-" : ""}${formatPreferredStocktakeQuantity(
+                      Math.abs(liveDifference),
+                      currentAreaItem
+                    )}`}
               </p>
-              {conversionVisible &&
+              {conversionAvailable &&
                 differenceInventory !== null && (
                   <p className="mt-2 text-xs font-medium text-gray-500">
                     {differenceInventory > 0 ? "+" : ""}

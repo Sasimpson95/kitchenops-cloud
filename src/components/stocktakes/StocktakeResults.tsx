@@ -12,7 +12,8 @@ import { getProductById } from "@/lib/productStore";
 import { getUnitCost } from "@/lib/inventoryValuation";
 import {
   displayUnit,
-  formatCountQuantity,
+  formatEnteredStocktakeUnits,
+  formatPreferredStocktakeQuantity,
   formatInventoryEquivalent,
   formatStocktakeNumber,
   hasUnitConversion,
@@ -155,7 +156,7 @@ export default function StocktakeResults({
                 </p>
 
                 <p className="font-bold text-gray-950">
-                  {formatCountQuantity(item.expectedQuantity, item)}
+                  {formatPreferredStocktakeQuantity(item.expectedQuantity, item)}
                 </p>
                 {hasUnitConversion(item) && (
                   <p className="mt-1 text-xs text-gray-500">
@@ -170,7 +171,7 @@ export default function StocktakeResults({
                 </p>
 
                 <p className="font-bold text-gray-950">
-                  {formatCountQuantity(item.countedQuantity ?? 0, item)}
+                  {formatEnteredStocktakeUnits(item, item.countedQuantity ?? 0)}
                 </p>
                 {hasUnitConversion(item) && (
                   <p className="mt-1 text-xs text-gray-500">

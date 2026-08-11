@@ -9,7 +9,7 @@ import {
 } from "react";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   Archive,
@@ -110,6 +110,7 @@ export default function ProductPage({
 }: ProductPageProps) {
   const { id } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const productId = Number(id);
   const { sites } = useBusinessSites();
 
@@ -336,6 +337,31 @@ export default function ProductPage({
     setError("");
     setShowEdit(true);
   }
+
+  useEffect(() => {
+    if (
+      searchParams.get("edit") !== "1" ||
+      !product ||
+      !canManageProducts ||
+      showEdit
+    ) {
+      return;
+    }
+
+    setForm(productToForm(product));
+    setError("");
+    setShowEdit(true);
+
+    router.replace(`/products/${product.id}`, {
+      scroll: false,
+    });
+  }, [
+    canManageProducts,
+    product,
+    router,
+    searchParams,
+    showEdit,
+  ]);
 
   function saveEdit(): void {
     if (
