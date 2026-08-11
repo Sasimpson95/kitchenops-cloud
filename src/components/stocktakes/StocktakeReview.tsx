@@ -10,6 +10,15 @@ import {
 import type {
   Stocktake,
 } from "@/lib/stocktakeStore";
+import {
+  displayUnit,
+  formatCountQuantity,
+  formatInventoryEquivalent,
+  formatStocktakeNumber,
+  hasUnitConversion,
+  toInventoryQuantity,
+  usesLooseEachCounting,
+} from "@/lib/stocktakeUnits";
 
 type StocktakeReviewProps = {
   stocktake: Stocktake;
@@ -22,17 +31,6 @@ type StocktakeReviewProps = {
   applying: boolean;
   error: string;
 };
-
-function formatNumber(
-  value: number
-): string {
-  return new Intl.NumberFormat(
-    "en-GB",
-    {
-      maximumFractionDigits: 2,
-    }
-  ).format(value);
-}
 
 export default function StocktakeReview({
   stocktake,
@@ -191,11 +189,13 @@ export default function StocktakeReview({
                     </p>
 
                     <p className="font-bold text-gray-950">
-                      {formatNumber(
-                        item.expectedQuantity
-                      )}{" "}
-                      {item.inventoryUnit}
+                      {formatCountQuantity(item.expectedQuantity, item)}
                     </p>
+                    {hasUnitConversion(item) && (
+                      <p className="mt-1 text-xs text-gray-500">
+                        {formatInventoryEquivalent(item.expectedQuantity, item)}
+                      </p>
+                    )}
                   </div>
 
                   <div className="text-sm">
@@ -204,11 +204,13 @@ export default function StocktakeReview({
                     </p>
 
                     <p className="font-bold text-gray-950">
-                      {formatNumber(
-                        item.countedQuantity ?? 0
-                      )}{" "}
-                      {item.inventoryUnit}
+                      {formatCountQuantity(item.countedQuantity ?? 0, item)}
                     </p>
+                    {hasUnitConversion(item) && (
+                      <p className="mt-1 text-xs text-gray-500">
+                        {formatInventoryEquivalent(item.countedQuantity ?? 0, item)}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between gap-4 md:justify-end">
@@ -222,9 +224,23 @@ export default function StocktakeReview({
                       {item.difference > 0
                         ? "+"
                         : ""}
-                      {formatNumber(
-                        item.difference
-                      )}
+                      {usesLooseEachCounting(item)
+                        ? `${formatStocktakeNumber(
+                            toInventoryQuantity(
+                              item.difference,
+                              item.inventoryUnitsPerCountUnit
+                            )
+                          )} ${displayUnit(
+                            item.inventoryUnit,
+                            toInventoryQuantity(
+                              item.difference,
+                              item.inventoryUnitsPerCountUnit
+                            )
+                          )}`
+                        : `${formatStocktakeNumber(item.difference)} ${displayUnit(
+                            item.countUnit,
+                            item.difference
+                          )}`}
                     </div>
 
                     <button

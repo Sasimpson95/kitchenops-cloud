@@ -57,6 +57,7 @@ import {
   saveStocktakeCount,
   setStocktakeCurrentIndex,
   startStocktake,
+  refreshOpenStocktakeCountingSetups,
   subscribeToStocktakeChanges,
   type Stocktake,
 } from "@/lib/stocktakeStore";
@@ -160,9 +161,14 @@ export default function StocktakesPage() {
 
   const refreshProducts =
     useCallback(() => {
-      setProductList(
-        getActiveProducts()
+      const products =
+        getActiveProducts();
+
+      refreshOpenStocktakeCountingSetups(
+        products
       );
+
+      setProductList(products);
     }, []);
 
   const refreshStocktakes =

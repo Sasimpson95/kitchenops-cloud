@@ -1,0 +1,5 @@
+KitchenOps 1.0.0 RC7
+
+Extract these replacement files over the existing kitchenops-cloud-clean project.
+Choose Replace files in the destination.
+Then update package-lock.json version to 1.0.0-rc7 and run the normal release gates.

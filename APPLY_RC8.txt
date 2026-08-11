@@ -1,0 +1,7 @@
+KitchenOps 1.0.0 RC8
+
+Extract these replacement files over the existing KitchenOps project.
+Replace existing files when prompted.
+
+Update package-lock.json version to 1.0.0-rc8, then run the normal release gates.
+No Supabase migration is required.

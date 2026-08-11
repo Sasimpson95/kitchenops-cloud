@@ -5,6 +5,8 @@ import ProtectedPage from "@/components/ProtectedPage";
 import { PageHeader, SectionCard } from "@/components/ui";
 
 const notes = [
+  { version: "RC9", title: "Stocktake Pack & Loose Count Clarity", items: ["Pack conversions are shown clearly while counting", "Discrete packs support full packs plus loose Each counts", "Milk-style products show bottle counts with litre inventory equivalents", "Review and results show both physical count and inventory equivalent"] },
+  { version: "RC7", title: "Stocktake Count Unit Hotfix", items: ["Stocktake now follows the configured Count Method", "Each-counted products use their physical purchase unit such as Bottle", "Pack-size conversion preserves base inventory quantities and recipe costing", "Stocktake variance values use the correct inventory-unit conversion"] },
   { version: "RC6", title: "Chef Sync Queue Hotfix", items: ["Chef devices no longer queue server-forbidden operational deletes", "Permanent permission rejections are removed instead of retried forever", "Prep and handover rollover remain read-only for Chef sessions"] },
   { version: "RC5", title: "Cross-device Prep Sync Hotfix", items: ["Server-revision based optimistic concurrency for Prep", "Atomic stale-write rejection without blocking refresh", "RC4 stale retry recovery", "Safe handling of edits made while a sync request is in flight"] },
   { version: "RC4", title: "Prep Reliability Hardening", items: ["Stale-write protection for cross-device Prep edits", "Automatic Prep and Dashboard cloud refresh", "Manager approval directly inside Prep", "Generated Android URL validation"] },

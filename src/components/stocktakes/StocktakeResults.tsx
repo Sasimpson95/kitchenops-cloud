@@ -10,6 +10,15 @@ import type {
 } from "@/lib/stocktakeStore";
 import { getProductById } from "@/lib/productStore";
 import { getUnitCost } from "@/lib/inventoryValuation";
+import {
+  displayUnit,
+  formatCountQuantity,
+  formatInventoryEquivalent,
+  formatStocktakeNumber,
+  hasUnitConversion,
+  toInventoryQuantity,
+  usesLooseEachCounting,
+} from "@/lib/stocktakeUnits";
 
 type StocktakeResultsProps = {
   stocktake: Stocktake;
@@ -20,31 +29,25 @@ function money(value: number): string {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(value);
 }
 
-function formatNumber(
-  value: number
-): string {
-  return new Intl.NumberFormat(
-    "en-GB",
-    {
-      maximumFractionDigits: 2,
-    }
-  ).format(value);
-}
-
 export default function StocktakeResults({
   stocktake,
   onBack,
 }: StocktakeResultsProps) {
   const items = stocktake.items.map(
     (item) => {
-      const difference = (item.countedQuantity ?? 0) - item.expectedQuantity;
+      const difference =
+        (item.countedQuantity ?? 0) -
+        item.expectedQuantity;
       const product = getProductById(item.productId);
       const unitCost = product ? getUnitCost(product) : 0;
 
       return {
         ...item,
         difference,
-        varianceValue: difference * unitCost,
+        varianceValue:
+          difference *
+          item.inventoryUnitsPerCountUnit *
+          unitCost,
       };
     }
   );
@@ -152,11 +155,13 @@ export default function StocktakeResults({
                 </p>
 
                 <p className="font-bold text-gray-950">
-                  {formatNumber(
-                    item.expectedQuantity
-                  )}{" "}
-                  {item.inventoryUnit}
+                  {formatCountQuantity(item.expectedQuantity, item)}
                 </p>
+                {hasUnitConversion(item) && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    {formatInventoryEquivalent(item.expectedQuantity, item)}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -165,11 +170,13 @@ export default function StocktakeResults({
                 </p>
 
                 <p className="font-bold text-gray-950">
-                  {formatNumber(
-                    item.countedQuantity ?? 0
-                  )}{" "}
-                  {item.inventoryUnit}
+                  {formatCountQuantity(item.countedQuantity ?? 0, item)}
                 </p>
+                {hasUnitConversion(item) && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    {formatInventoryEquivalent(item.countedQuantity ?? 0, item)}
+                  </p>
+                )}
               </div>
 
               <div className="text-right">
@@ -191,9 +198,23 @@ export default function StocktakeResults({
                 {item.difference > 0
                   ? "+"
                   : ""}
-                {formatNumber(
-                  item.difference
-                )}
+                {usesLooseEachCounting(item)
+                  ? `${formatStocktakeNumber(
+                      toInventoryQuantity(
+                        item.difference,
+                        item.inventoryUnitsPerCountUnit
+                      )
+                    )} ${displayUnit(
+                      item.inventoryUnit,
+                      toInventoryQuantity(
+                        item.difference,
+                        item.inventoryUnitsPerCountUnit
+                      )
+                    )}`
+                  : `${formatStocktakeNumber(item.difference)} ${displayUnit(
+                      item.countUnit,
+                      item.difference
+                    )}`}
               </div>
             </div>
           ))}

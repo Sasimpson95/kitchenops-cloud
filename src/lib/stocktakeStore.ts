@@ -38,9 +38,15 @@ export type StocktakeItem = {
   productId: number;
   productName: string;
   category: string;
+  /** Base inventory unit used for inventory movements and valuation. */
   inventoryUnit: string;
+  /** Physical unit staff count during stocktake (for example Bottle). */
+  countUnit: string;
+  /** Number of inventory units represented by one count unit. */
+  inventoryUnitsPerCountUnit: number;
   location: string;
 
+  /** Expected quantity expressed in count units. */
   expectedQuantity: number;
   countedQuantity: number | null;
 };
@@ -211,6 +217,40 @@ function getNextStocktakeNumber(
   return `STK-${String(highest + 1).padStart(6, "0")}`;
 }
 
+
+function getStocktakeCountingSetup(product: Product): {
+  countUnit: string;
+  inventoryUnitsPerCountUnit: number;
+} {
+  const inventoryUnit =
+    product.inventoryUnit?.trim() || "Each";
+
+  const purchaseUnit =
+    product.orderUnit?.trim() || inventoryUnit;
+
+  const purchaseQuantity =
+    Number.isFinite(product.purchaseQuantity) &&
+    product.purchaseQuantity > 0
+      ? product.purchaseQuantity
+      : 1;
+
+  // "Each" means staff count the physical purchase unit.
+  // Example: Milk bought as a 2 L Bottle is counted as Bottles,
+  // while Inventory remains in Litres for recipe costing.
+  if (product.countMethod === "Each") {
+    return {
+      countUnit: purchaseUnit,
+      inventoryUnitsPerCountUnit:
+        purchaseQuantity,
+    };
+  }
+
+  return {
+    countUnit: inventoryUnit,
+    inventoryUnitsPerCountUnit: 1,
+  };
+}
+
 function normaliseItem(
   item: Partial<StocktakeItem>
 ): StocktakeItem | null {
@@ -233,6 +273,12 @@ function normaliseItem(
     productName: item.productName,
     category: item.category || "Uncategorised",
     inventoryUnit: item.inventoryUnit || "Each",
+    countUnit:
+      item.countUnit || item.inventoryUnit || "Each",
+    inventoryUnitsPerCountUnit: Math.max(
+      0.000001,
+      Number(item.inventoryUnitsPerCountUnit) || 1
+    ),
     location: item.location || "Not assigned",
 
     expectedQuantity: Math.max(
@@ -327,6 +373,92 @@ function normaliseStocktake(
     completedBy: stocktake.completedBy,
     completedAt: stocktake.completedAt,
   };
+}
+
+
+export function refreshOpenStocktakeCountingSetups(
+  products: Product[]
+): void {
+  if (typeof window === "undefined") return;
+
+  const productById = new Map(
+    products.map((product) => [product.id, product])
+  );
+
+  const currentStocktakes = getStocktakes();
+  let changed = false;
+
+  const updatedStocktakes = currentStocktakes.map((stocktake) => {
+    if (stocktake.status !== "In Progress") {
+      return stocktake;
+    }
+
+    let stocktakeChanged = false;
+
+    const items = stocktake.items.map((item) => {
+      const product = productById.get(item.productId);
+      if (!product) return item;
+
+      const setup = getStocktakeCountingSetup(product);
+      const nextInventoryUnit =
+        product.inventoryUnit?.trim() || "Each";
+
+      if (
+        item.countUnit === setup.countUnit &&
+        item.inventoryUnit === nextInventoryUnit &&
+        Math.abs(
+          item.inventoryUnitsPerCountUnit -
+            setup.inventoryUnitsPerCountUnit
+        ) < 0.000001
+      ) {
+        return item;
+      }
+
+      const previousFactor =
+        item.inventoryUnitsPerCountUnit > 0
+          ? item.inventoryUnitsPerCountUnit
+          : 1;
+
+      const expectedInventoryQuantity =
+        item.expectedQuantity * previousFactor;
+
+      const countedInventoryQuantity =
+        item.countedQuantity === null
+          ? null
+          : item.countedQuantity * previousFactor;
+
+      stocktakeChanged = true;
+
+      return {
+        ...item,
+        inventoryUnit: nextInventoryUnit,
+        countUnit: setup.countUnit,
+        inventoryUnitsPerCountUnit:
+          setup.inventoryUnitsPerCountUnit,
+        expectedQuantity:
+          expectedInventoryQuantity /
+          setup.inventoryUnitsPerCountUnit,
+        countedQuantity:
+          countedInventoryQuantity === null
+            ? null
+            : countedInventoryQuantity /
+              setup.inventoryUnitsPerCountUnit,
+      };
+    });
+
+    if (!stocktakeChanged) return stocktake;
+
+    changed = true;
+    return {
+      ...stocktake,
+      items,
+      updatedAt: now(),
+    };
+  });
+
+  if (changed) {
+    saveStocktakes(updatedStocktakes);
+  }
 }
 
 export function getStocktakePeriod(
@@ -689,6 +821,12 @@ export function startStocktake(
                 inventoryUnit:
                   product.inventoryUnit,
 
+                countUnit:
+                  getStocktakeCountingSetup(product).countUnit,
+
+                inventoryUnitsPerCountUnit:
+                  getStocktakeCountingSetup(product).inventoryUnitsPerCountUnit,
+
                 location:
                   assignment.storageAreaName,
 
@@ -698,7 +836,8 @@ export function startStocktake(
                         businessId,
                         input.siteId,
                         product.id
-                      )
+                      ) /
+                      getStocktakeCountingSetup(product).inventoryUnitsPerCountUnit
                     : 0,
 
                 countedQuantity:
@@ -751,6 +890,12 @@ export function startStocktake(
               inventoryUnit:
                 product.inventoryUnit,
 
+              countUnit:
+                getStocktakeCountingSetup(product).countUnit,
+
+              inventoryUnitsPerCountUnit:
+                getStocktakeCountingSetup(product).inventoryUnitsPerCountUnit,
+
               location:
                 "Not assigned",
 
@@ -759,7 +904,8 @@ export function startStocktake(
                   businessId,
                   input.siteId,
                   product.id
-                ),
+                ) /
+                getStocktakeCountingSetup(product).inventoryUnitsPerCountUnit,
 
               countedQuantity:
                 null,
@@ -974,8 +1120,10 @@ export function completeStocktake(
         productId: number;
         productName: string;
         inventoryUnit: string;
+        countUnit: string;
         expected: number;
         counted: number;
+        countedInCountUnits: number;
       }
     >();
 
@@ -994,14 +1142,23 @@ export function completeStocktake(
           inventoryUnit:
             item.inventoryUnit,
 
+          countUnit:
+            item.countUnit,
+
           expected: 0,
           counted: 0,
+          countedInCountUnits: 0,
         };
 
       current.expected +=
-        item.expectedQuantity;
+        item.expectedQuantity *
+        item.inventoryUnitsPerCountUnit;
 
       current.counted +=
+        (item.countedQuantity ?? 0) *
+        item.inventoryUnitsPerCountUnit;
+
+      current.countedInCountUnits +=
         item.countedQuantity ?? 0;
 
       productTotals.set(
@@ -1052,7 +1209,7 @@ export function completeStocktake(
             existing.id,
 
           referenceNumber:
-            `${existing.stocktakeNumber} • Total counted ${item.counted} ${item.inventoryUnit}`,
+            `${existing.stocktakeNumber} • Total counted ${item.countedInCountUnits} ${item.countUnit} (${item.counted} ${item.inventoryUnit})`,
         })
       );
 

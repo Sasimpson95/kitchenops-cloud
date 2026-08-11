@@ -1,0 +1,5 @@
+KitchenOps RC9 local-test hotfix.
+Extract over the existing KitchenOps project and replace files.
+Update package-lock root version to 1.0.0-rc9.
+Run typecheck/build/audit/diff checks, then test locally on port 3001.
+Do not deploy until the stocktake UX is approved.
