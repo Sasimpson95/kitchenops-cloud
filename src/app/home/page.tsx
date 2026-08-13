@@ -55,6 +55,7 @@ import {
 import { getStocktakes } from "@/lib/stocktakeStore";
 import { getTransfers } from "@/lib/transferStore";
 import { getWasteRecords } from "@/lib/wasteStore";
+import { subscribeToOperationalHydration } from "@/lib/cloud/operationalSync";
 
 function getSiteId(siteName: string): string {
   return siteName.trim().toLowerCase().replace(/\s+/g, "-");
@@ -345,9 +346,11 @@ export default function DashboardPage() {
     const refresh = () => setVersion((value) => value + 1);
     const unsubscribePrep = subscribeToPrepChanges(refresh);
     const unsubscribeHandover = subscribeToHandoverChanges(refresh);
+    const unsubscribeOperationalHydration = subscribeToOperationalHydration(refresh);
     return () => {
       unsubscribePrep();
       unsubscribeHandover();
+      unsubscribeOperationalHydration();
     };
   }, []);
 

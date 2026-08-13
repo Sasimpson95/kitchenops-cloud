@@ -109,6 +109,7 @@ const MIGRATION_PREFIX = "kitchenops-operational-cloud-migrated";
 const PENDING_KEY = "kitchenops-pending-operational-changes";
 const REVISION_KEY = "kitchenops-operational-cloud-revisions-v1";
 const RC4_PENDING_BACKUP_KEY = "kitchenops-rc4-prep-pending-backup";
+const OPERATIONAL_HYDRATED_EVENT = "kitchenops-operational-hydrated";
 let hydrationPromise: Promise<void> | null = null;
 let flushPromise: Promise<void> | null = null;
 
@@ -640,11 +641,28 @@ export async function hydrateOperationalData(_options?: { force?: boolean }): Pr
         window.localStorage.setItem(migrationKey, "yes");
       }
     }
+
+    // Notify mounted screens only after every operational collection has been
+    // refreshed from the authoritative cloud snapshot. Store-specific events
+    // are useful for local edits, but this single event gives dashboard-style
+    // aggregate views a reliable cross-device refresh boundary.
+    window.dispatchEvent(new CustomEvent(OPERATIONAL_HYDRATED_EVENT));
   })().finally(() => {
     hydrationPromise = null;
   });
 
   return hydrationPromise;
+}
+
+export function subscribeToOperationalHydration(
+  callback: () => void
+): () => void {
+  if (typeof window === "undefined") return () => undefined;
+
+  window.addEventListener(OPERATIONAL_HYDRATED_EVENT, callback);
+  return () => {
+    window.removeEventListener(OPERATIONAL_HYDRATED_EVENT, callback);
+  };
 }
 
 export function startOperationalPolling(intervalMs = 12000): () => void {
