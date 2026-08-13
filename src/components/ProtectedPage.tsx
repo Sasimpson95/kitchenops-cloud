@@ -18,6 +18,7 @@ import {
 import { switchBusinessWorkspace } from "@/lib/businessWorkspace";
 import {
   flushPendingInventoryMovements,
+  startInventoryPolling,
   startInventorySyncRetry,
 } from "@/lib/inventoryStore";
 
@@ -37,6 +38,7 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
     let cancelled = false;
     let stopOperationalPolling: (() => void) | undefined;
     let stopInventoryRetry: (() => void) | undefined;
+    let stopInventoryPolling: (() => void) | undefined;
     let stopCatalogRetry: (() => void) | undefined;
     let sessionTimer: number | undefined;
 
@@ -100,9 +102,14 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
         setAccessAllowed(true);
 
         const operationalPollMs =
-          pathname === "/production" || pathname === "/home" ? 3000 : 12000;
+          pathname === "/production" || pathname === "/home" || pathname === "/notifications"
+            ? 3000
+            : 12000;
         stopOperationalPolling = startOperationalPolling(operationalPollMs);
         stopInventoryRetry = startInventorySyncRetry();
+        if (pathname === "/home" || pathname === "/notifications") {
+          stopInventoryPolling = startInventoryPolling(3000);
+        }
         stopCatalogRetry = startCatalogSyncRetry();
         sessionTimer = window.setInterval(() => {
           void (async () => {
@@ -127,6 +134,7 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
       cancelled = true;
       stopOperationalPolling?.();
       stopInventoryRetry?.();
+      stopInventoryPolling?.();
       stopCatalogRetry?.();
       if (sessionTimer) window.clearInterval(sessionTimer);
     };

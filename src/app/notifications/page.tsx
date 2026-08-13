@@ -10,15 +10,22 @@ import {
   Info,
 } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import ProtectedPage from "@/components/ProtectedPage";
-import type { User } from "@/config/roles";
+import { isRouteAllowedForRole, type User } from "@/config/roles";
 import { getCurrentUser } from "@/lib/currentUser";
 import {
   getNotifications,
   type KitchenNotification,
 } from "@/lib/notificationStore";
+import { subscribeToOperationalHydration } from "@/lib/cloud/operationalSync";
+import { subscribeToInventoryChanges } from "@/lib/inventoryStore";
+import { subscribeToOrderChanges } from "@/lib/orderStore";
+import { subscribeToPrepChanges } from "@/lib/prepStore";
+import { subscribeToProductChanges } from "@/lib/productStore";
+import { subscribeToStocktakeChanges } from "@/lib/stocktakeStore";
+import { subscribeToWasteChanges } from "@/lib/wasteStore";
 
 function Icon({
   notification,
@@ -39,6 +46,7 @@ function Icon({
 export default function NotificationsPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [notificationVersion, setNotificationVersion] = useState(0);
 
   useEffect(() => {
     const user = getCurrentUser();
@@ -51,6 +59,21 @@ export default function NotificationsPage() {
     setCurrentUser(user);
   }, [router]);
 
+  useEffect(() => {
+    const refresh = () => setNotificationVersion((value) => value + 1);
+    const unsubscribers = [
+      subscribeToOperationalHydration(refresh),
+      subscribeToInventoryChanges(refresh),
+      subscribeToOrderChanges(refresh),
+      subscribeToPrepChanges(refresh),
+      subscribeToProductChanges(refresh),
+      subscribeToStocktakeChanges(refresh),
+      subscribeToWasteChanges(refresh),
+    ];
+
+    return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
+  }, []);
+
   if (!currentUser) {
     return (
       <ProtectedPage>
@@ -61,7 +84,10 @@ export default function NotificationsPage() {
     );
   }
 
-  const notifications = getNotifications(currentUser.site);
+  const notifications = useMemo(
+    () => getNotifications(currentUser.site, currentUser.siteId),
+    [currentUser.site, currentUser.siteId, notificationVersion]
+  );
 
   return (
     <ProtectedPage>
@@ -90,7 +116,11 @@ export default function NotificationsPage() {
             <div className="mt-8 space-y-4">
               {notifications.map((notification) => (
                 <Link
-                  href={notification.href}
+                  href={
+                    isRouteAllowedForRole(currentUser.role, notification.href)
+                      ? notification.href
+                      : "/home"
+                  }
                   key={notification.id}
                   className="flex gap-4 rounded-2xl bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                 >

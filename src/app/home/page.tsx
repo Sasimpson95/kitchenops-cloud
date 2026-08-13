@@ -394,7 +394,8 @@ export default function DashboardPage() {
     );
     const wasteValue = wasteToday.reduce((total, record) => total + record.wasteValue, 0);
     const notifications = getNotifications(
-      currentUser.role === "operations" ? selectedSite : currentUser.site
+      currentUser.role === "operations" ? selectedSite : currentUser.site,
+      currentUser.role === "operations" ? undefined : currentUser.siteId
     );
     const stockAlerts = notifications.reduce(
       (count, notification) => count + (notification.href === "/inventory" ? 1 : 0),

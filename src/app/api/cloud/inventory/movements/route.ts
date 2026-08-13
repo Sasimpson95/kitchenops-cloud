@@ -30,6 +30,44 @@ function fail(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
 }
 
+export async function GET() {
+  try {
+    const context = await getCloudRequestContext();
+    if (!context) return fail("Authentication required.", 401);
+
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("cloud_inventory_stock")
+      .select("site_id, product_legacy_id, quantity, updated_at")
+      .eq("business_id", context.businessId);
+
+    if (error) return fail(error.message, 500);
+
+    const accessKeys =
+      context.role === "operations" ? [] : getContextSiteAccessKeys(context);
+    const stock = (data ?? [])
+      .filter(
+        (row) =>
+          context.role === "operations" ||
+          accessKeys.includes(String(row.site_id))
+      )
+      .map((row) => ({
+        businessId: context.businessId,
+        siteId: String(row.site_id),
+        productId: Number(row.product_legacy_id),
+        quantity: Number(row.quantity),
+        updatedAt: String(row.updated_at),
+      }));
+
+    return NextResponse.json({ stock });
+  } catch (error) {
+    return fail(
+      error instanceof Error ? error.message : "Inventory could not be loaded.",
+      500
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const context = await getCloudRequestContext();

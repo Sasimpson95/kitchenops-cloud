@@ -353,6 +353,74 @@ export function receiveProductStock(input: {
   ]);
 }
 
+
+export async function hydrateCloudInventory(): Promise<void> {
+  if (typeof window === "undefined") return;
+
+  const activeBusinessId = getActiveBusinessId();
+  if (!activeBusinessId) return;
+
+  // Preserve optimistic local movements. Attempt to flush first; if any remain
+  // queued (for example while offline), wait for a later poll rather than
+  // replacing the local stock snapshot with an older cloud value.
+  if (
+    getPendingMovements().some(
+      (movement) => movement.businessId === activeBusinessId
+    )
+  ) {
+    await flushPendingInventoryMovements();
+    if (
+      getPendingMovements().some(
+        (movement) => movement.businessId === activeBusinessId
+      )
+    ) {
+      return;
+    }
+  }
+
+  const response = await fetch("/api/cloud/inventory/movements", {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error("KitchenOps could not refresh inventory stock.");
+  }
+
+  const payload = (await response.json()) as { stock?: InventoryStock[] };
+  saveInventoryStock(
+    (payload.stock ?? []).filter(
+      (record) => record.businessId === activeBusinessId
+    )
+  );
+}
+
+export function startInventoryPolling(intervalMs = 12000): () => void {
+  if (typeof window === "undefined") return () => undefined;
+
+  const refresh = () => {
+    void hydrateCloudInventory().catch((error) => {
+      console.warn("Inventory refresh failed:", error);
+    });
+  };
+  const timer = window.setInterval(refresh, intervalMs);
+  const onVisibility = () => {
+    if (document.visibilityState === "visible") refresh();
+  };
+
+  window.setTimeout(refresh, 250);
+  window.addEventListener("online", refresh);
+  window.addEventListener("focus", refresh);
+  window.addEventListener("pageshow", refresh);
+  document.addEventListener("visibilitychange", onVisibility);
+
+  return () => {
+    window.clearInterval(timer);
+    window.removeEventListener("online", refresh);
+    window.removeEventListener("focus", refresh);
+    window.removeEventListener("pageshow", refresh);
+    document.removeEventListener("visibilitychange", onVisibility);
+  };
+}
+
 export function subscribeToInventoryChanges(callback: () => void): () => void {
   if (typeof window === "undefined") return () => undefined;
 

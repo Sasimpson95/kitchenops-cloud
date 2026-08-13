@@ -14,6 +14,7 @@ const ROLE_ROUTE_PREFIXES: Record<Exclude<UserRole, "operations">, string[]> = {
     "/recipes",
     "/waste",
     "/handover",
+    "/notifications",
   ],
   manager: [
     "/home",
@@ -31,6 +32,7 @@ const ROLE_ROUTE_PREFIXES: Record<Exclude<UserRole, "operations">, string[]> = {
     "/handover",
     "/reports",
     "/deliveries",
+    "/notifications",
   ],
 };
 

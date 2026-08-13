@@ -33,12 +33,15 @@ function isToday(value: string): boolean {
 }
 
 export function getNotifications(
-  siteName: string | "All Sites"
+  siteName: string | "All Sites",
+  explicitSiteId?: string
 ): KitchenNotification[] {
   if (typeof window === "undefined") return [];
 
   const siteId =
-    siteName === "All Sites" ? null : getSiteId(siteName);
+    siteName === "All Sites"
+      ? null
+      : explicitSiteId?.trim() || getSiteId(siteName);
 
   const notifications: KitchenNotification[] = [];
 

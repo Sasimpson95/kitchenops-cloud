@@ -10,13 +10,20 @@ import {
   X,
 } from "lucide-react";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import type { User } from "@/config/roles";
+import { isRouteAllowedForRole, type User } from "@/config/roles";
 import {
   getNotifications,
   type KitchenNotification,
 } from "@/lib/notificationStore";
+import { subscribeToOperationalHydration } from "@/lib/cloud/operationalSync";
+import { subscribeToInventoryChanges } from "@/lib/inventoryStore";
+import { subscribeToOrderChanges } from "@/lib/orderStore";
+import { subscribeToPrepChanges } from "@/lib/prepStore";
+import { subscribeToProductChanges } from "@/lib/productStore";
+import { subscribeToStocktakeChanges } from "@/lib/stocktakeStore";
+import { subscribeToWasteChanges } from "@/lib/wasteStore";
 
 type NotificationPopoverProps = {
   currentUser: User;
@@ -42,8 +49,27 @@ export default function NotificationPopover({
   currentUser,
 }: NotificationPopoverProps) {
   const [open, setOpen] = useState(false);
+  const [notificationVersion, setNotificationVersion] = useState(0);
 
-  const notifications = getNotifications(currentUser.site);
+  useEffect(() => {
+    const refresh = () => setNotificationVersion((value) => value + 1);
+    const unsubscribers = [
+      subscribeToOperationalHydration(refresh),
+      subscribeToInventoryChanges(refresh),
+      subscribeToOrderChanges(refresh),
+      subscribeToPrepChanges(refresh),
+      subscribeToProductChanges(refresh),
+      subscribeToStocktakeChanges(refresh),
+      subscribeToWasteChanges(refresh),
+    ];
+
+    return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
+  }, []);
+
+  const notifications = useMemo(
+    () => getNotifications(currentUser.site, currentUser.siteId),
+    [currentUser.site, currentUser.siteId, notificationVersion]
+  );
 
   return (
     <div className="relative">
@@ -95,7 +121,11 @@ export default function NotificationPopover({
               notifications.slice(0, 20).map((notification) => (
                 <Link
                   key={notification.id}
-                  href={notification.href}
+                  href={
+                    isRouteAllowedForRole(currentUser.role, notification.href)
+                      ? notification.href
+                      : "/home"
+                  }
                   onClick={() => setOpen(false)}
                   className="flex gap-3 rounded-2xl p-4 transition hover:bg-slate-50"
                 >
