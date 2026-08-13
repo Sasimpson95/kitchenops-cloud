@@ -1,0 +1,14 @@
+KitchenOps 1.0.0 RC13
+
+1. Extract this ZIP over the existing kitchenops-cloud-clean project.
+2. Replace files in the destination.
+3. Run:
+   npm run typecheck
+   npm run build
+   npm audit --omit=dev
+   npm run android:sync
+   npm run android:check
+   git diff --check
+4. Deploy only after all gates pass.
+
+RC13 fixes KOPS-RC-031: Chef Notification Centre React hook-order crash.

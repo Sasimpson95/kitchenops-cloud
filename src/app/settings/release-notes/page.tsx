@@ -5,6 +5,8 @@ import ProtectedPage from "@/components/ProtectedPage";
 import { PageHeader, SectionCard } from "@/components/ui";
 
 const notes = [
+  { version: "RC13", title: "Chef Notification Centre Stability", items: ["Notification Centre keeps a stable React hook order for Chef sessions", "Fixes the page crash caused by React error #310", "RC12 live notification refresh and Chef access remain intact"] },
+  { version: "RC12", title: "Chef Notification Refresh", items: ["Chef Notification Centre route is available to Chef sessions", "Low-stock and no-waste alerts refresh from authoritative site data", "Notification badge and list refresh while the app is open"] },
   { version: "RC11", title: "Live Dashboard Attention", items: ["Needs Your Attention now refreshes after authoritative cross-device operational hydration", "Chef Prep and Waste changes surface on an open Manager dashboard without F5", "Existing local Prep and Handover refresh behaviour is preserved"] },
   { version: "RC10", title: "Configurable Stocktake Units", items: ["Products explicitly choose which stocktake units staff can enter", "Milk-style products can enable Bottle and Litre without showing Each", "Case-based products can enable Case and Each", "Entered unit splits are preserved when reopening, reviewing and completing a stocktake"] },
   { version: "RC9", title: "Stocktake Pack & Loose Count Clarity", items: ["Pack conversions are shown clearly while counting", "Discrete packs support full packs plus loose Each counts", "Milk-style products show bottle counts with litre inventory equivalents", "Review and results show both physical count and inventory equivalent"] },

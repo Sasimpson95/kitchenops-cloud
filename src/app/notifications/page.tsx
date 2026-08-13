@@ -10,7 +10,7 @@ import {
   Info,
 } from "lucide-react";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import ProtectedPage from "@/components/ProtectedPage";
 import { isRouteAllowedForRole, type User } from "@/config/roles";
@@ -46,7 +46,7 @@ function Icon({
 export default function NotificationsPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [notificationVersion, setNotificationVersion] = useState(0);
+  const [, setNotificationVersion] = useState(0);
 
   useEffect(() => {
     const user = getCurrentUser();
@@ -74,6 +74,13 @@ export default function NotificationsPage() {
     return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
   }, []);
 
+  // Keep hook order stable across the initial loading render and the
+  // authenticated render. Notification calculation is inexpensive and the
+  // version state intentionally forces a fresh read whenever a store changes.
+  const notifications = currentUser
+    ? getNotifications(currentUser.site, currentUser.siteId)
+    : [];
+
   if (!currentUser) {
     return (
       <ProtectedPage>
@@ -83,11 +90,6 @@ export default function NotificationsPage() {
       </ProtectedPage>
     );
   }
-
-  const notifications = useMemo(
-    () => getNotifications(currentUser.site, currentUser.siteId),
-    [currentUser.site, currentUser.siteId, notificationVersion]
-  );
 
   return (
     <ProtectedPage>
