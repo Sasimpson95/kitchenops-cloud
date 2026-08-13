@@ -94,6 +94,20 @@ export async function POST(request: NextRequest) {
 
     const session = data as StaffLoginResult;
 
+    const { data: staffState, error: staffStateError } = await supabase
+      .from("staff_members")
+      .select("must_change_pin")
+      .eq("id", staffId)
+      .eq("business_id", session.businessId)
+      .maybeSingle();
+
+    if (staffStateError || !staffState) {
+      return NextResponse.json(
+        { error: "The staff login state could not be loaded." },
+        { status: 500 }
+      );
+    }
+
     if (
       !session.staffId ||
       !session.businessId ||
@@ -123,11 +137,12 @@ export async function POST(request: NextRequest) {
         site: session.siteName,
         siteId: session.siteId,
       },
+      mustChangePin: staffState.must_change_pin,
     });
 
     response.cookies.set(
       STAFF_COOKIE_NAME,
-      createStaffSessionToken({ ...session, expiresAt }),
+      createStaffSessionToken({ ...session, pinChangeRequired: staffState.must_change_pin, expiresAt }),
       {
         httpOnly: true,
         sameSite: "lax",

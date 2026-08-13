@@ -6,6 +6,7 @@ export type CloudSession = {
   business?: { id: string; name: string; code?: string } | null;
   siteId?: string;
   authType?: "supabase" | "pin";
+  mustChangePin?: boolean;
   needsOnboarding?: boolean;
 };
 

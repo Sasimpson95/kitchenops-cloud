@@ -14,6 +14,7 @@ export type StaffSession = {
   siteName: string;
   name: string;
   role: "manager" | "chef";
+  pinChangeRequired?: boolean;
   expiresAt: number;
 };
 

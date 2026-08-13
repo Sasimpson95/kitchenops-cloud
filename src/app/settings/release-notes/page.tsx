@@ -5,6 +5,7 @@ import ProtectedPage from "@/components/ProtectedPage";
 import { PageHeader, SectionCard } from "@/components/ui";
 
 const notes = [
+  { version: "RC14", title: "First-login PIN Security", items: ["New staff must replace their temporary PIN on first sign-in", "Reset PIN generates a one-time temporary PIN and forces the same change flow", "Existing staff sessions are invalidated when a manager resets their PIN", "New PIN entry is confirmed before saving and cannot reuse the temporary PIN"] },
   { version: "RC13", title: "Chef Notification Centre Stability", items: ["Notification Centre keeps a stable React hook order for Chef sessions", "Fixes the page crash caused by React error #310", "RC12 live notification refresh and Chef access remain intact"] },
   { version: "RC12", title: "Chef Notification Refresh", items: ["Chef Notification Centre route is available to Chef sessions", "Low-stock and no-waste alerts refresh from authoritative site data", "Notification badge and list refresh while the app is open"] },
   { version: "RC11", title: "Live Dashboard Attention", items: ["Needs Your Attention now refreshes after authoritative cross-device operational hydration", "Chef Prep and Waste changes surface on an open Manager dashboard without F5", "Existing local Prep and Handover refresh behaviour is preserved"] },

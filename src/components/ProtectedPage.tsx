@@ -51,6 +51,12 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
         return false;
       }
 
+      if (session.authType === "pin" && session.mustChangePin) {
+        setAccessAllowed(false);
+        router.replace("/set-pin");
+        return false;
+      }
+
       if (!isRouteAllowedForRole(session.user.role, pathname)) {
         setAccessAllowed(false);
         router.replace("/home");

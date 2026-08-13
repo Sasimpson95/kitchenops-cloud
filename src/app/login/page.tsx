@@ -216,7 +216,11 @@ export default function LoginPage() {
           session.user
         ) {
           setCurrentUser(session.user);
-          router.replace("/home");
+          router.replace(
+            session.authType === "pin" && session.mustChangePin
+              ? "/set-pin"
+              : "/home"
+          );
           router.refresh();
         }
       } finally {
@@ -380,6 +384,7 @@ export default function LoginPage() {
       const data = await response.json() as {
         error?: string;
         user?: User;
+        mustChangePin?: boolean;
       };
 
       if (!response.ok || !data.user) {
@@ -419,7 +424,7 @@ export default function LoginPage() {
       }
 
       setCurrentUser(data.user);
-      router.replace("/home");
+      router.replace(data.mustChangePin ? "/set-pin" : "/home");
       router.refresh();
     } catch (caughtError) {
       setError(

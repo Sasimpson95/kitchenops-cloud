@@ -37,6 +37,7 @@ export async function GET() {
         name,
         role,
         active,
+        must_change_pin,
         businesses!inner (
           id,
           name,
@@ -70,6 +71,12 @@ export async function GET() {
       );
     }
 
+    if (staff.must_change_pin && !signedStaff.pinChangeRequired) {
+      return clearStaffCookie(
+        NextResponse.json({ authenticated: false }, { status: 401 })
+      );
+    }
+
     const expiresAt = signedStaff.expiresAt;
     const refreshedSession = {
       staffId: staff.id,
@@ -79,6 +86,7 @@ export async function GET() {
       siteName: site.name,
       name: staff.name,
       role: staff.role as "manager" | "chef",
+      pinChangeRequired: staff.must_change_pin,
       expiresAt,
     };
 
@@ -96,6 +104,7 @@ export async function GET() {
       },
       siteId: refreshedSession.siteId,
       authType: "pin",
+      mustChangePin: staff.must_change_pin,
     });
 
     // Re-sign current authoritative role/site details so changes take effect

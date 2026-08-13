@@ -189,16 +189,9 @@ export default function UsersPage() {
   }
 
   async function resetPin(item: Staff): Promise<void> {
-    const next = window.prompt(
-      `Enter a new four-digit temporary PIN for ${item.name}`
-    );
-
-    if (!next) return;
-
-    if (!/^\d{4}$/.test(next)) {
-      toast.warning("Invalid PIN", "PIN must contain exactly four digits.");
-      return;
-    }
+    const random = new Uint32Array(1);
+    window.crypto.getRandomValues(random);
+    const next = String(random[0] % 10000).padStart(4, "0");
 
     const supabase = createClient();
     const { error: rpcError } = await supabase.rpc(
@@ -212,7 +205,11 @@ export default function UsersPage() {
     if (rpcError) {
       setError(rpcError.message);
     } else {
-      toast.success("Temporary PIN reset");
+      await navigator.clipboard.writeText(next).catch(() => undefined);
+      window.alert(
+        `Temporary PIN for ${item.name}: ${next}\n\nThe PIN has been copied to your clipboard. ${item.name} must use it once, then choose a new PIN at sign-in.`
+      );
+      toast.success("Temporary PIN reset", "The user must choose a new PIN at their next sign-in.");
       await load();
     }
   }
