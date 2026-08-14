@@ -65,6 +65,7 @@ function getRecipeTime(
 
 export default function PrepPlannerPage() {
   const router = useRouter();
+  const initialUser = getCurrentUser();
   const {
     options: SITES,
     siteNames: businessSiteNames,
@@ -74,16 +75,16 @@ export default function PrepPlannerPage() {
   const [
     currentUser,
     setCurrentUser,
-  ] = useState<User | null>(null);
+  ] = useState<User | null>(initialUser);
 
   const [loadingUser, setLoadingUser] =
-    useState(true);
+    useState(!initialUser);
 
   const [items, setItems] =
-    useState<ProductionItem[]>([]);
+    useState<ProductionItem[]>(() => getPrepItems());
 
   const [recipeList, setRecipeList] =
-    useState<Recipe[]>([]);
+    useState<Recipe[]>(() => getRecipes());
 
   const [history, setHistory] =
     useState<PrepHistoryRecord[]>([]);
@@ -91,7 +92,7 @@ export default function PrepPlannerPage() {
   const [
     selectedSite,
     setSelectedSite,
-  ] = useState("All Sites");
+  ] = useState(initialUser?.role === "operations" ? "All Sites" : initialUser?.site ?? "All Sites");
 
   const [search, setSearch] =
     useState("");
@@ -102,7 +103,7 @@ export default function PrepPlannerPage() {
   ] = useState("");
 
   const [selectedDay, setSelectedDay] =
-    useState<ProductionDay>("today");
+    useState<ProductionDay>(initialUser?.role === "manager" ? "tomorrow" : "today");
 
   const [adding, setAdding] =
     useState(false);

@@ -218,12 +218,17 @@ function buildRecords(
 
 export default function InventoryPage() {
   const router = useRouter();
+  const initialUser = getCurrentUser();
   const { sites, options: SITE_OPTIONS, siteNames: SITE_NAMES, loading: sitesLoading } = useBusinessSites();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [movements, setMovements] = useState<InventoryMovement[]>([]);
-  const [selectedSite, setSelectedSite] = useState("All Sites");
+  const [currentUser, setCurrentUser] = useState<User | null>(initialUser);
+  const [loading, setLoading] = useState(!initialUser);
+  const [products, setProducts] = useState<Product[]>(() => getActiveProducts());
+  const [movements, setMovements] = useState<InventoryMovement[]>(() => getInventoryMovements());
+  const [selectedSite, setSelectedSite] = useState(
+    initialUser?.role === "operations"
+      ? getPreferredSite("inventory-site", "All Sites")
+      : initialUser?.site ?? "All Sites"
+  );
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 250);
   const [statusFilter, setStatusFilter] = useState<"All" | InventoryStatus>("All");

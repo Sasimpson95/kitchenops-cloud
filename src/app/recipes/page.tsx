@@ -884,6 +884,8 @@ function RecipesContent() {
   const router =
     useRouter();
 
+  const initialUser = getCurrentUser();
+
   const searchParams =
     useSearchParams();
 
@@ -891,21 +893,21 @@ function RecipesContent() {
     currentUser,
     setCurrentUser,
   ] = useState<User | null>(
-    null
+    initialUser
   );
 
   const [
     recipes,
     setRecipes,
-  ] = useState<Recipe[]>(
-    []
+  ] = useState<Recipe[]>(() =>
+    getRecipes()
   );
 
   const [
     products,
     setProducts,
-  ] = useState<Product[]>(
-    []
+  ] = useState<Product[]>(() =>
+    getProducts()
   );
 
   const [

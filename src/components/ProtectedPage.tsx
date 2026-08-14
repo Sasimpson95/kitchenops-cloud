@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { isRouteAllowedForRole, type User } from "@/config/roles";
-import { getCachedCloudSession, getCloudSession } from "@/lib/cloudSession";
+import { getCachedCloudSession, getCloudSession, type CloudSession } from "@/lib/cloudSession";
 import { getCurrentUser, setCurrentUser } from "@/lib/currentUser";
 import {
   flushPendingCatalogChanges,
@@ -21,6 +21,12 @@ import {
   startInventoryPolling,
   startInventorySyncRetry,
 } from "@/lib/inventoryStore";
+import {
+  getSessionIdentity,
+  isRuntimeReadyFor,
+  markRuntimeReady,
+} from "@/lib/runtimeReadiness";
+import { seedBusinessSitesCache, type BusinessSite } from "@/lib/useBusinessSites";
 
 const SESSION_RECHECK_MS = 5 * 60 * 1000;
 
@@ -31,8 +37,24 @@ type ProtectedPageProps = {
 export default function ProtectedPage({ children }: ProtectedPageProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [currentUser, setUser] = useState<User | null>(null);
-  const [accessAllowed, setAccessAllowed] = useState(false);
+
+  const reusableSession = getCachedCloudSession();
+  const reusableUser = reusableSession?.user ?? getCurrentUser();
+  const canRenderImmediately = Boolean(
+    reusableSession?.authenticated &&
+      reusableUser &&
+      !reusableSession.mustChangePin &&
+      isRuntimeReadyFor(reusableSession) &&
+      isRouteAllowedForRole(reusableUser.role, pathname)
+  );
+
+  // Normal in-app route changes should not paint a one-frame loading screen
+  // before the effect gets a chance to reuse the already-authorised runtime.
+  // Cold launches, changed identities and protected routes still block below.
+  const [currentUser, setUser] = useState<User | null>(() =>
+    canRenderImmediately ? reusableUser : null
+  );
+  const [accessAllowed, setAccessAllowed] = useState(() => canRenderImmediately);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,48 +64,102 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
     let stopCatalogRetry: (() => void) | undefined;
     let sessionTimer: number | undefined;
 
-    async function applyAuthoritativeSession(): Promise<boolean> {
+    async function applyAuthoritativeSession(): Promise<CloudSession | null> {
       const session = await getCloudSession({ force: true });
-      if (cancelled) return false;
+      if (cancelled) return null;
 
       if (!session.authenticated || !session.user) {
         router.replace(session.needsOnboarding ? "/cloud-onboarding" : "/login");
-        return false;
+        return null;
       }
 
       if (session.authType === "pin" && session.mustChangePin) {
         setAccessAllowed(false);
         router.replace("/set-pin");
-        return false;
+        return null;
       }
 
       if (!isRouteAllowedForRole(session.user.role, pathname)) {
         setAccessAllowed(false);
         router.replace("/home");
-        return false;
-      }
-
-      if (session.business?.id) {
-        const sitesResponse = await fetch("/api/cloud/sites", { cache: "no-store" });
-        const sitesPayload = (await sitesResponse.json().catch(() => ({}))) as {
-          sites?: Array<{ id: string }>;
-        };
-        if (cancelled) return false;
-        switchBusinessWorkspace(
-          session.business.id,
-          sitesResponse.ok && (sitesPayload.sites?.length ?? 0) === 0
-        );
+        return null;
       }
 
       setCurrentUser(session.user);
       setUser(session.user);
-      return true;
+      return session;
+    }
+
+    async function prepareWorkspace(session: CloudSession): Promise<void> {
+      if (!session.business?.id) return;
+
+      const sitesResponse = await fetch("/api/cloud/sites", { cache: "no-store" });
+      const sitesPayload = (await sitesResponse.json().catch(() => ({}))) as {
+        sites?: BusinessSite[];
+      };
+      if (cancelled) return;
+
+      const sites = sitesResponse.ok ? sitesPayload.sites ?? [] : [];
+      if (sitesResponse.ok) {
+        seedBusinessSitesCache(session.business.id, false, sites);
+      }
+
+      switchBusinessWorkspace(session.business.id, sitesResponse.ok && sites.length === 0);
+    }
+
+    async function hydrateRuntime(session: CloudSession): Promise<void> {
+      await prepareWorkspace(session);
+      if (cancelled) return;
+
+      // Push acknowledged-later edits before hydration so cloud snapshots cannot
+      // overwrite optimistic local work.
+      await flushPendingCatalogChanges();
+      await hydrateCloudCatalog();
+      await flushPendingInventoryMovements();
+      await hydrateOperationalData();
+      if (cancelled) return;
+
+      markRuntimeReady(session);
+      setAccessAllowed(true);
+    }
+
+    function startBackgroundServices(): void {
+      const operationalPollMs =
+        pathname === "/production" || pathname === "/home" || pathname === "/notifications"
+          ? 3000
+          : 12000;
+      stopOperationalPolling = startOperationalPolling(operationalPollMs);
+      stopInventoryRetry = startInventorySyncRetry();
+      if (pathname === "/home" || pathname === "/notifications") {
+        stopInventoryPolling = startInventoryPolling(3000);
+      }
+      stopCatalogRetry = startCatalogSyncRetry();
+    }
+
+    async function backgroundRefresh(): Promise<void> {
+      await flushPendingCatalogChanges();
+      await hydrateCloudCatalog();
+      await flushPendingInventoryMovements();
+      await hydrateOperationalData({ force: true });
     }
 
     async function loadSession(): Promise<void> {
       try {
-        const cachedUser = getCachedCloudSession()?.user ?? getCurrentUser();
-        if (
+        const cachedSession = getCachedCloudSession();
+        const cachedUser = cachedSession?.user ?? getCurrentUser();
+        const canReuseRuntime =
+          Boolean(cachedSession?.authenticated && cachedUser) &&
+          !cachedSession?.mustChangePin &&
+          isRuntimeReadyFor(cachedSession) &&
+          isRouteAllowedForRole(cachedUser!.role, pathname);
+
+        // Once this exact signed-in workspace has completed its authoritative
+        // first hydration, route changes render from the already-safe local cache
+        // immediately. Cloud validation continues in the background below.
+        if (canReuseRuntime && cachedUser && !cancelled) {
+          setUser(cachedUser);
+          setAccessAllowed(true);
+        } else if (
           cachedUser &&
           isRouteAllowedForRole(cachedUser.role, pathname) &&
           !cancelled
@@ -91,40 +167,44 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
           setUser(cachedUser);
         }
 
-        const valid = await applyAuthoritativeSession();
-        if (!valid || cancelled) return;
+        const session = await applyAuthoritativeSession();
+        if (!session || cancelled) return;
 
-        // Push any acknowledged-later catalogue edits before hydration so a
-        // reload cannot overwrite the local cache with an older cloud copy.
-        await flushPendingCatalogChanges();
-        await hydrateCloudCatalog();
-        await flushPendingInventoryMovements();
-        await hydrateOperationalData();
-        if (cancelled) return;
+        const authoritativeIdentity = getSessionIdentity(session);
+        const cachedIdentity = getSessionIdentity(cachedSession);
+        const identityChanged = Boolean(
+          cachedIdentity && authoritativeIdentity && cachedIdentity !== authoritativeIdentity
+        );
 
-        // Do not render protected workflow data until the authoritative
-        // business/site-scoped cloud caches have finished hydrating. This
-        // prevents a shared device briefly showing the previous staff/site.
-        setAccessAllowed(true);
-
-        const operationalPollMs =
-          pathname === "/production" || pathname === "/home" || pathname === "/notifications"
-            ? 3000
-            : 12000;
-        stopOperationalPolling = startOperationalPolling(operationalPollMs);
-        stopInventoryRetry = startInventorySyncRetry();
-        if (pathname === "/home" || pathname === "/notifications") {
-          stopInventoryPolling = startInventoryPolling(3000);
+        if (!isRuntimeReadyFor(session) || identityChanged) {
+          // New login, changed staff/site, or cold launch: keep the original
+          // security boundary and hydrate before showing operational data.
+          setAccessAllowed(false);
+          await hydrateRuntime(session);
+        } else {
+          // Normal in-app navigation: never block the next screen on duplicate
+          // session/site/catalog/operations hydration. Refresh quietly instead.
+          setAccessAllowed(true);
+          void backgroundRefresh().catch((error) => {
+            console.warn("KitchenOps background refresh deferred:", error);
+          });
         }
-        stopCatalogRetry = startCatalogSyncRetry();
+
+        if (cancelled) return;
+        startBackgroundServices();
+
         sessionTimer = window.setInterval(() => {
           void (async () => {
             const stillValid = await applyAuthoritativeSession();
             if (!stillValid || cancelled) return;
-            await flushPendingCatalogChanges();
-            await hydrateCloudCatalog();
-            await flushPendingInventoryMovements();
-            await hydrateOperationalData({ force: true });
+
+            if (!isRuntimeReadyFor(stillValid)) {
+              setAccessAllowed(false);
+              await hydrateRuntime(stillValid);
+              return;
+            }
+
+            await backgroundRefresh();
           })().catch(() => {
             if (!cancelled) router.replace("/login");
           });

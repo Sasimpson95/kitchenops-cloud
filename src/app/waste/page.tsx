@@ -107,14 +107,19 @@ function money(value: number): string {
 
 export default function WastePage() {
   const router = useRouter();
+  const initialUser = getCurrentUser();
   const { options: SITE_OPTIONS, siteNames: SITE_NAMES } = useBusinessSites();
 
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [loadingUser, setLoadingUser] = useState(true);
-  const [productList, setProductList] = useState<Product[]>([]);
-  const [wasteRecords, setWasteRecords] = useState<WasteRecord[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(initialUser);
+  const [loadingUser, setLoadingUser] = useState(!initialUser);
+  const [productList, setProductList] = useState<Product[]>(() => getActiveProducts());
+  const [wasteRecords, setWasteRecords] = useState<WasteRecord[]>(() => getWasteRecords());
 
-  const [selectedSite, setSelectedSite] = useState("All Sites");
+  const [selectedSite, setSelectedSite] = useState(
+    initialUser?.role === "operations"
+      ? getPreferredSite("waste-site", "All Sites")
+      : initialUser?.site ?? "All Sites"
+  );
   const [search, setSearch] = useState("");
   const [reasonFilter, setReasonFilter] = useState<"All" | WasteReason>("All");
   const [selectedRecordDate, setSelectedRecordDate] = useState("");

@@ -84,6 +84,7 @@ function money(
 
 function ProductsContent() {
   const router = useRouter();
+  const initialUser = getCurrentUser();
   const searchParams =
     useSearchParams();
 
@@ -92,17 +93,17 @@ function ProductsContent() {
   const [
     currentUser,
     setCurrentUser,
-  ] = useState<User | null>(null);
+  ] = useState<User | null>(initialUser);
 
   const [
     loadingUser,
     setLoadingUser,
-  ] = useState(true);
+  ] = useState(!initialUser);
 
   const [
     productList,
     setProductList,
-  ] = useState<Product[]>([]);
+  ] = useState<Product[]>(() => getProducts());
 
   const [
     supplierVersion,

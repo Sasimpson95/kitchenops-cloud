@@ -36,9 +36,12 @@ function formatTomorrow(): string {
 
 export default function HandoverPage() {
   const router = useRouter();
+  const initialUser = getCurrentUser();
   const { siteNames: sites, loading: loadingSites } = useBusinessSites();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [selectedSite, setSelectedSite] = useState("");
+  const [currentUser, setCurrentUser] = useState<User | null>(initialUser);
+  const [selectedSite, setSelectedSite] = useState(
+    initialUser?.role === "operations" ? "" : initialUser?.site ?? ""
+  );
   const [todayNotes, setTodayNotes] = useState<string[]>([]);
   const [todayVisibleToChefs, setTodayVisibleToChefs] = useState(false);
   const [tomorrowText, setTomorrowText] = useState("");

@@ -1,3 +1,12 @@
+# KitchenOps 1.0.1 RC2
+
+Navigation smoothness follow-up for the 1.0.1 performance pass.
+
+- Protected pages now reuse an already-authorised runtime on their very first render, removing the brief `Opening KitchenOps…` flash between normal in-app pages.
+- Cold launch, identity changes, first-login PIN enforcement and role boundaries still require authoritative validation.
+- Page entrance motion was simplified to a short opacity fade so route changes no longer visually jump downward before settling.
+- No operational workflow or cloud data behaviour changed.
+
 # KitchenOps 1.0.0 RC9
 
 Multi-unit stocktake prototype for local UX testing.

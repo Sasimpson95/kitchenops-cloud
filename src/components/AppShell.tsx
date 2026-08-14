@@ -28,6 +28,8 @@ import {
 } from "@/lib/currentUser";
 
 import { clearCloudSessionCache } from "@/lib/cloudSession";
+import { clearRuntimeReadiness } from "@/lib/runtimeReadiness";
+import { clearBusinessSitesCache } from "@/lib/useBusinessSites";
 
 import {
   requestStaffSwitch,
@@ -284,6 +286,8 @@ export default function AppShell({
 
     clearCurrentUser();
     clearCloudSessionCache();
+    clearRuntimeReadiness();
+    clearBusinessSitesCache();
     setMobileMenuOpen(false);
     router.replace("/login");
     router.refresh();
@@ -299,6 +303,8 @@ export default function AppShell({
 
     clearCurrentUser();
     clearCloudSessionCache();
+    clearRuntimeReadiness();
+    clearBusinessSitesCache();
     setMobileMenuOpen(false);
     router.replace("/login");
     router.refresh();
