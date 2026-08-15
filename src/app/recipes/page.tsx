@@ -6,6 +6,7 @@ import {
   Edit3,
   Plus,
   Search,
+  Trash2,
   X,
 } from "lucide-react";
 
@@ -105,11 +106,13 @@ function RecipeSettingsModal({
   recipe,
   initial,
   products,
+  recipes,
   onClose,
 }: {
   recipe: Recipe;
   initial: RecipeCostingSettings;
   products: Product[];
+  recipes: Recipe[];
   onClose: () => void;
 }) {
   const [
@@ -183,22 +186,21 @@ function RecipeSettingsModal({
     initial.extraAllergens
   );
 
-  const [ingredientUnits, setIngredientUnits] = useState<Record<string, RecipeUnit>>(
-    initial.ingredientUnits
+  const [ingredientRows, setIngredientRows] = useState(() =>
+    recipe.ingredients.map((ingredient) => ({
+      productId: ingredient.productId,
+      quantity: ingredient.quantity,
+      unit:
+        initial.ingredientUnits[String(ingredient.productId)] ??
+        ingredient.unit ??
+        defaultRecipeUnit(
+          products.find((product) => product.id === ingredient.productId)?.inventoryUnit ?? "Each"
+        ),
+    }))
   );
 
-  const [
-    ingredientQuantities,
-    setIngredientQuantities,
-  ] = useState<Record<string, number>>(
-    Object.fromEntries(
-      recipe.ingredients.map(
-        (ingredient) => [
-          String(ingredient.productId),
-          ingredient.quantity,
-        ]
-      )
-    )
+  const [componentRows, setComponentRows] = useState(() =>
+    (recipe.components ?? []).map((component) => ({ ...component }))
   );
 
   const [
@@ -212,6 +214,59 @@ function RecipeSettingsModal({
 
   const [error, setError] =
     useState("");
+
+  const preparationRecipes = useMemo(
+    () =>
+      recipes.filter((candidate) => {
+        if (candidate.name.trim().toLowerCase() === recipe.name.trim().toLowerCase()) {
+          return false;
+        }
+
+        const settings = getRecipeCostingSetting(candidate.name);
+        return settings.recipeType === "preparation" && settings.active !== false;
+      }),
+    [recipe.name, recipes]
+  );
+
+  function addIngredient(): void {
+    const firstAvailable = products.find(
+      (product) => !ingredientRows.some((row) => row.productId === product.id)
+    );
+
+    if (!firstAvailable) {
+      setError("There are no more products available to add.");
+      return;
+    }
+
+    setIngredientRows((current) => [
+      ...current,
+      {
+        productId: firstAvailable.id,
+        quantity: 1,
+        unit: defaultRecipeUnit(firstAvailable.inventoryUnit),
+      },
+    ]);
+    setError("");
+  }
+
+  function addComponent(): void {
+    const firstAvailable = preparationRecipes.find(
+      (candidate) => !componentRows.some(
+        (row) => row.recipeName.trim().toLowerCase() === candidate.name.trim().toLowerCase()
+      )
+    );
+
+    if (!firstAvailable) {
+      setError("Create another Preparation / Component recipe before adding one here.");
+      return;
+    }
+
+    setComponentRows((current) => [
+      ...current,
+      { recipeName: firstAvailable.name, quantity: 1 },
+    ]);
+    setError("");
+  }
 
   function toggleAllergen(
     allergen: string
@@ -258,39 +313,42 @@ function RecipeSettingsModal({
       return;
     }
 
-    const updatedIngredients =
-      recipe.ingredients.map(
-        (ingredient) => ({
-          ...ingredient,
-
-          quantity: Number(
-            ingredientQuantities[
-              String(ingredient.productId)
-            ]
-          ),
-
-          unit:
-            ingredientUnits[
-              String(ingredient.productId)
-            ] ??
-            ingredient.unit,
-        })
-      );
+    const updatedIngredients = ingredientRows.map((ingredient) => ({
+      productId: ingredient.productId,
+      quantity: Number(ingredient.quantity),
+      unit: ingredient.unit,
+    }));
 
     if (
       updatedIngredients.some(
         (ingredient) =>
-          !Number.isFinite(
-            ingredient.quantity
-          ) ||
-          ingredient.quantity <= 0
+          !Number.isFinite(ingredient.quantity) || ingredient.quantity <= 0
       )
     ) {
-      setError(
-        "Every ingredient needs an amount greater than zero."
-      );
+      setError("Every ingredient needs an amount greater than zero.");
       return;
     }
+
+    const updatedComponents = componentRows.map((component) => ({
+      recipeName: component.recipeName.trim(),
+      quantity: Number(component.quantity),
+    }));
+
+    if (
+      updatedComponents.some(
+        (component) =>
+          !component.recipeName ||
+          !Number.isFinite(component.quantity) ||
+          component.quantity <= 0
+      )
+    ) {
+      setError("Every preparation component needs an amount greater than zero.");
+      return;
+    }
+
+    const nextIngredientUnits = Object.fromEntries(
+      updatedIngredients.map((ingredient) => [String(ingredient.productId), ingredient.unit])
+    ) as Record<string, RecipeUnit>;
 
     updateRecipe(
       recipe.name,
@@ -301,6 +359,8 @@ function RecipeSettingsModal({
           "Uncategorised",
         ingredients:
           updatedIngredients,
+        components:
+          updatedComponents,
         method:
           methodSteps
             .map((step) =>
@@ -343,7 +403,7 @@ function RecipeSettingsModal({
       active,
 
       extraAllergens,
-      ingredientUnits,
+      ingredientUnits: nextIngredientUnits,
     });
 
     onClose();
@@ -599,114 +659,214 @@ function RecipeSettingsModal({
         </div>
 
         <section className="mt-6 rounded-2xl bg-slate-50 p-5">
-          <h3 className="font-bold text-gray-950">
-            Ingredients
-          </h3>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Change the amount and unit used in this recipe.
-          </p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="font-bold text-gray-950">Ingredients</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Add, remove or change products used in this recipe.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={addIngredient}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-800 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-900"
+            >
+              <Plus size={17} /> Add ingredient
+            </button>
+          </div>
 
           <div className="mt-4 space-y-3">
-            {recipe.ingredients.map(
-              (ingredient) => {
-                const product =
-                  products.find(
-                    (item) =>
-                      item.id ===
-                      ingredient.productId
-                  );
-
-                if (!product) {
-                  return null;
-                }
-
-                const key = String(
-                  product.id
-                );
-
-                const selectedUnit =
-                  ingredientUnits[key] ??
-                  ingredient.unit ??
-                  defaultRecipeUnit(
-                    product.inventoryUnit
-                  );
-
-                return (
-                  <div
-                    key={product.id}
-                    className="grid gap-3 rounded-xl bg-white p-4 sm:grid-cols-[1fr_130px_150px] sm:items-end"
-                  >
-                    <div>
-                      <p className="font-semibold text-gray-900">
-                        {product.name}
-                      </p>
-
-                      <p className="mt-1 text-xs text-gray-500">
-                        Inventory unit {product.inventoryUnit}
-                      </p>
-                    </div>
-
-                    <label>
-                      <span className="text-xs font-semibold text-gray-600">
-                        Amount
-                      </span>
-
-                      <input
-                        type="number"
-                        min={0.0001}
-                        step="0.01"
-                        value={
-                          ingredientQuantities[key] ??
-                          ingredient.quantity
-                        }
-                        onChange={(event) =>
-                          setIngredientQuantities(
-                            (current) => ({
-                              ...current,
-                              [key]: Number(
-                                event.target.value
-                              ),
-                            })
-                          )
-                        }
-                        className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
-                      />
-                    </label>
-
-                    <label>
-                      <span className="text-xs font-semibold text-gray-600">
-                        Unit
-                      </span>
-
-                      <select
-                        value={selectedUnit}
-                        onChange={(event) =>
-                          setIngredientUnits(
-                            (current) => ({
-                              ...current,
-                              [key]: event.target.value as RecipeUnit,
-                            })
-                          )
-                        }
-                        className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
-                      >
-                        {RECIPE_UNITS.map(
-                          (unit) => (
-                            <option
-                              key={unit}
-                              value={unit}
-                            >
-                              {unit}
-                            </option>
-                          )
-                        )}
-                      </select>
-                    </label>
-                  </div>
-                );
-              }
+            {ingredientRows.length === 0 && (
+              <div className="rounded-xl bg-white p-4 text-sm text-gray-500">
+                No product ingredients added yet.
+              </div>
             )}
+
+            {ingredientRows.map((ingredient, index) => {
+              const product = products.find((item) => item.id === ingredient.productId);
+
+              return (
+                <div
+                  key={`${ingredient.productId}-${index}`}
+                  className="grid gap-3 rounded-xl bg-white p-4 sm:grid-cols-[1fr_120px_145px_44px] sm:items-end"
+                >
+                  <label>
+                    <span className="text-xs font-semibold text-gray-600">Product</span>
+                    <select
+                      value={ingredient.productId}
+                      onChange={(event) => {
+                        const productId = Number(event.target.value);
+                        const nextProduct = products.find((item) => item.id === productId);
+                        setIngredientRows((current) =>
+                          current.map((row, rowIndex) =>
+                            rowIndex === index
+                              ? {
+                                  ...row,
+                                  productId,
+                                  unit: defaultRecipeUnit(nextProduct?.inventoryUnit ?? "Each"),
+                                }
+                              : row
+                          )
+                        );
+                      }}
+                      className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
+                    >
+                      {products.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Inventory unit {product?.inventoryUnit ?? "—"}
+                    </p>
+                  </label>
+
+                  <label>
+                    <span className="text-xs font-semibold text-gray-600">Amount</span>
+                    <input
+                      type="number"
+                      min={0.0001}
+                      step="0.01"
+                      value={ingredient.quantity}
+                      onChange={(event) =>
+                        setIngredientRows((current) =>
+                          current.map((row, rowIndex) =>
+                            rowIndex === index
+                              ? { ...row, quantity: Number(event.target.value) }
+                              : row
+                          )
+                        )
+                      }
+                      className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
+                    />
+                  </label>
+
+                  <label>
+                    <span className="text-xs font-semibold text-gray-600">Unit</span>
+                    <select
+                      value={ingredient.unit}
+                      onChange={(event) =>
+                        setIngredientRows((current) =>
+                          current.map((row, rowIndex) =>
+                            rowIndex === index
+                              ? { ...row, unit: event.target.value as RecipeUnit }
+                              : row
+                          )
+                        )
+                      }
+                      className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
+                    >
+                      {RECIPE_UNITS.map((unit) => (
+                        <option key={unit} value={unit}>{unit}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setIngredientRows((current) => current.filter((_, rowIndex) => rowIndex !== index))
+                    }
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-700 hover:bg-red-100"
+                    aria-label={`Remove ${product?.name ?? "ingredient"}`}
+                  >
+                    <Trash2 size={17} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-2xl bg-slate-50 p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="font-bold text-gray-950">Preparation Components</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Use prepared recipes such as wetmix, sauces or batters inside this dish.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={addComponent}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-violet-800 px-4 py-2 text-sm font-semibold text-violet-800 hover:bg-violet-50"
+            >
+              <Plus size={17} /> Add preparation
+            </button>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            {componentRows.length === 0 && (
+              <div className="rounded-xl bg-white p-4 text-sm text-gray-500">
+                No preparation components added yet.
+              </div>
+            )}
+
+            {componentRows.map((component, index) => {
+              const settings = getRecipeCostingSetting(component.recipeName);
+              return (
+                <div
+                  key={`${component.recipeName}-${index}`}
+                  className="grid gap-3 rounded-xl bg-white p-4 sm:grid-cols-[1fr_130px_44px] sm:items-end"
+                >
+                  <label>
+                    <span className="text-xs font-semibold text-gray-600">Preparation</span>
+                    <select
+                      value={component.recipeName}
+                      onChange={(event) =>
+                        setComponentRows((current) =>
+                          current.map((row, rowIndex) =>
+                            rowIndex === index ? { ...row, recipeName: event.target.value } : row
+                          )
+                        )
+                      }
+                      className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
+                    >
+                      {preparationRecipes.map((candidate) => (
+                        <option key={candidate.name} value={candidate.name}>
+                          {candidate.name}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Counted in {settings.yieldUnit || "yield units"}
+                    </p>
+                  </label>
+
+                  <label>
+                    <span className="text-xs font-semibold text-gray-600">Amount</span>
+                    <input
+                      type="number"
+                      min={0.0001}
+                      step="0.01"
+                      value={component.quantity}
+                      onChange={(event) =>
+                        setComponentRows((current) =>
+                          current.map((row, rowIndex) =>
+                            rowIndex === index
+                              ? { ...row, quantity: Number(event.target.value) }
+                              : row
+                          )
+                        )
+                      }
+                      className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-violet-800"
+                    />
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setComponentRows((current) => current.filter((_, rowIndex) => rowIndex !== index))
+                    }
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-700 hover:bg-red-100"
+                    aria-label={`Remove ${component.recipeName}`}
+                  >
+                    <Trash2 size={17} />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -1520,6 +1680,7 @@ function RecipesContent() {
               editingRecipe.name
             )}
             products={products}
+            recipes={recipes}
             onClose={() =>
               setEditingRecipe(
                 null

@@ -44,9 +44,11 @@ import type {
 import {
   addPrepItem,
   approvePrepItem,
+  completePrepAsManager,
   getPrepHistory,
   getPrepItems,
   removePrepItem,
+  submitPrepForApproval,
   subscribeToPrepChanges,
   updatePrepQuantity,
   type PrepHistoryRecord,
@@ -103,7 +105,16 @@ export default function PrepPlannerPage() {
   ] = useState("");
 
   const [selectedDay, setSelectedDay] =
-    useState<ProductionDay>(initialUser?.role === "manager" ? "tomorrow" : "today");
+    useState<ProductionDay>(() => {
+      if (typeof window !== "undefined") {
+        const requestedDay = new URLSearchParams(window.location.search).get("day");
+        if (requestedDay === "today" || requestedDay === "tomorrow") {
+          return requestedDay;
+        }
+      }
+
+      return initialUser?.role === "manager" ? "tomorrow" : "today";
+    });
 
   const [adding, setAdding] =
     useState(false);
@@ -149,6 +160,21 @@ export default function PrepPlannerPage() {
   ] = useState(1);
 
   const [
+    completingItem,
+    setCompletingItem,
+  ] = useState<ProductionItem | null>(null);
+
+  const [
+    completionQuantity,
+    setCompletionQuantity,
+  ] = useState(1);
+
+  const [
+    completionError,
+    setCompletionError,
+  ] = useState("");
+
+  const [
     addRemainingToTomorrow,
     setAddRemainingToTomorrow,
   ] = useState(false);
@@ -187,7 +213,8 @@ export default function PrepPlannerPage() {
     }
 
     if (user.role === "manager") {
-      setSelectedDay("tomorrow");
+      const requestedDay = new URLSearchParams(window.location.search).get("day");
+      setSelectedDay(requestedDay === "today" ? "today" : "tomorrow");
     }
 
     setLoadingUser(false);
@@ -584,6 +611,53 @@ export default function PrepPlannerPage() {
           ? caughtError.message
           : "Prep quantity could not be changed."
       );
+    }
+  }
+
+  function openCompletion(item: ProductionItem): void {
+    setCompletingItem(item);
+    setCompletionQuantity(item.produced > 0 ? item.produced : item.planned);
+    setCompletionError("");
+  }
+
+  function closeCompletion(): void {
+    setCompletingItem(null);
+    setCompletionQuantity(1);
+    setCompletionError("");
+  }
+
+  function completeSelectedPrep(): void {
+    if (!completingItem || !currentUser) return;
+
+    if (!Number.isFinite(completionQuantity) || completionQuantity <= 0) {
+      setCompletionError("Enter how many batches were made.");
+      return;
+    }
+
+    try {
+      setCompletionError("");
+
+      if (currentUser.role === "chef") {
+        submitPrepForApproval({
+          id: completingItem.id,
+          produced: completionQuantity,
+          chef: currentUser.name || "Chef",
+        });
+        toast.success("Prep submitted for approval.");
+      } else {
+        completePrepAsManager({
+          id: completingItem.id,
+          produced: completionQuantity,
+          addRemainingToTomorrow: false,
+          completedBy: currentUser.name || "Manager",
+        });
+        toast.success("Prep completed.");
+      }
+
+      closeCompletion();
+      refreshPrep();
+    } catch (caught) {
+      setCompletionError(caught instanceof Error ? caught.message : "Prep could not be completed.");
     }
   }
 
@@ -1197,6 +1271,19 @@ export default function PrepPlannerPage() {
                                   📖 Recipe
                                 </button>
 
+                                {selectedDay === "today" &&
+                                  item.status === "planned" &&
+                                  currentUser &&
+                                  (currentUser.role === "chef" || canEdit) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => openCompletion(item)}
+                                      className="flex-1 rounded-xl bg-violet-800 px-4 py-3 font-semibold text-white transition hover:bg-violet-900"
+                                    >
+                                      Complete Prep
+                                    </button>
+                                  )}
+
                                 {canEdit &&
                                   item.status ===
                                     "planned" && (
@@ -1596,6 +1683,68 @@ export default function PrepPlannerPage() {
                   className="flex-1 rounded-xl bg-violet-800 py-3 font-semibold text-white transition hover:bg-violet-900"
                 >
                   Save Quantity
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {completingItem && currentUser && (currentUser.role === "chef" || canEdit) && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
+              <p className="text-center text-sm font-semibold text-violet-800">
+                {completingItem.site}
+              </p>
+
+              <h2 className="mt-1 text-center text-2xl font-bold text-gray-950">
+                Complete Prep
+              </h2>
+
+              <p className="mt-2 text-center text-gray-600">
+                {completingItem.emoji} {completingItem.name}
+              </p>
+
+              <label className="mt-6 block text-sm font-semibold text-gray-700">
+                Quantity made
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={completionQuantity}
+                  onChange={(event) =>
+                    setCompletionQuantity(Math.max(1, Number(event.target.value) || 1))
+                  }
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 text-lg font-bold outline-none focus:border-violet-800"
+                />
+              </label>
+
+              {currentUser.role === "chef" && (
+                <div className="mt-4 rounded-xl bg-violet-50 p-4 text-sm text-violet-900">
+                  This will be sent to a manager for approval.
+                </div>
+              )}
+
+              {completionError && (
+                <div className="mt-5 rounded-2xl bg-red-50 p-4 font-semibold text-red-800">
+                  {completionError}
+                </div>
+              )}
+
+              <div className="mt-8 flex gap-3">
+                <button
+                  type="button"
+                  onClick={closeCompletion}
+                  className="flex-1 rounded-xl border border-gray-300 py-3 font-semibold transition hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={completeSelectedPrep}
+                  className="flex-1 rounded-xl bg-violet-800 py-3 font-semibold text-white transition hover:bg-violet-900"
+                >
+                  {currentUser.role === "chef" ? "Submit Prep" : "Complete Prep"}
                 </button>
               </div>
             </div>

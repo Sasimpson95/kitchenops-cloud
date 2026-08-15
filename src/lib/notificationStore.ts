@@ -156,7 +156,7 @@ export function getNotifications(
           prepOutstanding === 1 ? "" : "s"
         } outstanding`,
         description: `${site.name} still has prep to complete.`,
-        href: "/production",
+        href: "/production?day=today",
         severity: "warning",
         siteName: site.name,
       });

@@ -1,3 +1,13 @@
+# KitchenOps 1.0.2 RC1
+
+Focused workflow fixes discovered during post-release testing.
+
+- Today's Prep can now be completed directly from the Prep page, matching the Dashboard workflow. Chefs submit for approval; managers can complete directly.
+- Outstanding Prep notifications now open Today's Prep instead of defaulting managers to Tomorrow.
+- Recipe editing now supports adding, removing and changing product ingredients.
+- Finished Menu Items can add/remove Preparation / Component recipes, allowing dishes such as Four Fluffy Pancakes to consume a yielded preparation such as Pancake Wetmix.
+- No database migration required.
+
 # KitchenOps 1.0.1 RC2
 
 Navigation smoothness follow-up for the 1.0.1 performance pass.
