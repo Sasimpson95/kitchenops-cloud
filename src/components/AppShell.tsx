@@ -83,7 +83,7 @@ const navItemsByRole: Record<
     },
     {
       label: "Prep",
-      href: "/production",
+      href: "/production?day=today",
     },
     {
       label: "Recipes",
@@ -134,7 +134,7 @@ const navItemsByRole: Record<
     },
     {
       label: "Prep",
-      href: "/production",
+      href: "/production?day=today",
     },
     {
       label: "Recipes",

@@ -1,3 +1,10 @@
+
+## KitchenOps 1.0.2 RC2
+
+- Fixed Today Prep deep links being rejected when they include `?day=today`.
+- Prep navigation now opens Today by default for managers and operations users.
+- Finished menu items no longer appear in the Add to Prep recipe picker; only active Preparation / Component recipes are eligible.
+
 # KitchenOps 1.0.2 RC1
 
 Focused workflow fixes discovered during post-release testing.

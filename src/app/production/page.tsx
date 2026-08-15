@@ -35,6 +35,7 @@ import {
   getRecipes,
   subscribeToRecipeChanges,
 } from "@/data/recipes";
+import { getRecipeCostingSetting } from "@/lib/recipeCostingStore";
 
 import type {
   ProductionDay,
@@ -113,7 +114,7 @@ export default function PrepPlannerPage() {
         }
       }
 
-      return initialUser?.role === "manager" ? "tomorrow" : "today";
+      return "today";
     });
 
   const [adding, setAdding] =
@@ -324,15 +325,21 @@ export default function PrepPlannerPage() {
           .toLowerCase();
 
       return recipeList
-        .filter(
-          (recipe) =>
+        .filter((recipe) => {
+          const settings = getRecipeCostingSetting(recipe.name);
+          if (settings.recipeType !== "preparation" || settings.active === false) {
+            return false;
+          }
+
+          return (
             !normalisedSearch ||
             recipe.name
               .toLowerCase()
               .includes(
                 normalisedSearch
               )
-        )
+          );
+        })
         .sort(
           (firstRecipe, secondRecipe) =>
             firstRecipe.name.localeCompare(
@@ -457,7 +464,10 @@ export default function PrepPlannerPage() {
     }
 
     const firstRecipe =
-      recipeList[0] ?? null;
+      recipeList.find((recipe) => {
+        const settings = getRecipeCostingSetting(recipe.name);
+        return settings.recipeType === "preparation" && settings.active !== false;
+      }) ?? null;
 
     setSelectedRecipe(firstRecipe);
     setQuantity(1);

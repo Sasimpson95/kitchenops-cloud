@@ -38,7 +38,13 @@ const ROLE_ROUTE_PREFIXES: Record<Exclude<UserRole, "operations">, string[]> = {
 
 export function isRouteAllowedForRole(role: UserRole, pathname: string): boolean {
   if (role === "operations") return true;
+
+  // Route permissions are based on the pathname only. Notification/deep links
+  // may include query strings such as /production?day=today. Treat those as
+  // the same protected route instead of rejecting the link and falling back.
+  const routePath = pathname.split("?")[0]?.split("#")[0] || "/";
+
   return ROLE_ROUTE_PREFIXES[role].some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+    (prefix) => routePath === prefix || routePath.startsWith(`${prefix}/`)
   );
 }
