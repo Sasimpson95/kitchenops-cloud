@@ -13,9 +13,13 @@ import {
 } from "@/lib/cloud/catalogSync";
 import {
   hydrateOperationalData,
+  prepareOperationalWorkspaceForNoSites,
   startOperationalPolling,
 } from "@/lib/cloud/operationalSync";
-import { switchBusinessWorkspace } from "@/lib/businessWorkspace";
+import {
+  activeBusinessHasSites,
+  switchBusinessWorkspace,
+} from "@/lib/businessWorkspace";
 import {
   flushPendingInventoryMovements,
   startInventoryPolling,
@@ -90,33 +94,46 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
       return session;
     }
 
-    async function prepareWorkspace(session: CloudSession): Promise<void> {
-      if (!session.business?.id) return;
+    async function prepareWorkspace(session: CloudSession): Promise<boolean> {
+      if (!session.business?.id) return false;
 
       const sitesResponse = await fetch("/api/cloud/sites", { cache: "no-store" });
       const sitesPayload = (await sitesResponse.json().catch(() => ({}))) as {
         sites?: BusinessSite[];
       };
-      if (cancelled) return;
+      if (cancelled) return false;
 
       const sites = sitesResponse.ok ? sitesPayload.sites ?? [] : [];
       if (sitesResponse.ok) {
         seedBusinessSitesCache(session.business.id, false, sites);
       }
 
+      const hasSites = !sitesResponse.ok || sites.length > 0;
       switchBusinessWorkspace(session.business.id, sitesResponse.ok && sites.length === 0);
+
+      if (sitesResponse.ok && sites.length === 0) {
+        prepareOperationalWorkspaceForNoSites(session.business.id);
+      }
+
+      return hasSites;
     }
 
     async function hydrateRuntime(session: CloudSession): Promise<void> {
-      await prepareWorkspace(session);
+      const hasSites = await prepareWorkspace(session);
       if (cancelled) return;
 
       // Push acknowledged-later edits before hydration so cloud snapshots cannot
       // overwrite optimistic local work.
       await flushPendingCatalogChanges();
       await hydrateCloudCatalog();
-      await flushPendingInventoryMovements();
-      await hydrateOperationalData();
+
+      // A brand-new business has no valid operational site yet. Keep first-site
+      // onboarding clean and do not start inventory/operational sync until the
+      // first site exists.
+      if (hasSites) {
+        await flushPendingInventoryMovements();
+        await hydrateOperationalData();
+      }
       if (cancelled) return;
 
       markRuntimeReady(session);
@@ -124,6 +141,11 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
     }
 
     function startBackgroundServices(): void {
+      if (!activeBusinessHasSites()) {
+        stopCatalogRetry = startCatalogSyncRetry();
+        return;
+      }
+
       const operationalPollMs =
         pathname === "/production" || pathname === "/home" || pathname === "/notifications"
           ? 3000
@@ -136,9 +158,15 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
       stopCatalogRetry = startCatalogSyncRetry();
     }
 
-    async function backgroundRefresh(): Promise<void> {
+    async function backgroundRefresh(session: CloudSession): Promise<void> {
+      const hasSites = await prepareWorkspace(session);
+      if (cancelled) return;
+
       await flushPendingCatalogChanges();
       await hydrateCloudCatalog();
+
+      if (!hasSites) return;
+
       await flushPendingInventoryMovements();
       await hydrateOperationalData({ force: true });
     }
@@ -185,7 +213,7 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
           // Normal in-app navigation: never block the next screen on duplicate
           // session/site/catalog/operations hydration. Refresh quietly instead.
           setAccessAllowed(true);
-          void backgroundRefresh().catch((error) => {
+          void backgroundRefresh(session).catch((error) => {
             console.warn("KitchenOps background refresh deferred:", error);
           });
         }
@@ -204,7 +232,7 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
               return;
             }
 
-            await backgroundRefresh();
+            await backgroundRefresh(stillValid);
           })().catch(() => {
             if (!cancelled) router.replace("/login");
           });

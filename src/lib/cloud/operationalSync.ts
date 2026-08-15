@@ -447,10 +447,18 @@ export async function flushPendingOperationalChanges(): Promise<void> {
           continue;
         }
 
-        // A permission rejection is permanent for the current user. Retrying it
-        // forever only creates repeated warnings and can overlay stale local data.
-        // Drop exactly the rejected batch, then reload the authoritative cloud copy.
-        if (isOperationalRejectedError(error) && error.status === 403) {
+        // Permission failures and stale invalid-site records are permanent for
+        // this local batch. Retrying forever only creates repeated warnings and
+        // can overlay stale data from a previous workspace.
+        const staleInvalidSiteRecord =
+          isOperationalRejectedError(error) &&
+          error.status === 400 &&
+          error.message === "Operational record references an invalid site.";
+
+        if (
+          isOperationalRejectedError(error) &&
+          (error.status === 403 || staleInvalidSiteRecord)
+        ) {
           const rejectedKeys = new Set(batch.map((change) => changeKey(change)));
           savePending(
             readPending().filter((change) => !rejectedKeys.has(changeKey(change)))
@@ -566,6 +574,30 @@ function applyPendingOverlay(
     else if (change.data) merged.set(change.id, change.data);
   }
   return Array.from(merged.values());
+}
+
+
+export function prepareOperationalWorkspaceForNoSites(businessId: string): void {
+  if (typeof window === "undefined" || !businessId) return;
+
+  const pending = readPending().filter((change) => change.businessId !== businessId);
+  savePending(pending);
+
+  const revisions = readRevisions();
+  const prefix = `${businessId}:`;
+  let revisionsChanged = false;
+  for (const key of Object.keys(revisions)) {
+    if (key.startsWith(prefix)) {
+      delete revisions[key];
+      revisionsChanged = true;
+    }
+  }
+  if (revisionsChanged) saveRevisions(revisions);
+
+  // New zero-site businesses are cloud-native workspaces. Mark the one-time
+  // browser migration complete so creating the first site cannot import stale
+  // operational records from a previous account/session.
+  window.localStorage.setItem(`${MIGRATION_PREFIX}::${businessId}`, "yes");
 }
 
 export async function hydrateOperationalData(_options?: { force?: boolean }): Promise<void> {

@@ -1,4 +1,5 @@
 export const ACTIVE_BUSINESS_KEY = "kitchenops-active-business-id";
+export const ACTIVE_BUSINESS_HAS_SITES_KEY = "kitchenops-active-business-has-sites";
 
 const WORKSPACE_KEYS = [
   "kitchenops-products",
@@ -64,27 +65,42 @@ export function switchBusinessWorkspace(businessId: string, isEmptyBusiness: boo
   if (!previousBusinessId) {
     if (isEmptyBusiness) clearWorkspace();
     window.localStorage.setItem(ACTIVE_BUSINESS_KEY, businessId);
+    window.localStorage.setItem(ACTIVE_BUSINESS_HAS_SITES_KEY, isEmptyBusiness ? "false" : "true");
     saveWorkspace(businessId);
     return;
   }
 
   if (previousBusinessId === businessId) {
     if (isEmptyBusiness) {
-      const hasScopedWorkspace = WORKSPACE_KEYS.some((key) =>
-        window.localStorage.getItem(scopedKey(businessId, key)) !== null
-      );
-      if (!hasScopedWorkspace) clearWorkspace();
+      // A zero-site workspace must never inherit browser operational data.
+      // Clear both the active workspace and its scoped snapshot so revisiting
+      // first-site onboarding cannot resurrect stale records.
+      clearWorkspace();
+      saveWorkspace(businessId);
     }
+    window.localStorage.setItem(ACTIVE_BUSINESS_HAS_SITES_KEY, isEmptyBusiness ? "false" : "true");
     return;
   }
 
   saveWorkspace(previousBusinessId);
   restoreWorkspace(businessId);
   window.localStorage.setItem(ACTIVE_BUSINESS_KEY, businessId);
+
+  if (isEmptyBusiness) {
+    clearWorkspace();
+    saveWorkspace(businessId);
+  }
+
+  window.localStorage.setItem(ACTIVE_BUSINESS_HAS_SITES_KEY, isEmptyBusiness ? "false" : "true");
 }
 
 
 export function getActiveBusinessId(): string {
   if (typeof window === "undefined") return "";
   return window.localStorage.getItem(ACTIVE_BUSINESS_KEY) ?? "";
+}
+
+export function activeBusinessHasSites(): boolean {
+  if (typeof window === "undefined") return true;
+  return window.localStorage.getItem(ACTIVE_BUSINESS_HAS_SITES_KEY) !== "false";
 }
