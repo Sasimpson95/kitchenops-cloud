@@ -5,6 +5,7 @@ import ProtectedPage from "@/components/ProtectedPage";
 import { PageHeader, SectionCard } from "@/components/ui";
 
 const notes = [
+  { version: "1.0.4 RC1", title: "Supplier Order Email", items: ["Send Order emails the supplier from a protected server route", "Orders only move to Sent after the email provider confirms delivery", "Failed emails leave the purchase order as Draft", "Draft orders use the same supplier-email workflow"] },
   { version: "1.0.2 RC1", title: "Prep & Recipe Workflow Fixes", items: ["Complete today prep directly from the Prep page", "Outstanding prep alerts open Today instead of Tomorrow", "Recipe editing can add/remove products and preparation components"] },
   { version: "1.0.1 RC1", title: "Navigation Performance", items: ["Protected routes reuse the already-authorised in-memory workspace during normal navigation", "Duplicate session, site and full cloud hydration no longer block every page click", "Site lists are cached per business and refreshed quietly in the background", "Cold start, changed staff/site and first login still require authoritative hydration before operational data is shown"] },
   { version: "RC14", title: "First-login PIN Security", items: ["New staff must replace their temporary PIN on first sign-in", "Reset PIN generates a one-time temporary PIN and forces the same change flow", "Existing staff sessions are invalidated when a manager resets their PIN", "New PIN entry is confirmed before saving and cannot reuse the temporary PIN"] },

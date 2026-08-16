@@ -30,7 +30,8 @@ import {
   subscribeToSupplierChanges,
 } from "@/lib/supplierStore";
 
-import { createDraftPurchaseOrder, createPurchaseOrder } from "@/lib/orderStore";
+import { createDraftPurchaseOrder, sendDraftPurchaseOrder } from "@/lib/orderStore";
+import { sendPurchaseOrderEmail } from "@/lib/orderEmail";
 import { getProductStock } from "@/lib/inventoryStore";
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
 
@@ -296,7 +297,7 @@ export default function NewOrderModal({
     return Math.ceil(neededInventoryUnits / perPurchaseUnit);
   }
 
-  function saveOrder(): void {
+  async function saveOrder(): Promise<void> {
     if (saving) return;
 
     if (!selectedSupplier) {
@@ -309,18 +310,32 @@ export default function NewOrderModal({
       return;
     }
 
+    let draftOrderId: string | null = null;
+
     try {
       setSaving(true);
       setError("");
 
-      createPurchaseOrder(buildOrderInput());
+      const draftOrder =
+        createDraftPurchaseOrder(buildOrderInput());
+
+      draftOrderId = draftOrder.id;
+
+      await sendPurchaseOrderEmail(draftOrder);
+
+      sendDraftPurchaseOrder(draftOrder.id);
 
       onClose();
     } catch (caughtError) {
-      setError(
+      const message =
         caughtError instanceof Error
           ? caughtError.message
-          : "The order could not be created."
+          : "The supplier email could not be sent.";
+
+      setError(
+        draftOrderId
+          ? `${message} The order has been saved as Draft and has NOT been marked as sent.`
+          : message
       );
       setSaving(false);
     }

@@ -10,6 +10,8 @@ import OrderDetailsModal from "@/components/orders/OrderDetailsModal";
 import EditOrderModal from "@/components/orders/EditOrderModal";
 import EmptyState from "@/components/ui/EmptyState";
 import { ShoppingCart } from "lucide-react";
+import { toast } from "@/lib/toast";
+import { sendPurchaseOrderEmail } from "@/lib/orderEmail";
 
 import type { PurchaseOrder } from "@/data/orders";
 
@@ -60,8 +62,24 @@ export default function OrdersTable() {
     refreshOrders();
   }
 
-  function sendSelectedOrder() {
-    changeStatus("Sent");
+  async function sendSelectedOrder(): Promise<void> {
+    if (!selectedOrder) return;
+
+    try {
+      await sendPurchaseOrderEmail(selectedOrder);
+      changeStatus("Sent");
+      toast.success(
+        "Order sent",
+        `${selectedOrder.orderNumber} was emailed to ${selectedOrder.supplierName}.`
+      );
+    } catch (error) {
+      toast.error(
+        "Order not sent",
+        error instanceof Error
+          ? error.message
+          : "The supplier email could not be sent."
+      );
+    }
   }
 
   function cancelSelectedOrder() {

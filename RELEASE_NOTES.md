@@ -1,3 +1,10 @@
+## 1.0.4-rc1 — Supplier order email
+
+- Purchase Order Send now actually emails the supplier.
+- Orders remain Draft if the supplier email fails.
+- Supplier/site/business recipients are validated server-side.
+- Existing Draft orders use the same email send workflow.
+
 # KitchenOps 1.0.3 RC1 — New Business Workspace Isolation
 
 ## KOPS-1.0.3-001
