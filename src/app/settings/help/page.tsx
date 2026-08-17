@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Boxes, ChefHat, ClipboardCheck, PackageSearch, ShoppingCart, Trash2 } from "lucide-react";
+import { BookOpen, Boxes, ChefHat, ClipboardCheck, PackageSearch, PlayCircle, ShoppingCart, Trash2 } from "lucide-react";
 import ProtectedPage from "@/components/ProtectedPage";
 import { PageHeader, SectionCard } from "@/components/ui";
+import Button from "@/components/ui/Button";
+import { replayOnboardingTour } from "@/lib/onboardingTour";
 
 const guides = [
   { title: "Products & stock", icon: PackageSearch, text: "Create products first, then assign suppliers, units, storage areas and stock levels." },
@@ -27,6 +29,22 @@ export default function HelpPage() {
               </SectionCard>
             ))}
           </div>
+
+          <section className="mt-6 rounded-2xl border border-violet-200 bg-violet-50 p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <PlayCircle className="mt-0.5 h-5 w-5 shrink-0 text-violet-800" />
+                <div>
+                  <h2 className="font-bold text-violet-950">Replay the KitchenOps introduction</h2>
+                  <p className="mt-1 max-w-2xl text-sm leading-6 text-violet-800">
+                    Run through the getting-started tour again for a reminder of the recommended setup order and day-to-day workflow.
+                  </p>
+                </div>
+              </div>
+              <Button onClick={replayOnboardingTour} className="shrink-0">Replay introduction</Button>
+            </div>
+          </section>
+
           <section className="mt-6 rounded-2xl border border-violet-200 bg-violet-50 p-6">
             <div className="flex items-start gap-3"><BookOpen className="mt-0.5 h-5 w-5 text-violet-800" /><div><h2 className="font-bold text-violet-950">Need to report something?</h2><p className="mt-1 text-sm leading-6 text-violet-800">Use the feedback screen to prepare a bug report, feature request or general comment.</p><Link href="/settings/feedback" className="mt-3 inline-flex font-semibold text-violet-900 underline decoration-violet-300 underline-offset-4">Open feedback</Link></div></div>
           </section>

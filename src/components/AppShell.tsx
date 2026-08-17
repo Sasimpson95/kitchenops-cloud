@@ -27,7 +27,7 @@ import {
   clearCurrentUser,
 } from "@/lib/currentUser";
 
-import { clearCloudSessionCache } from "@/lib/cloudSession";
+import { clearCloudSessionCache, getCachedCloudSession } from "@/lib/cloudSession";
 import { clearRuntimeReadiness } from "@/lib/runtimeReadiness";
 import { clearBusinessSitesCache } from "@/lib/useBusinessSites";
 
@@ -37,6 +37,7 @@ import {
 
 import CommandPalette from "@/components/CommandPalette";
 import NotificationPopover from "@/components/NotificationPopover";
+import OnboardingTour from "@/components/OnboardingTour";
 import { KITCHENOPS_VERSION } from "@/config/version";
 import {
   getSiteHandover,
@@ -216,6 +217,9 @@ export default function AppShell({
 
   const pathname =
     usePathname();
+
+  const cloudSession =
+    getCachedCloudSession();
 
   const [mobileMenuOpen, setMobileMenuOpen] =
     useState(false);
@@ -573,6 +577,12 @@ export default function AppShell({
           {children}
         </div>
       </div>
+
+      <OnboardingTour
+        currentUser={currentUser}
+        businessId={cloudSession?.business?.id}
+        businessName={cloudSession?.business?.name}
+      />
 
       <CommandPalette
         currentUser={
