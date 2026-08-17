@@ -8,6 +8,7 @@ import {
 } from "@/lib/auth/staffSession";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { getKitchenOpsAccessState } from "@/lib/subscriptionAccess";
 
 function clearStaffCookie(response: NextResponse): NextResponse {
   response.cookies.set(STAFF_COOKIE_NAME, "", {
@@ -41,7 +42,9 @@ export async function GET() {
         businesses!inner (
           id,
           name,
-          active
+          active,
+          subscription_status,
+          trial_ends_at
         ),
         sites!inner (
           id,
@@ -77,6 +80,8 @@ export async function GET() {
       );
     }
 
+    const access = getKitchenOpsAccessState(business);
+
     const expiresAt = signedStaff.expiresAt;
     const refreshedSession = {
       staffId: staff.id,
@@ -105,6 +110,10 @@ export async function GET() {
       siteId: refreshedSession.siteId,
       authType: "pin",
       mustChangePin: staff.must_change_pin,
+      subscriptionRequired: !access.allowed,
+      subscriptionStatus: access.status,
+      trialEndsAt: access.trialEndsAt,
+      trialDaysRemaining: access.trialDaysRemaining,
     });
 
     // Re-sign current authoritative role/site details so changes take effect
@@ -147,7 +156,9 @@ export async function GET() {
       businesses (
         id,
         name,
-        code
+        code,
+        subscription_status,
+        trial_ends_at
       )
     `)
     .eq("auth_user_id", user.id)
@@ -169,6 +180,10 @@ export async function GET() {
     ? rawBusiness[0]
     : rawBusiness;
 
+  const access = business
+    ? getKitchenOpsAccessState(business)
+    : { allowed: false, status: "expired" as const };
+
   return NextResponse.json({
     authenticated: true,
     user: {
@@ -184,5 +199,9 @@ export async function GET() {
         }
       : null,
     authType: "supabase",
+    subscriptionRequired: !access.allowed,
+    subscriptionStatus: access.status,
+    trialEndsAt: access.trialEndsAt,
+    trialDaysRemaining: access.trialDaysRemaining,
   });
 }

@@ -7,6 +7,7 @@ import {
 import { siteNameToKey } from "@/lib/siteKey";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { getKitchenOpsAccessState } from "@/lib/subscriptionAccess";
 
 export type CloudRequestContext = {
   businessId: string;
@@ -45,7 +46,9 @@ export async function getCloudRequestContext(): Promise<CloudRequestContext | nu
         active,
         businesses!inner (
           id,
-          active
+          active,
+          subscription_status,
+          trial_ends_at
         ),
         sites!inner (
           id,
@@ -65,6 +68,7 @@ export async function getCloudRequestContext(): Promise<CloudRequestContext | nu
     const site = Array.isArray(rawSite) ? rawSite[0] : rawSite;
 
     if (!business?.active || !site?.active) return null;
+    if (!getKitchenOpsAccessState(business).allowed) return null;
     if (staff.role !== "manager" && staff.role !== "chef") return null;
 
     return {
@@ -87,12 +91,26 @@ export async function getCloudRequestContext(): Promise<CloudRequestContext | nu
 
   const { data: membership } = await supabase
     .from("business_memberships")
-    .select("business_id, role, active")
+    .select(`
+      business_id,
+      role,
+      active,
+      businesses!inner (
+        id,
+        active,
+        subscription_status,
+        trial_ends_at
+      )
+    `)
     .eq("auth_user_id", user.id)
     .eq("active", true)
     .maybeSingle();
 
   if (!membership) return null;
+
+  const rawBusiness = membership.businesses;
+  const business = Array.isArray(rawBusiness) ? rawBusiness[0] : rawBusiness;
+  if (!business?.active || !getKitchenOpsAccessState(business).allowed) return null;
 
   return {
     businessId: membership.business_id,

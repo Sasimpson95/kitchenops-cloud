@@ -1,0 +1,56 @@
+KitchenOps 1.0.6 RC1 — Trial Entitlement Foundation
+
+IMPORTANT ORDER
+===============
+
+1. Replace your project files with this build.
+
+2. Apply the Supabase migration BEFORE deploying the app code:
+
+   cd C:\Users\steph\Desktop\kitchenops-cloud-clean
+   npx supabase db push
+
+   Migration:
+   supabase/migrations/015_trial_entitlement_foundation.sql
+
+3. Run release gates:
+
+   npm run typecheck
+   npm run build
+   npm audit --omit=dev
+   npm run android:sync
+   npm run android:check
+   git diff --check
+
+4. Test locally/live before tagging:
+
+   A. Existing KitchenOps business
+      - Sign in normally.
+      - Confirm dashboard and all normal functions still work.
+      - Existing businesses are migrated to subscription_status = legacy.
+
+   B. New business from /login
+      - Click Create a new business.
+      - Page must say 30-day free trial / no card required.
+      - Create a new test business.
+      - Confirm it opens normally.
+      - In Supabase, confirm the business row has:
+          subscription_status = trialing
+          trial_started_at = populated
+          trial_ends_at = about 30 days later
+
+   C. Expiry enforcement test (temporary test business only)
+      - In Supabase set trial_ends_at to a time in the past.
+      - Refresh/sign back in.
+      - Confirm KitchenOps redirects to /subscription-required.
+      - Confirm normal cloud API access is rejected for the expired workspace.
+      - Restore/delete the temporary test business afterwards.
+
+5. If all tests pass, deploy/tag as KitchenOps 1.0.6 RC1.
+
+Notes
+=====
+- Existing businesses are NOT locked by this release.
+- The Google Play closed-test business will remain legacy and continue working.
+- This release establishes the entitlement/trial lifecycle. Stripe checkout will
+  plug into subscription_status in the next commercial step.

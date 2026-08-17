@@ -217,9 +217,11 @@ export default function LoginPage() {
         ) {
           setCurrentUser(session.user);
           router.replace(
-            session.authType === "pin" && session.mustChangePin
-              ? "/set-pin"
-              : "/home"
+            session.subscriptionRequired
+              ? "/subscription-required"
+              : session.authType === "pin" && session.mustChangePin
+                ? "/set-pin"
+                : "/home"
           );
           router.refresh();
         }
@@ -285,7 +287,7 @@ export default function LoginPage() {
       }
 
       setCurrentUser(session.user);
-      router.replace("/home");
+      router.replace(session.subscriptionRequired ? "/subscription-required" : "/home");
       router.refresh();
     } catch (caughtError) {
       setError(

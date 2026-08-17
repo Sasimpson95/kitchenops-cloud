@@ -8,6 +8,10 @@ export type CloudSession = {
   authType?: "supabase" | "pin";
   mustChangePin?: boolean;
   needsOnboarding?: boolean;
+  subscriptionRequired?: boolean;
+  subscriptionStatus?: "legacy" | "trialing" | "active" | "past_due" | "canceled" | "expired";
+  trialEndsAt?: string;
+  trialDaysRemaining?: number;
 };
 
 let memorySession: CloudSession | null = null;

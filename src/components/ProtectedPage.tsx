@@ -77,6 +77,12 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
         return null;
       }
 
+      if (session.subscriptionRequired) {
+        setAccessAllowed(false);
+        router.replace("/subscription-required");
+        return null;
+      }
+
       if (session.authType === "pin" && session.mustChangePin) {
         setAccessAllowed(false);
         router.replace("/set-pin");
