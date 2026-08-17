@@ -188,13 +188,16 @@ export async function POST(request: NextRequest) {
       <div style="font-family:Arial,Helvetica,sans-serif;color:#18181b;max-width:720px;margin:0 auto;">
         <div style="background:#5b21b6;color:#fff;padding:24px;border-radius:14px 14px 0 0;">
           <div style="font-size:13px;opacity:.85;">PURCHASE ORDER</div>
-          <h1 style="margin:6px 0 0;font-size:26px;">${escapeHtml(orderNumber)}</h1>
+          <h1 style="margin:6px 0 18px;font-size:26px;">${escapeHtml(orderNumber)}</h1>
+          <div style="font-size:14px;line-height:1.7;">
+            <div><strong>Business:</strong> ${escapeHtml(businessName)}</div>
+            <div><strong>Delivery site:</strong> ${escapeHtml(site.name || siteName)}</div>
+            <div><strong>Requested delivery:</strong> ${escapeHtml(requestedDeliveryDate || "Not set")}</div>
+          </div>
         </div>
         <div style="border:1px solid #e5e7eb;border-top:0;padding:24px;border-radius:0 0 14px 14px;">
           <p style="margin-top:0;">Hello ${escapeHtml(authoritativeSupplierName)},</p>
-          <p>Please find the purchase order from <strong>${escapeHtml(businessName)}</strong> for <strong>${escapeHtml(site.name || siteName)}</strong>.</p>
-
-          <p><strong>Requested delivery:</strong> ${escapeHtml(requestedDeliveryDate || "Not set")}</p>
+          <p>Please find the purchase order below.</p>
 
           <table style="width:100%;border-collapse:collapse;margin-top:20px;font-size:14px;">
             <thead>
@@ -222,7 +225,8 @@ export async function POST(request: NextRequest) {
 
     const textLines = [
       `Purchase Order ${orderNumber}`,
-      `${businessName} — ${site.name || siteName}`,
+      `Business: ${businessName}`,
+      `Delivery site: ${site.name || siteName}`,
       `Requested delivery: ${requestedDeliveryDate || "Not set"}`,
       "",
       ...items.map((item) => {
@@ -245,7 +249,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         from,
         to: [supplierEmail],
-        subject: `${businessName} Purchase Order ${orderNumber}`,
+        subject: `Purchase Order ${orderNumber} — ${site.name || siteName} — ${businessName}`,
         html,
         text: textLines.join("\n"),
       }),

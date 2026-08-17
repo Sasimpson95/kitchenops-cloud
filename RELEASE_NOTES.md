@@ -1,3 +1,10 @@
+## 1.0.4-rc2 — Supplier order delivery-site clarity
+
+- Purchase order email subjects now include the delivery site.
+- The email header clearly shows Business, Delivery site and Requested delivery.
+- Plain-text email fallback contains the same delivery-site details.
+- No changes to purchasing, Resend delivery or order-status logic.
+
 ## 1.0.4-rc1 — Supplier order email
 
 - Purchase Order Send now actually emails the supplier.
