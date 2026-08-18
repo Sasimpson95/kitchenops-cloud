@@ -72,6 +72,17 @@ export default function CloudOnboardingPage() {
       });
       if (businessError) throw businessError;
 
+      // Email is deliberately best-effort: a temporary mail-provider issue must never
+      // turn a successfully created KitchenOps business into a failed signup.
+      try {
+        const response = await fetch("/api/trial/signup-email", { method: "POST" });
+        if (!response.ok) {
+          console.warn("KitchenOps trial signup email was not sent.", await response.text());
+        }
+      } catch (emailError) {
+        console.warn("KitchenOps trial signup email was not sent.", emailError);
+      }
+
       setCurrentUser({ name: operationsName.trim(), role: "operations", site: "All Sites" });
       router.replace("/home");
       router.refresh();
