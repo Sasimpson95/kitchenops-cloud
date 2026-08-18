@@ -1,0 +1,21 @@
+KitchenOps 1.0.6 RC2B — Trial Signup Email Fix
+
+Fix:
+- Correctly updates src/app/cloud-onboarding/page.tsx.
+- Calls POST /api/trial/signup-email after create_kitchenops_business succeeds.
+- Includes the server-side signup-email route.
+- Email sending remains best-effort and cannot fail an otherwise successful signup.
+
+Environment variables expected in Vercel:
+- RESEND_API_KEY
+- KITCHENOPS_SIGNUP_FROM_EMAIL
+- KITCHENOPS_SIGNUP_NOTIFY_EMAIL
+
+Apply over:
+C:\Users\steph\Desktop\kitchenops-cloud-clean
+
+Then run:
+npm run typecheck
+npm run build
+
+Test locally or deploy, then create a fresh trial business and check Resend Emails.
