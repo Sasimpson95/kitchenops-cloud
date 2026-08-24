@@ -145,6 +145,11 @@ export default function AcceptOperationsInvitePage() {
     `/operations/invite/accept?token=${token}`
   )}`;
 
+  const signupHref =
+    `/operations/invite/signup?token=${encodeURIComponent(
+      token
+    )}`;
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
       <section className="w-full max-w-xl rounded-2xl bg-white p-7 shadow-sm sm:p-9">
@@ -200,13 +205,23 @@ export default function AcceptOperationsInvitePage() {
               </div>
             </div>
 
-            <Link
-              href={loginHref}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900"
-            >
-              <LogIn size={18} />
-              Sign in to continue
-            </Link>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <Link
+                href={loginHref}
+                className="flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900"
+              >
+                <LogIn size={18} />
+                Sign in
+              </Link>
+
+              <Link
+                href={signupHref}
+                className="flex items-center justify-center gap-2 rounded-xl border border-violet-800 px-5 py-3 font-semibold text-violet-800 hover:bg-violet-50"
+              >
+                <UserPlus size={18} />
+                Create account
+              </Link>
+            </div>
           </div>
         )}
 
