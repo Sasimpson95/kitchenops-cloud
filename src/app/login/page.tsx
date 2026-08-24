@@ -12,6 +12,7 @@ import {
 
 import {
   useRouter,
+  useSearchParams,
 } from "next/navigation";
 
 import {
@@ -64,6 +65,20 @@ type StaffSite = {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const nextPath = useMemo(() => {
+    const requested = searchParams.get("next")?.trim() ?? "";
+
+    if (
+      !requested.startsWith("/") ||
+      requested.startsWith("//")
+    ) {
+      return "";
+    }
+
+    return requested;
+  }, [searchParams]);
 
   const [mode, setMode] =
     useState<LoginMode>(
@@ -266,6 +281,12 @@ export default function LoginPage() {
           });
 
       if (loginError) throw loginError;
+
+      if (nextPath) {
+        router.replace(nextPath);
+        router.refresh();
+        return;
+      }
 
       const session =
         await getCloudSession();
