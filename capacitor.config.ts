@@ -1,26 +1,24 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 /**
- * KitchenOps Android shell
+ * KitchenOps native shell
  *
- * Replace the URL below with the LIVE HTTPS KitchenOps URL before running:
- *   npm run android:sync
- *
- * Example:
- *   https://your-kitchenops-domain.co.uk
- *   https://your-project.vercel.app
+ * Production app:
+ * https://app.kitchenops.co.uk
  */
-const KITCHENOPS_LIVE_URL = 'https://kitchenops-cloud.vercel.app/login';
+const KITCHENOPS_LIVE_URL = 'https://app.kitchenops.co.uk/login';
 
 const config: CapacitorConfig = {
   appId: 'com.kitchenops.app',
   appName: 'KitchenOps',
   webDir: 'public',
+
   server: {
     url: KITCHENOPS_LIVE_URL,
     cleartext: false,
     androidScheme: 'https',
   },
+
   plugins: {
     SplashScreen: {
       launchShowDuration: 1600,
@@ -29,6 +27,7 @@ const config: CapacitorConfig = {
       androidScaleType: 'CENTER_INSIDE',
       showSpinner: false,
     },
+
     StatusBar: {
       style: 'LIGHT',
       backgroundColor: '#ffffff',
