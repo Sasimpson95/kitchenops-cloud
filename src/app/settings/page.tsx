@@ -14,11 +14,15 @@ import {
   Sparkles,
   Tags,
   Store,
+  UserRoundCog,
   UsersRound,
 } from "lucide-react";
 
 import ProtectedPage from "@/components/ProtectedPage";
-import { KITCHENOPS_RELEASE_NAME, KITCHENOPS_VERSION } from "@/config/version";
+import {
+  KITCHENOPS_RELEASE_NAME,
+  KITCHENOPS_VERSION,
+} from "@/config/version";
 
 const sections = [
   {
@@ -34,6 +38,13 @@ const sections = [
       "Business name, code, Operations users and stocktake settings.",
     href: "/settings/business",
     icon: Building2,
+  },
+  {
+    title: "Account & Privacy",
+    description:
+      "Manage your Operations account and account deletion.",
+    href: "/settings/account",
+    icon: UserRoundCog,
   },
   {
     title: "Sites",
@@ -113,7 +124,8 @@ export default function SettingsPage() {
               </h1>
 
               <p className="mt-2 max-w-2xl text-gray-600">
-                Manage your business, sites, users, support and product information from one place.
+                Manage your business, sites, users, account, support and
+                product information from one place.
               </p>
             </div>
           </div>
@@ -153,10 +165,19 @@ export default function SettingsPage() {
 
           <section className="mt-6 flex flex-col gap-2 rounded-2xl border border-violet-200 bg-violet-50 p-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-violet-700">Installed version</p>
-              <h2 className="mt-1 text-xl font-bold text-violet-950">KitchenOps v{KITCHENOPS_VERSION}</h2>
-              <p className="mt-1 text-sm text-violet-800">{KITCHENOPS_RELEASE_NAME}</p>
+              <p className="text-sm font-semibold uppercase tracking-wide text-violet-700">
+                Installed version
+              </p>
+
+              <h2 className="mt-1 text-xl font-bold text-violet-950">
+                KitchenOps v{KITCHENOPS_VERSION}
+              </h2>
+
+              <p className="mt-1 text-sm text-violet-800">
+                {KITCHENOPS_RELEASE_NAME}
+              </p>
             </div>
+
             <span className="mt-2 inline-flex w-fit rounded-full bg-white px-3 py-1 text-xs font-bold text-violet-800 shadow-sm sm:mt-0">
               Launch preparation release
             </span>
@@ -168,7 +189,9 @@ export default function SettingsPage() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-gray-600">
-              The main sidebar is reserved for day-to-day kitchen operations. Business setup, people management and integrations now live inside Settings.
+              The main sidebar is reserved for day-to-day kitchen
+              operations. Business setup, account management, people
+              management and integrations now live inside Settings.
             </p>
           </section>
         </div>
