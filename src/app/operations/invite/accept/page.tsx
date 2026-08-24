@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Loader2,
   LogIn,
+  LogOut,
   ShieldCheck,
   UserPlus,
 } from "lucide-react";
@@ -21,11 +22,24 @@ type AcceptResponse = {
   alreadyMember?: boolean;
 };
 
+type InviteDetailsResponse = {
+  ok?: boolean;
+  error?: string;
+  invitation?: {
+    email: string;
+    name: string;
+    businessName: string;
+    expiresAt: string;
+  };
+};
+
 type PageState =
   | "checking"
   | "signed-out"
+  | "wrong-account"
   | "ready"
   | "accepting"
+  | "signing-out"
   | "accepted"
   | "error";
 
@@ -37,10 +51,26 @@ export default function AcceptOperationsInvitePage() {
     [searchParams]
   );
 
-  const [state, setState] = useState<PageState>("checking");
+  const [state, setState] =
+    useState<PageState>("checking");
   const [email, setEmail] = useState("");
+  const [invitedEmail, setInvitedEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  const invitePath =
+    `/operations/invite/accept?token=${encodeURIComponent(
+      token
+    )}`;
+
+  const loginHref = `/login?next=${encodeURIComponent(
+    invitePath
+  )}`;
+
+  const signupHref =
+    `/operations/invite/signup?token=${encodeURIComponent(
+      token
+    )}`;
 
   useEffect(() => {
     let active = true;
@@ -58,6 +88,39 @@ export default function AcceptOperationsInvitePage() {
       }
 
       try {
+        const detailsResponse = await fetch(
+          `/api/operations/invite/details?token=${encodeURIComponent(
+            token
+          )}`,
+          {
+            method: "GET",
+            cache: "no-store",
+          }
+        );
+
+        const details =
+          (await detailsResponse.json()) as InviteDetailsResponse;
+
+        if (
+          !detailsResponse.ok ||
+          !details.ok ||
+          !details.invitation
+        ) {
+          if (!active) return;
+
+          setError(
+            details.error ??
+              "This invitation could not be loaded."
+          );
+          setState("error");
+          return;
+        }
+
+        const nextInvitedEmail =
+          details.invitation.email.trim().toLowerCase();
+
+        setInvitedEmail(details.invitation.email);
+
         const supabase = createClient();
 
         const {
@@ -71,7 +134,19 @@ export default function AcceptOperationsInvitePage() {
           return;
         }
 
+        const signedInEmail =
+          user.email?.trim().toLowerCase() ?? "";
+
         setEmail(user.email ?? "");
+
+        if (
+          !signedInEmail ||
+          signedInEmail !== nextInvitedEmail
+        ) {
+          setState("wrong-account");
+          return;
+        }
+
         setState("ready");
       } catch {
         if (!active) return;
@@ -89,6 +164,38 @@ export default function AcceptOperationsInvitePage() {
       active = false;
     };
   }, [token]);
+
+  async function signOutAndContinue(): Promise<void> {
+    if (
+      !token ||
+      state === "signing-out"
+    ) {
+      return;
+    }
+
+    setState("signing-out");
+    setError("");
+
+    try {
+      const supabase = createClient();
+
+      const { error: signOutError } =
+        await supabase.auth.signOut({
+          scope: "local",
+        });
+
+      if (signOutError) {
+        throw signOutError;
+      }
+
+      window.location.replace(invitePath);
+    } catch {
+      setError(
+        "KitchenOps could not sign you out. Please try again."
+      );
+      setState("wrong-account");
+    }
+  }
 
   async function acceptInvitation(): Promise<void> {
     if (!token || state === "accepting") return;
@@ -141,15 +248,6 @@ export default function AcceptOperationsInvitePage() {
     }
   }
 
-  const loginHref = `/login?next=${encodeURIComponent(
-    `/operations/invite/accept?token=${token}`
-  )}`;
-
-  const signupHref =
-    `/operations/invite/signup?token=${encodeURIComponent(
-      token
-    )}`;
-
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
       <section className="w-full max-w-xl rounded-2xl bg-white p-7 shadow-sm sm:p-9">
@@ -195,10 +293,13 @@ export default function AcceptOperationsInvitePage() {
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-violet-900">
-                    Sign in using the email address that
-                    received this invitation. If you do not
-                    yet have a KitchenOps account, you will
-                    need to create one using that same email
+                    Sign in using{" "}
+                    <strong>
+                      {invitedEmail ||
+                        "the email address that received this invitation"}
+                    </strong>
+                    . If you do not yet have a KitchenOps
+                    account, create one using that same email
                     address.
                   </p>
                 </div>
@@ -222,6 +323,53 @@ export default function AcceptOperationsInvitePage() {
                 Create account
               </Link>
             </div>
+          </div>
+        )}
+
+        {state === "wrong-account" && (
+          <div className="mt-8">
+            <div className="rounded-2xl bg-amber-50 p-5">
+              <p className="font-bold text-amber-950">
+                You&apos;re signed into a different account
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-amber-900">
+                This invitation was sent to{" "}
+                <strong>{invitedEmail}</strong>, but you are
+                currently signed in as{" "}
+                <strong>{email || "another account"}</strong>.
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-amber-900">
+                Sign out, then continue using the invited
+                email address.
+              </p>
+            </div>
+
+            {error && (
+              <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-semibold leading-6 text-red-700">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={signOutAndContinue}
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900"
+            >
+              <LogOut size={18} />
+              Sign out and continue
+            </button>
+          </div>
+        )}
+
+        {state === "signing-out" && (
+          <div className="mt-8 flex items-center gap-3 rounded-2xl bg-violet-50 p-5 text-violet-900">
+            <Loader2
+              size={20}
+              className="animate-spin"
+            />
+            Signing you out...
           </div>
         )}
 
@@ -306,7 +454,7 @@ export default function AcceptOperationsInvitePage() {
             </div>
 
             <Link
-              href="/login"
+              href={loginHref}
               className="mt-6 flex w-full items-center justify-center rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-800"
             >
               Go to sign in
