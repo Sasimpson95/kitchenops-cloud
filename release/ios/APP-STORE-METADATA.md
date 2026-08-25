@@ -1,107 +1,160 @@
-# KitchenOps — App Store Metadata
+KitchenOps — App Store Metadata
 
-## App Name
+App Name
+
 KitchenOps
 
-## Subtitle
-Kitchen operations for hospitality
+Subtitle
 
-## Bundle ID
+Kitchen operations made simple
+
+Bundle ID
+
 com.kitchenops.app
 
-## Primary Category
+Version
+
+1.0.6
+
+Primary Category
+
 Business
 
-## Secondary Category
+Secondary Category
+
 Productivity
 
-## Promotional Text
-Plan prep, manage stock, place supplier orders, record waste, keep recipes together and hand over properly between shifts.
+Primary Language
 
-## Description
+English (UK)
+
+Promotional Text
+
+Plan prep, manage stock, supplier orders, waste, recipes, stocktakes and shift handovers in one place for hospitality teams.
+
+Description
+
 KitchenOps brings the everyday operational jobs of a professional kitchen into one place.
 
-Built for restaurants, cafés and hospitality groups, KitchenOps helps teams manage prep, stock, purchasing, waste, recipes, stocktakes and shift handovers without relying on separate spreadsheets, notebooks or disconnected systems.
+Built for restaurants, cafés and hospitality groups, KitchenOps helps teams organise prep, stock, purchasing, waste, recipes, stocktakes and shift handovers without relying on separate spreadsheets, notebooks or disconnected systems.
 
 Key features include:
 
-• Prep Planning
-Plan tomorrow’s prep, track today’s progress and carry unfinished work forward.
+Prep Planning
+Plan upcoming prep, track progress and carry unfinished work forward.
 
-• Stock & Inventory
-Keep track of current stock levels and inventory movements.
+Stock & Inventory
+Keep track of stock levels and inventory movements across your kitchen.
 
-• Purchasing & Receiving
+Purchasing & Receiving
 Create supplier orders, receive deliveries and keep inventory updated.
 
-• Stocktakes
-Complete structured stock counts around how products are actually stored.
+Stocktakes
+Complete structured stock counts based on how products are stored.
 
-• Waste Tracking
-Record waste as it happens and keep stock figures accurate.
+Waste Tracking
+Record waste as it happens and help keep stock figures accurate.
 
-• Recipes & Costing
+Recipes & Costing
 Keep recipes, ingredients, yields and costs together.
 
-• Kitchen Handovers
-Leave a clear handover for the next shift.
+Kitchen Handovers
+Leave a clear operational handover for the next shift.
 
-• Multi-Site Management
-Manage individual kitchens while keeping visibility across the wider business.
+Multi-Site Management
+Manage individual kitchens while maintaining visibility across the wider business.
 
-• Team & Permissions
-Give team members access based on their role and responsibilities.
+Team & Permissions
+Provide access based on team members' roles and responsibilities.
 
-KitchenOps includes unlimited users and is designed around the day-to-day needs of hospitality teams.
+KitchenOps is designed around the day-to-day needs of hospitality teams and supports unlimited users within a subscribed business account.
 
-A KitchenOps account is required to use the app.
+A KitchenOps account and internet connection are required to use the app.
 
-## Keywords
-kitchen,restaurant,hospitality,inventory,stock,prep,purchasing,waste,recipes,operations
+Keywords
 
-## Support URL
+restaurant,hospitality,inventory,stock,prep,purchasing,waste,recipes,operations,kitchen
+
+Support URL
+
 https://kitchenops.co.uk/contact
 
-## Marketing URL
+Marketing URL
+
 https://kitchenops.co.uk
 
-## Privacy Policy URL
+Privacy Policy URL
+
 https://kitchenops.co.uk/privacy
 
-## Copyright
+Copyright
+
 © 2026 Simpson Software
 
-## App Review Notes
-KitchenOps is a business operations platform for hospitality teams.
+App Review Notes
 
-The app requires an internet connection and loads the KitchenOps cloud platform.
+KitchenOps is a cloud-based business operations platform for restaurants, cafés and hospitality teams.
 
-A reviewer account will be provided before submission.
+An internet connection and KitchenOps account are required.
 
-The review account will allow access to representative areas of the app including:
-- Dashboard
-- Prep Planner
-- Recipes
-- Products
-- Inventory
-- Purchasing
-- Waste
-- Stocktakes
-- Handover
-- Suppliers
-- Users
-- Settings
+A dedicated App Review account will be provided before submission. The review account will contain representative demo data and will allow access to the main areas of the app, including:
 
-No physical goods are purchased through the app.
+Dashboard
 
-## Sign-in Required
+Prep Planner
+
+Recipes
+
+Products
+
+Inventory
+
+Purchasing
+
+Waste
+
+Stocktakes
+
+Handover
+
+Suppliers
+
+Users
+
+Settings
+
+KitchenOps does not sell physical goods through the app.
+
+Account deletion can be initiated from Settings > Account & Privacy. Where an account is the only active Operations user for a business, KitchenOps requires another Operations user to be added first so that business data and access are not orphaned.
+
+Sign-in Required
+
 Yes
 
-## Account Required
+Account Required
+
 Yes
 
-## Website
+Website
+
 https://kitchenops.co.uk
 
-## Web App
+Web App
+
 https://app.kitchenops.co.uk
+
+App Store Connect Notes
+
+App name limit: 30 characters.
+
+Subtitle limit: 30 characters.
+
+Promotional text limit: 170 characters.
+
+Description limit: 4,000 characters.
+
+Keywords limit: 100 bytes.
+
+Final reviewer credentials must not be stored in this repository.
+
+Final screenshots and age-rating answers are handled separately.
