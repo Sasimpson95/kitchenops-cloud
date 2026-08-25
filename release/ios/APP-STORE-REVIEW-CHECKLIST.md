@@ -1,370 +1,786 @@
-# KitchenOps — App Store Review & Compliance Checklist
+KitchenOps — Final App Store Review & Submission Checklist
 
-## App
+App
+
 KitchenOps
 
-## Bundle ID
+Bundle ID
+
 com.kitchenops.app
 
----
+Version
 
-# 1. Age Rating
+1.0.6
 
-Expected rating:
-4+
+Current readiness
 
-Reason:
-KitchenOps is a business operations app for hospitality teams.
+KitchenOps has completed the main Windows-side iOS preparation work. The native Capacitor iOS project exists, the app identity and branding are configured, account deletion is implemented and tested, and App Store metadata/privacy planning has been prepared.
 
-Expected content:
-- No violence
-- No sexual content
-- No gambling
-- No drugs
-- No horror/fear content
-- No profanity as part of the app itself
-- No user-to-user social network
-- No unrestricted web browsing
+Items marked MAC / APPLE ACCOUNT REQUIRED cannot be completed fully until Apple Developer/App Store Connect access and a Mac with the required Xcode version are available.
 
-Final rating must be completed using Apple's current App Store Connect age rating questionnaire.
+1. App Identity — DONE
 
----
+App name: KitchenOps
 
-# 2. App Purpose
+Bundle ID: com.kitchenops.app
 
-KitchenOps is business software for restaurants, cafés and hospitality groups.
+iOS marketing version: 1.0.6
+
+Initial iOS build number: 1
+
+Display name: KitchenOps
+
+Minimum iOS deployment target currently: iOS 15.0
+
+Native Capacitor iOS project generated
+
+App icon replaced with KitchenOps branding
+
+Splash screen replaced with KitchenOps branding
+
+Production app URL configured
+
+Before upload:
+
+Confirm Xcode still shows the correct bundle ID, version and build number.
+
+Increment the build number for every subsequent App Store Connect upload.
+
+2. Age Rating — APP STORE CONNECT REQUIRED
+
+Expected outcome:
+4+ / lowest general-content rating, subject to Apple's questionnaire result.
+
+KitchenOps itself contains:
+
+no violence
+
+no sexual content
+
+no gambling
+
+no drug content
+
+no horror/fear content
+
+no profanity supplied by KitchenOps
+
+no public social network
+
+no public messaging/chat
+
+no unrestricted general-purpose web browser
+
+no advertising in the app
+
+Important:
+Apple determines the final rating from the current App Store Connect age-rating questionnaire. Do not manually assume the displayed rating before completing that questionnaire.
+
+Complete Apple's current age-rating questionnaire.
+
+Confirm the generated rating is appropriate.
+
+Re-check if new user-generated/social features are introduced.
+
+3. App Purpose — READY
+
+KitchenOps is cloud-based business operations software for restaurants, cafés and hospitality groups.
 
 Core functions include:
 
-- Prep planning
-- Stock and inventory
-- Purchasing and receiving
-- Stocktakes
-- Waste tracking
-- Recipes and costing
-- Kitchen handovers
-- Multi-site management
-- Team roles and permissions
+Prep planning
 
----
+Stock and inventory
 
-# 3. Login Requirement
+Purchasing and receiving
 
-Login required:
-YES
+Stocktakes
 
-Apple App Review must be given a working reviewer account.
+Waste tracking
 
-Before submission create:
+Recipes and costing
 
-Email:
-TO CREATE
+Kitchen handovers
 
-Password:
-TO CREATE
+Multi-site management
+
+Team roles and permissions
+
+The App Review notes should make the business/SaaS purpose clear.
+
+4. Reviewer Login — TODO BEFORE SUBMISSION
+
+Authentication is required.
+
+Create a dedicated Apple review account shortly before submission.
+
+Suggested demo setup:
 
 Business:
-Demo KitchenOps business
+KitchenOps Demo
 
 Site:
 Site One
 
-The review account must contain enough demo data to show the main app functionality.
+Reviewer email:
+CREATE BEFORE SUBMISSION — DO NOT COMMIT TO GIT
 
----
+Reviewer password:
+CREATE BEFORE SUBMISSION — DO NOT COMMIT TO GIT
 
-# 4. Reviewer Access
+Requirements:
 
-Reviewer should be able to access:
+Reviewer login works from a clean device/session.
 
-- Dashboard
-- Prep Planner
-- Recipes
-- Products
-- Inventory
-- Purchasing
-- Waste
-- Stocktakes
-- Handover
-- Suppliers
-- Users
-- Settings
+Account is not protected by unavailable MFA or other manual intervention.
 
-Do not give Apple an empty account.
+Trial/subscription state will remain valid throughout review.
 
----
+Credentials are entered only in App Store Connect review information.
 
-# 5. Review Notes
+No real customer or employee data is used.
 
-Suggested review notes:
+5. Reviewer Demo Data — TODO
 
-KitchenOps is a cloud-based hospitality operations platform.
+Do not give Apple an empty KitchenOps account.
 
-A reviewer account is provided because authentication is required to access the application.
+Suggested demo data:
 
-The review account contains representative demo data so the core workflows can be tested.
+Products:
 
-KitchenOps requires an internet connection because operational data is securely stored in the cloud.
+Bacon
 
-No physical goods are purchased through the app.
+Mushrooms
 
----
+Pancake Mix
 
-# 6. Payments and Subscriptions
+Brownies
 
-IMPORTANT — FINAL DECISION REQUIRED BEFORE SUBMISSION
+Tomato Relish
 
-KitchenOps plans to operate as a paid SaaS product.
-
-Before App Store submission confirm how subscriptions are purchased.
-
-Potential structure:
-
-- Customers create/manage their subscription on the KitchenOps website
-- iOS app is used to access an existing KitchenOps business account
-
-Apple's current App Store rules must be reviewed before submission to determine whether the implementation requires:
-- Apple In-App Purchase
-- an external purchase entitlement
-- no purchase functionality inside the app
-- other permitted SaaS/business-app treatment
-
-Do not add subscription purchase links to the iOS app until this has been confirmed.
-
----
-
-# 7. Trial
-
-KitchenOps currently offers:
-
-30-day free trial
-No card required
-
-Before submission confirm:
-
-- Trial signup works on iOS
-- Trial expiry behaviour works
-- Expired users are shown an appropriate access message
-- No prohibited payment-link behaviour appears in the native iOS app
-
----
-
-# 8. Account Deletion
-
-REQUIRED CHECK BEFORE SUBMISSION
-
-Because users can create accounts, verify Apple's current account-deletion requirement.
-
-Confirm users can initiate deletion from within the app if required.
-
-Deletion must clearly explain:
-
-- what will be deleted
-- whether deletion is immediate or scheduled
-- what business/customer records must be legally retained
-- how cancellation works
-
-Website information:
-https://kitchenops.co.uk/delete-account
-
----
-
-# 9. Privacy Policy
-
-Required URL:
-
-https://kitchenops.co.uk/privacy
-
-Before submission verify:
-
-- URL loads publicly
-- page works on mobile
-- policy reflects actual production data processing
-- third-party processors are accurate
-- deletion/contact information is accurate
-
----
-
-# 10. Support
-
-Support URL:
-
-https://kitchenops.co.uk/contact
-
-Support email should be visible and working.
-
-Confirm before submission.
-
----
-
-# 11. Native App Behaviour
-
-Before review test:
-
-- Launch
-- Splash screen
-- Login
-- Logout
-- Session persistence
-- Back navigation
-- External links
-- Keyboard behaviour
-- Status bar
-- Safe areas / notch
-- Rotation behaviour
-- Network failure behaviour
-- Loading states
-- Authentication expiry
-- Trial expiry
-- Subscription expiry
-- Account deletion
-- App resume after backgrounding
-
----
-
-# 12. iPhone Testing
-
-Test on at least:
-
-- Current supported iPhone size
-- Smaller iPhone screen
-- Large iPhone screen
-
-Check:
-
-- No clipped text
-- No horizontal scrolling
-- Buttons are tappable
-- Forms work
-- Modals fit the screen
-- Navigation remains usable
-- Tables/lists work on mobile
-
----
-
-# 13. iPad
-
-Decision required before submission:
-
-- Support iPad
-OR
-- iPhone only
-
-If KitchenOps supports iPad, test layouts properly before submission.
-
-Do not claim iPad support purely because the app technically launches.
-
----
-
-# 14. Permissions
-
-Expected permissions:
-Minimal
-
-Before submission inspect the generated iOS project for:
-
-- Camera
-- Photos
-- Location
-- Microphone
-- Contacts
-- Notifications
-
-Only request permissions actually required by KitchenOps.
-
-Any permission request must include a clear usage description.
-
----
-
-# 15. External Links
-
-Audit all links inside KitchenOps.
-
-Check:
-
-- Privacy
-- Contact/support
-- Website
-- Subscription/billing
-- Supplier URLs
-- Any user-entered links
-
-External links must not create an App Review problem.
-
----
-
-# 16. Demo Data
-
-Create clean demo data for Apple review.
-
-Suggested business:
-KitchenOps Demo
-
-Suggested site:
-Site One
-
-Suggested products:
-- Bacon
-- Mushrooms
-- Pancake Mix
-- Brownies
-- Tomato Relish
-- BBQ Sauce
+BBQ Sauce
 
 Include examples of:
 
-- Planned prep
-- Prep in progress
-- Completed prep
-- Supplier order
-- Inventory movement
-- Waste entry
-- Stocktake
-- Recipe
-- Handover
+planned prep
 
-Do not use real customer or employee information.
+prep in progress
 
----
+completed prep
 
-# 17. App Stability
+supplier
 
-Before submission run:
+supplier order
 
-- npm run typecheck
-- npm run build
-- npm audit --omit=dev
-- npm run android:check
-- git diff --check
+received order / delivery
 
-When the iOS platform exists also run:
+inventory movement
 
-- Capacitor iOS sync
-- Xcode build
-- physical iPhone test
-- TestFlight build test
+waste entry
 
----
+stocktake
 
-# 18. Final App Review Checklist
+recipe
 
-Before pressing Submit for Review:
+handover
 
-- [ ] Production build stable
-- [ ] Reviewer login works
-- [ ] Demo data present
-- [ ] Privacy policy accurate
-- [ ] Support URL works
-- [ ] Account deletion compliant
-- [ ] Subscription/payment approach confirmed
-- [ ] App privacy questionnaire complete
-- [ ] Age rating complete
-- [ ] Screenshots uploaded
-- [ ] App description final
-- [ ] Keywords final
-- [ ] App icon final
-- [ ] No placeholder text
-- [ ] No test credentials visible publicly
-- [ ] iPhone testing complete
-- [ ] TestFlight testing complete
-- [ ] Apple review notes complete
+Manager/Chef PIN user
+
+Operations user
+
+Reviewer should be able to access:
+
+Dashboard
+
+Prep Planner
+
+Recipes
+
+Products
+
+Inventory
+
+Purchasing
+
+Waste
+
+Stocktakes
+
+Handover
+
+Suppliers
+
+Users
+
+Settings
+
+Account & Privacy
+
+6. App Review Notes — READY, FINAL CREDENTIALS TODO
+
+Suggested notes:
+
+KitchenOps is a cloud-based hospitality operations platform for restaurants, cafés and hospitality teams.
+
+Authentication is required. A dedicated reviewer account with representative demo data is provided in the App Review information.
+
+KitchenOps requires an internet connection because operational data is stored in the KitchenOps cloud service.
+
+The app provides business operations functionality including prep planning, inventory, purchasing, waste, stocktakes, recipes and handovers.
+
+KitchenOps does not sell physical goods through the app.
+
+Account deletion can be initiated from Settings > Account & Privacy.
+
+Before submission:
+
+Add any information Apple needs to understand the subscription/business model.
+
+Add working reviewer credentials.
+
+Explain any feature that could otherwise appear inaccessible.
+
+7. Payments & Subscriptions — COMMERCIAL DECISION REQUIRED
+
+This remains the main App Store policy decision.
+
+KitchenOps is intended to be a paid SaaS service sold to hospitality businesses.
+
+Apple's current rules distinguish between several models, including:
+
+digital functionality/subscriptions normally requiring In-App Purchase;
+
+multiplatform services;
+
+enterprise services sold directly to organizations/groups for their employees or users.
+
+KitchenOps currently has no in-app subscription purchase flow.
+
+Before App Store submission:
+
+Decide the final KitchenOps subscription purchase flow.
+
+Confirm whether KitchenOps qualifies for Apple's Enterprise Services treatment under the current App Review Guidelines.
+
+If it does not qualify, determine whether Apple In-App Purchase is required.
+
+Do not add an external subscription/payment link to the iOS experience until this is resolved.
+
+Clearly explain the business model to App Review.
+
+Re-check Apple's current Guideline 3.1 immediately before submission.
+
+Important:
+Do not treat this checklist as a final Apple policy ruling. App Review rules can change and Apple makes the review decision.
+
+8. 30-Day Trial — IMPLEMENTED, DEVICE TEST TODO
+
+Current KitchenOps model:
+
+30-day free trial
+
+no card required
+
+full product access during trial
+
+expired entitlement pauses operational access while preserving data
+
+Already tested at application level:
+
+trial creation
+
+trial expiry
+
+access blocking after expiry
+
+data preserved
+
+entitlement restoration
+
+Still required on iOS candidate build:
+
+Create a new business from iPhone.
+
+Confirm trial dates and access.
+
+Confirm no unintended payment/purchase link appears.
+
+Confirm expired-trial screen works correctly on iPhone.
+
+Confirm Account & Privacy remains reachable as required.
+
+9. Account Deletion — IMPLEMENTED & TESTED
+
+Apple requires apps that support account creation to allow users to initiate deletion within the app.
+
+KitchenOps location:
+Settings > Account & Privacy
+
+Implemented behaviour:
+
+deletion can be initiated inside KitchenOps
+
+explicit DELETE confirmation
+
+sole active Operations user cannot orphan the business
+
+pending Operations invitation does not count as another active user
+
+accepted Operations user does count
+
+original Operations user can delete their account after another active Operations user exists
+
+database deletion issue caused by invited_by NOT NULL was fixed
+
+permanent migration added for the database fix
+
+Before App Store submission:
+
+Test deletion again on the actual iOS/TestFlight build.
+
+Confirm wording accurately explains what is deleted and what business records remain.
+
+Confirm the public deletion/privacy information remains accurate.
+
+Public information:
+https://kitchenops.co.uk/delete-account
+
+10. Privacy — PREPARED
+
+Privacy Policy:
+https://kitchenops.co.uk/privacy
+
+Current App Privacy worksheet:
+release/ios/APP-PRIVACY.md
+
+Current expected core App Store privacy declarations:
+
+Name — collected, linked, App Functionality, no tracking
+
+Email Address — collected, linked, App Functionality, no tracking
+
+User ID — collected, linked, App Functionality, no tracking
+
+Other User Content — collected, linked, App Functionality, no tracking
+
+Current release does not intentionally use:
+
+location
+
+contacts
+
+camera/photos
+
+microphone/audio
+
+advertising SDKs
+
+cross-app tracking
+
+dedicated analytics SDKs
+
+dedicated crash-reporting SDKs
+
+Stripe/payment SDK
+
+Before submission:
+
+Re-audit production dependencies.
+
+Re-audit Info.plist permissions.
+
+Re-check Vercel/Supabase/Resend processing against Apple's current definitions.
+
+Confirm website privacy policy matches actual production behaviour.
+
+Complete App Store Connect App Privacy questionnaire.
+
+11. Support — READY, FINAL TEST TODO
+
+Support URL:
+https://kitchenops.co.uk/contact
+
+Privacy URL:
+https://kitchenops.co.uk/privacy
+
+Marketing URL:
+https://kitchenops.co.uk
+
+Before submission:
+
+Open each URL from an iPhone.
+
+Confirm pages load without authentication.
+
+Confirm support email/contact route works.
+
+Confirm pages are usable on mobile.
+
+12. Native Permissions — CURRENTLY CLEAN
+
+Current generated Info.plist contains no declarations for:
+
+Camera
+
+Photos
+
+Location
+
+Microphone
+
+Contacts
+
+Background modes
+
+custom URL schemes
+
+This is desirable because KitchenOps 1.0.6 does not currently require those native capabilities.
+
+Before submission:
+
+Re-check Info.plist after final Capacitor sync.
+
+Only add permissions actually required by a released feature.
+
+Provide a clear usage description for every privacy-sensitive permission added.
+
+13. Native iOS Behaviour — MAC / DEVICE TEST REQUIRED
+
+Test the final candidate build for:
+
+cold launch
+
+splash screen
+
+app icon
+
+login
+
+logout
+
+session persistence
+
+Operations invitation flow
+
+wrong-account invite switching
+
+account creation
+
+account deletion
+
+navigation/back behaviour
+
+status bar
+
+safe areas/notch/Dynamic Island
+
+keyboard opening/closing
+
+form scrolling with keyboard visible
+
+modals
+
+external links
+
+network failure
+
+loading states
+
+authentication expiry
+
+trial expiry
+
+background/resume behaviour
+
+orientation behaviour
+
+app termination/relaunch
+
+14. iPhone Coverage — MAC / DEVICE TEST REQUIRED
+
+Test at minimum:
+
+smaller supported iPhone screen
+
+current standard iPhone screen
+
+large/Max-size iPhone screen
+
+at least one physical iPhone through TestFlight if possible
+
+Verify:
+
+no clipped text
+
+no accidental horizontal page scrolling
+
+tap targets are usable
+
+forms fit
+
+modals fit
+
+navigation is usable
+
+long lists/tables are usable
+
+keyboard does not hide critical controls
+
+15. iPad Support — DECISION REQUIRED
+
+Do not claim good iPad support simply because the generated app launches on iPad.
+
+Before creating the App Store record:
+
+Decide whether KitchenOps 1.0.6 officially supports iPad.
+
+If supporting iPad, perform proper iPad layout/device testing and prepare required screenshots if applicable.
+
+If launching iPhone-only, configure the target appropriately during the Xcode stage.
+
+16. External Links — FINAL AUDIT REQUIRED
+
+Audit:
+
+Privacy
+
+Support/contact
+
+KitchenOps website
+
+account deletion information
+
+subscription/billing links once implemented
+
+supplier/user-entered URLs if surfaced
+
+Special attention:
+Subscription/payment links must be reviewed against Apple's current App Review payment rules before submission.
+
+17. Native Build / Xcode — MAC REQUIRED
+
+Current Windows-side preparation:
+
+@capacitor/ios installed
+
+native ios/ project generated
+
+Swift Package Manager Capacitor plugins generated
+
+bundle ID confirmed
+
+display name confirmed
+
+version/build configured
+
+icon configured
+
+splash configured
+
+On Mac:
+
+install required current Xcode
+
+clone/pull KitchenOps repository
+
+run npm install
+
+run npm run build
+
+run Capacitor iOS sync
+
+open ios/App/App.xcodeproj
+
+resolve Swift packages
+
+select Apple Developer Team
+
+configure signing
+
+verify deployment target
+
+build in Simulator
+
+build on physical iPhone
+
+fix any native warnings/errors
+
+archive Release build
+
+validate archive
+
+upload to App Store Connect
+
+18. Apple Developer / App Store Connect — ACCOUNT REQUIRED
+
+Can be deferred until close to the Mac/TestFlight stage.
+
+When ready:
+
+enroll in Apple Developer Program
+
+create/verify App ID for com.kitchenops.app
+
+configure certificates/signing through Xcode
+
+create KitchenOps App Store Connect app record
+
+set version 1.0.6
+
+complete categories
+
+complete App Privacy
+
+complete age rating
+
+enter support/privacy/marketing URLs
+
+enter description, subtitle, promotional text and keywords
+
+enter review contact details
+
+enter reviewer credentials
+
+upload screenshots
+
+select uploaded build
+
+19. Screenshots — TODO AFTER iOS BUILD
+
+Screenshot plan:
+release/ios/SCREENSHOT-PLAN.md
+
+Before capture:
+
+final demo account created
+
+polished demo data loaded
+
+no real customer/employee information visible
+
+status bar/device appearance acceptable
+
+candidate UI tested on target sizes
+
+Capture representative screens such as:
+
+Dashboard
+
+Prep Planner
+
+Inventory
+
+Purchasing
+
+Waste / Stocktake
+
+Handover / Recipes
+
+Multi-site or management view
+
+Do not use screenshots from an unfinished/debug state.
+
+20. TestFlight — MAC / APPLE ACCOUNT REQUIRED
+
+Test plan:
+release/ios/TESTFLIGHT-TEST-PLAN.md
+
+upload first build
+
+install through TestFlight
+
+run full test plan
+
+test fresh install
+
+test upgrade if another build is uploaded
+
+test reviewer account
+
+test trial signup
+
+test account deletion
+
+test invite acceptance
+
+test expired entitlement
+
+record/fix release-blocking issues
+
+upload new build if fixes are required
+
+21. Final Engineering Gate
+
+Before the final App Store archive/upload:
+
+npm run typecheck
+
+npm run build
+
+npm audit --omit=dev
+
+npm run ios:check
+
+git diff --check
+
+working tree clean
+
+Capacitor iOS sync completed
+
+Xcode build succeeds without release-blocking errors
+
+physical/TestFlight test succeeds
+
+Android checks remain useful for shared code regression testing:
+
+npm run android:sync
+
+npm run android:check
+
+22. FINAL GO / NO-GO
+
+Do not submit until every release-critical item below is complete:
+
+Apple Developer enrollment active
+
+App Store Connect record created
+
+payment/subscription approach confirmed against current Apple rules
+
+production candidate stable
+
+Xcode Release build succeeds
+
+TestFlight testing complete
+
+reviewer login works
+
+demo data present
+
+App Privacy questionnaire complete
+
+privacy policy accurate
+
+age rating complete
+
+support URL tested
+
+account deletion tested on iOS candidate
+
+screenshots uploaded
+
+metadata final
+
+app icon final
+
+splash/launch experience checked
+
+no placeholder/test content
+
+no secrets or reviewer passwords committed
+
+App Review notes complete
+
+correct build selected
+
+Only when all release-critical boxes are complete should KitchenOps 1.0.6 be submitted to App Review.
