@@ -1,257 +1,467 @@
-# KitchenOps — Apple App Privacy Worksheet
+KitchenOps — Apple App Privacy Submission Worksheet
 
-## App
+App
+
 KitchenOps
 
-## Bundle ID
+Bundle ID
+
 com.kitchenops.app
 
-## Privacy Policy
+Version
+
+1.0.6
+
+Privacy Policy URL
+
 https://kitchenops.co.uk/privacy
 
----
+Current submission position
 
-# 1. Does KitchenOps collect data?
+Yes — KitchenOps collects data.
 
-YES
+KitchenOps is a cloud-based business application. Account information and operational business content are transmitted to and stored by KitchenOps to provide the service.
 
-KitchenOps is a cloud-based business application and user/business information is stored to provide the service.
+This worksheet reflects the current KitchenOps 1.0.6 production implementation. Re-check it immediately before App Store submission if analytics, Stripe billing, advertising/conversion tracking, crash reporting, camera/photo features, or other third-party services are added.
 
-Exact Apple privacy declarations must be confirmed before App Store submission.
+App Store Connect — Data Types to Select
 
----
+1. Contact Info
 
-# 2. Account Information
+Name
 
-Potentially collected:
+Collected: Yes
+Linked to User: Yes
+Used for Tracking: No
+Purpose: App Functionality
 
-- Name
-- Email address
-- Account / user ID
-- Business name
-- Site information
-- User role / permissions
+Why:
 
-Purpose:
+Operations accounts include a display name.
 
-- Account creation
-- Authentication
-- Providing KitchenOps functionality
-- Managing businesses, sites and users
+Operations invitations contain the invitee's name.
 
-Tracking:
-NO — unless this changes before release.
+Kitchen staff accounts also use names as part of normal app functionality.
 
----
+Email Address
 
-# 3. User Content
+Collected: Yes
+Linked to User: Yes
+Used for Tracking: No
+Purpose: App Functionality
 
-KitchenOps may contain user-created operational information including:
+Why:
 
-- Prep records
-- Handovers
-- Waste records
-- Stocktake information
-- Supplier information
-- Product information
-- Recipe information
-- Purchasing / receiving records
+Operations users authenticate with an email address.
 
-Purpose:
+Operations invitations are sent to an email address.
 
-- Core app functionality
+Transactional account/invitation email is required to provide the service.
 
-Tracking:
-NO
+Phone Number
 
----
+Collected: No
 
-# 4. Purchases / Billing
+Physical Address
 
-To confirm when Stripe subscriptions are implemented.
+Collected: No
 
-Potentially:
+Other User Contact Info
 
-- Subscription status
-- Billing/customer identifiers
+Collected: No, based on the current production implementation.
 
-KitchenOps should not store full payment card details itself.
+2. Identifiers
 
-Payment processing provider:
-Stripe — planned / to confirm before submission.
+User ID
 
----
+Collected: Yes
+Linked to User: Yes
+Used for Tracking: No
+Purpose: App Functionality
 
-# 5. Usage Data / Analytics
+Why:
 
-CURRENT STATUS:
-TO CONFIRM
+Supabase Auth assigns an account/user identifier.
 
-Before submission check whether KitchenOps uses:
+KitchenOps links Operations memberships and permissions to the authenticated user.
 
-- Google Analytics
-- Vercel Analytics
-- Supabase telemetry exposed to the application
-- Sentry
-- PostHog
-- Microsoft Clarity
-- Meta Pixel
-- Google Ads conversion tracking
-- Any other analytics or advertising SDK
+Device ID
 
-Do not declare analytics/tracking until the production implementation is confirmed.
+Collected: No, based on the current KitchenOps application implementation.
 
----
+3. User Content
 
-# 6. Diagnostics
+Other User Content
 
-TO CONFIRM
+Collected: Yes
+Linked to User / Business Account: Yes
+Used for Tracking: No
+Purpose: App Functionality
 
-Check whether the production app collects:
+KitchenOps stores user-created and business operational content including, where used:
 
-- Crash data
-- Performance data
-- Error logs
-- Device information
+prep records
 
----
+handovers
 
-# 7. Location
+waste records
 
-Expected:
-NO precise location collection.
+stock and inventory information
 
-Confirm before submission.
+stocktake information
 
----
+supplier information
 
-# 8. Contacts
+product information
 
-Expected:
-NO access to the user's device contacts.
+recipe information
 
-Confirm before submission.
+purchasing and receiving records
 
----
+site and business configuration
 
-# 9. Photos / Camera
+staff/user configuration
 
-TO CONFIRM
+This information is required to provide KitchenOps functionality.
 
-Check whether any KitchenOps feature allows:
+Photos or Videos
 
-- photo upload
-- camera capture
-- image attachments
+Collected: No in the current 1.0.6 implementation.
 
-If yes, determine exactly what Apple declaration is required.
+No camera/photo permission is currently declared by the native iOS project and no photo-upload feature has been identified for the current release.
 
----
+Audio Data
 
-# 10. Sensitive Information
+Collected: No
 
-KitchenOps should not intentionally collect:
+Customer Support
 
-- Health information
-- Racial or ethnic information
-- Religious beliefs
-- Political opinions
-- Sexual orientation
-- Biometric information
+Do not select as a core app data type unless support/feedback submitted from the app is stored in a way that requires disclosure under Apple's rules.
 
-Confirm before submission.
+Re-check the production feedback/support flow immediately before submission.
 
----
+4. Purchases / Financial Information
 
-# 11. Tracking
+Payment Info
 
-Expected answer:
+Collected by KitchenOps app: No for the current 1.0.6 release.
 
-NO
+Stripe subscriptions are not currently implemented.
 
-KitchenOps should not track users across apps or websites owned by other companies for advertising purposes.
+When Stripe is added:
 
-This must be checked again before App Store submission.
+re-audit this section before the next App Store submission;
 
----
+if card/payment information is entered directly with Stripe and KitchenOps never receives it, confirm Apple's current payment-info disclosure rules before changing this answer.
 
-# 12. Advertising
+Purchase History
 
-Current expectation:
+Collected: No for the current 1.0.6 release.
 
-- No third-party advertising inside KitchenOps
-- No advertising SDK inside the iOS app
+5. Usage Data / Analytics
 
-External advertising used to promote KitchenOps does not automatically mean the app itself performs tracking.
+Product Interaction
 
-Confirm once advertising/conversion tracking is configured.
+Collected for analytics: No, based on the current 1.0.6 application dependencies and implementation reviewed.
 
----
+Advertising Data
 
-# 13. Account Creation
+Collected: No
 
-YES
+Other Usage Data
 
-Users can create/use KitchenOps accounts.
+Collected: No, based on the current implementation.
 
----
+Current production code does not include a dedicated Google Analytics, PostHog, Sentry, Microsoft Clarity, Meta/Facebook, or advertising SDK dependency.
 
-# 14. Account Deletion
+If analytics or conversion tracking is introduced, this section must be re-audited before submission.
 
-IMPORTANT APP STORE CHECK
+6. Diagnostics
 
-Before submission confirm that users can initiate deletion of their KitchenOps account from within the app where Apple requires it.
+Crash Data
 
-Current website deletion information:
-https://kitchenops.co.uk/delete-account
+Collected by KitchenOps through a dedicated crash-reporting SDK: No
 
-We must test the complete deletion workflow before App Store submission.
+Performance Data
 
----
+Collected by KitchenOps through a dedicated performance SDK: No
 
-# 15. Login
+Other Diagnostic Data
 
-Login required:
-YES
+Collected by KitchenOps through a dedicated diagnostics SDK: No
+
+There is currently no dedicated crash/diagnostics SDK in the app dependencies.
+
+Hosting/platform operational logs should still be checked immediately before submission to ensure this answer remains accurate under Apple's definition of collection.
+
+7. Location
+
+Precise Location
+
+Collected: No
+
+Coarse Location
+
+Collected: No
+
+KitchenOps does not request iOS location permission in the current native project.
+
+8. Contacts
+
+Collected: No
+
+KitchenOps does not request access to the user's device contacts.
+
+9. Sensitive Information
+
+Collected: No, based on the intended and current KitchenOps feature set.
+
+KitchenOps is not designed to collect:
+
+health or medical information
+
+racial or ethnic information
+
+religious or philosophical beliefs
+
+political opinions
+
+trade union membership
+
+sexual orientation or sex-life information
+
+biometric information
+
+10. Tracking
+
+Does KitchenOps use data for tracking?
+
+No
+
+KitchenOps does not currently use data to track users across apps or websites owned by other companies for advertising or advertising measurement.
+
+App Tracking Transparency permission required?
+
+No, based on the current 1.0.6 implementation.
+
+There is no advertising SDK or cross-app tracking functionality in the current app.
+
+11. Advertising
+
+Third-party advertising displayed in KitchenOps
+
+No
+
+Advertising SDK in the iOS app
+
+No
+
+Advertising used externally to market KitchenOps does not by itself mean the KitchenOps app performs tracking. Re-check this if advertising/conversion SDKs are later added to the app or web application loaded by the native shell.
+
+12. Account Creation
+
+Yes
+
+Operations users can create KitchenOps accounts using email/password authentication.
+
+Kitchen Manager and Chef users can also use site-based staff/PIN access managed within the KitchenOps business.
 
 Authentication provider:
-TO CONFIRM / Supabase authentication implementation.
+Supabase Auth
 
-Reviewer credentials will be created specifically for Apple App Review.
+13. Account Deletion
 
----
+Implemented and tested
 
-# 16. Third-Party Services — Final Audit
+Users can initiate account deletion inside KitchenOps from:
 
-Before submission inspect the production project and document every third-party service.
+Settings > Account & Privacy
 
-Known / expected services:
+Current safety rule:
 
-- Supabase
-- Vercel
-- Resend
-- Stripe — planned
+if the signed-in account is the only active Operations user for the business, deletion is blocked;
 
-For each service confirm:
+another Operations user must first be invited and accept the invitation;
 
-- What information is sent
-- Why it is sent
-- Whether it is linked to the user
-- Whether it is used for tracking
-- Retention / deletion behaviour
+pending invitations do not count;
 
----
+after another active Operations user exists, the original user can delete their account.
 
-# FINAL PRIVACY CHECK BEFORE SUBMISSION
+The end-to-end flow has been tested against the production database structure.
 
-Do not complete Apple's App Privacy questionnaire from memory.
+Public privacy/deletion information should remain available at:
+https://kitchenops.co.uk/delete-account
 
-Before submission:
+14. Third-Party Services — Current Release
 
-1. Audit the production source code.
-2. Audit installed packages.
-3. Check all third-party services.
-4. Compare findings against the current Apple App Privacy questionnaire.
-5. Update the KitchenOps privacy policy if required.
-6. Confirm account deletion works.
-7. Complete App Store Connect privacy declarations.
+Supabase
+
+Used for:
+
+authentication
+
+database/storage of KitchenOps cloud data
+
+business memberships and permissions
+
+Relevant data:
+
+email
+
+user/account identifier
+
+display name
+
+business/site membership
+
+operational KitchenOps data
+
+Purpose:
+App Functionality
+
+Tracking:
+No
+
+Resend
+
+Used server-side for transactional KitchenOps email, including Operations invitations.
+
+Relevant invitation data can include:
+
+recipient name
+
+recipient email
+
+business name
+
+secure invitation URL
+
+Purpose:
+App Functionality / transactional communication
+
+Tracking:
+No
+
+Vercel
+
+Used to host and run the KitchenOps web/cloud application.
+
+No dedicated Vercel Analytics package is present in the current application dependency list.
+
+Before submission, confirm the production hosting/logging configuration remains consistent with the App Store privacy answers.
+
+Stripe
+
+Not currently implemented in KitchenOps 1.0.6.
+
+Re-audit App Privacy when Stripe subscriptions are introduced.
+
+App Store Connect — Recommended Current Selections
+
+When creating the KitchenOps 1.0.6 App Privacy entry, the current implementation supports the following core declarations:
+
+Apple data type
+
+Collect?
+
+Linked to user?
+
+Tracking?
+
+Purpose
+
+Name
+
+Yes
+
+Yes
+
+No
+
+App Functionality
+
+Email Address
+
+Yes
+
+Yes
+
+No
+
+App Functionality
+
+User ID
+
+Yes
+
+Yes
+
+No
+
+App Functionality
+
+Other User Content
+
+Yes
+
+Yes
+
+No
+
+App Functionality
+
+Do not currently select:
+
+Payment Info
+
+Purchase History
+
+Precise Location
+
+Coarse Location
+
+Contacts
+
+Photos or Videos
+
+Audio Data
+
+Advertising Data
+
+Device ID
+
+Product Interaction for analytics
+
+Crash Data
+
+Performance Data
+
+unless the production implementation changes before submission.
+
+Final Pre-Submission Recheck
+
+Immediately before completing App Store Connect:
+
+Confirm package.json and native iOS dependencies have not gained analytics, advertising, crash-reporting, location, camera, contacts, or payment SDKs.
+
+Confirm Info.plist still has no unnecessary privacy-sensitive permission declarations.
+
+Confirm Stripe has not yet been added, or update the worksheet if it has.
+
+Confirm no advertising/conversion tracker has been added to the production web application.
+
+Confirm the production privacy policy accurately describes Supabase, Resend, hosting, account data, operational content and account deletion.
+
+Re-test Settings > Account & Privacy on the App Store candidate build.
+
+Confirm Apple review/demo credentials do not contain real customer data.
+
+Complete App Store Connect from this worksheet and keep the answers updated if KitchenOps data practices change.
+
+Evidence / Audit Notes
+
+Current production package.json includes Capacitor, Supabase, Next.js, React and UI dependencies. It does not currently list a dedicated analytics, advertising, crash-reporting or Stripe SDK.
+
+The Operations invitation API sends transactional email through Resend's server-side email API.
+
+Apple requires App Store privacy responses to include data collected by the app and relevant third-party partners, and requires the responses to remain accurate as data practices change.
