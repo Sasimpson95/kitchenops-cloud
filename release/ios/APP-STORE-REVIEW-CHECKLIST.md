@@ -526,17 +526,20 @@ long lists/tables are usable
 
 keyboard does not hide critical controls
 
-15. iPad Support — DECISION REQUIRED
+# 15. iPad Support — CONFIRMED
 
-Do not claim good iPad support simply because the generated app launches on iPad.
+KitchenOps 1.0.6 will support:
+- iPhone
+- iPad
 
-Before creating the App Store record:
+Native Xcode target:
+`TARGETED_DEVICE_FAMILY = "1,2";`
 
-Decide whether KitchenOps 1.0.6 officially supports iPad.
-
-If supporting iPad, perform proper iPad layout/device testing and prepare required screenshots if applicable.
-
-If launching iPhone-only, configure the target appropriately during the Xcode stage.
+Before submission:
+- [ ] Test KitchenOps on iPad Simulator.
+- [ ] Test at least one representative iPad layout.
+- [ ] Confirm tables, forms, modals and navigation remain usable.
+- [ ] Capture any required iPad App Store screenshots.
 
 16. External Links — FINAL AUDIT REQUIRED
 
