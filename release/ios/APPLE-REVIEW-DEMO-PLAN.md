@@ -1,14 +1,38 @@
-# KitchenOps — Apple Review Demo Account Plan
+KitchenOps — Final Apple Review Demo Account Plan
 
-## Purpose
+App
 
-Apple App Review needs a working KitchenOps account with realistic demo data.
+KitchenOps
 
-The reviewer should be able to understand and test the app without creating their own business or entering lots of setup information.
+Version
 
----
+1.0.6
 
-# 1. Demo Business
+Purpose
+
+Apple App Review should receive a fully prepared KitchenOps account that makes the product understandable immediately.
+
+The reviewer should not need to:
+
+create a business
+
+create a site
+
+configure products
+
+create suppliers
+
+enter stock
+
+build recipes
+
+wait for trial setup
+
+contact support to gain access
+
+The account should open into a realistic fictional hospitality business with enough activity to demonstrate the main KitchenOps workflows.
+
+1. Demo Business — CONFIRMED
 
 Business name:
 
@@ -18,353 +42,839 @@ Primary site:
 
 Site One
 
-Optional second site:
+Additional sites for multi-site demonstration:
 
 Site Two
 
-Do not use real customer, employee or supplier data.
+Site Three
 
----
+Use only fictional data.
 
-# 2. Reviewer Account
+Do not use:
 
-Create shortly before App Store submission.
+real customer information
 
-Email:
+real employee information
 
-TO CREATE
+real supplier contact details
 
-Password:
+real account numbers
 
-TO CREATE
+real business email addresses
 
-Role:
+confidential operational data
 
-Manager
+2. Apple Reviewer Account — CREATE SHORTLY BEFORE SUBMISSION
 
-Access:
+Create a dedicated Operations account specifically for Apple App Review.
 
-Full representative access to KitchenOps features required for review.
+Reviewer email:
 
-Do not place final reviewer credentials in public GitHub files.
+TO CREATE — DO NOT COMMIT TO GIT
 
-Store the final credentials securely and enter them directly into App Store Connect review information.
+Reviewer password:
 
----
+TO CREATE — DO NOT COMMIT TO GIT
 
-# 3. Demo Site Setup
+Recommended access:
 
-Site One should contain enough realistic operational data to make KitchenOps look like a working kitchen rather than an empty account.
+Operations
 
-Suggested areas:
+Reason:
+The reviewer should be able to access the full representative management experience without being restricted to a shared Manager/Chef PIN session.
 
-- Prep Planner
-- Recipes
-- Products
-- Inventory
-- Purchasing
-- Waste
-- Stocktakes
-- Handover
-- Suppliers
-- Users
-- Dashboard
+The reviewer account should:
 
----
+sign in directly using email/password
 
-# 4. Demo Products
+have access to KitchenOps Demo
 
-Suggested products:
+have access to Site One
 
-- Bacon
-- Mushrooms
-- Pancake Mix
-- Brownies
-- Tomato Relish
-- BBQ Sauce
-- Eggs
-- Sausages
-- Hash Browns
-- Chicken
+be able to switch to Site Two / Site Three
 
-Each product should have sensible example data where applicable:
+have access to all review-relevant modules
 
-- Category
-- Supplier
-- Order unit
-- Inventory unit
-- Current stock
-- Minimum stock
-- Maximum stock
-- Price
-- Storage location
+remain active for the entire review period
 
----
+require no MFA, SMS, manual approval or support intervention
 
-# 5. Demo Suppliers
+not rely on an expiring 30-day trial
 
-Create at least two fictional suppliers.
+Do not store final reviewer credentials in:
 
-Example:
+GitHub
 
-## Fresh Foods Supply
-Products:
-- Mushrooms
-- Eggs
-- Bacon
-- Sausages
+markdown files
 
-## Kitchen Wholesale
-Products:
-- Pancake Mix
-- Hash Browns
-- Chicken
-- BBQ Sauce
+source code
 
-Use fictional contact information only.
+screenshots
 
----
+public documentation
 
-# 6. Prep Planner Demo
+Enter the final credentials privately in App Store Connect.
 
-Today should contain a mixture of statuses.
+3. Reviewer Entitlement
 
-Example:
+The Apple reviewer account must have an entitlement that remains valid throughout App Review.
 
-Brownies
-Planned
-
-Pancake Mix
-In Progress
-
-Roasted Mushrooms
-Complete
-
-Tomato Relish
-Awaiting Approval
-
-Bacon
-Planned
-
-BBQ Sauce
-Complete
-
-Tomorrow should also contain several planned items.
-
-This allows Apple to see the workflow immediately.
-
----
-
-# 7. Recipes
-
-Create several representative recipes.
-
-Suggested:
-
-- Pancake Mix
-- Brownies
-- Tomato Relish
-- BBQ Sauce
-- Roasted Mushrooms
-
-Include:
-
-- Ingredients
-- Quantities
-- Yield
-- Method where appropriate
-- Cost information where available
-
----
-
-# 8. Inventory
-
-Populate inventory with realistic but fictional quantities.
-
-Include examples of:
-
-- Delivery movement
-- Production movement
-- Waste movement
-- Stocktake movement
-- Manual adjustment
-
-Avoid extreme or obviously fake values.
-
----
-
-# 9. Purchasing
-
-Create:
-
-## One completed order
-
-Shows:
-- Supplier
-- Ordered products
-- Quantities
-- Prices
-- Received status
-
-## One outstanding order
-
-Shows:
-- Supplier
-- Products
-- Quantities
-- Sent status
-
-This lets Apple inspect both order history and active purchasing workflow.
-
----
-
-# 10. Waste
-
-Add several example waste records.
-
-Suggested:
-
-- Bacon — overproduction
-- Mushrooms — quality issue
-- Pancake Mix — preparation waste
-
-Use realistic small quantities.
-
----
-
-# 11. Stocktakes
-
-Have at least:
-
-- One previous completed stocktake
-- One recent completed stocktake
-
-This allows comparison/history screens to contain meaningful data.
-
-If appropriate, leave one draft test stocktake available for interaction.
-
----
-
-# 12. Handover
-
-Today's example handover:
-
-"Prep completed for tomorrow. Check mushroom delivery on arrival and confirm pancake mix stock before breakfast service."
-
-Tomorrow's example:
-
-"Busy breakfast expected. Bacon and mushrooms have been prepped. Check outstanding supplier order before service."
-
-No real employee or customer information.
-
----
-
-# 13. Users
-
-Create fictional team members only.
-
-Example:
-
-Alex Carter
-Manager
-
-Jamie Reed
-Chef
-
-Sam Taylor
-Chef
-
-If shared-device/team-member switching is demonstrated, use these fictional names.
-
----
-
-# 14. Dashboard
-
-The demo data should make the dashboard useful immediately.
-
-Aim to show:
-
-- Prep activity
-- Handover
-- Waste
-- Current operational attention items
-- Stocktake information where applicable
-
-Avoid a dashboard full of zeros.
-
----
-
-# 15. Multi-Site
-
-If we want Apple to review multi-site functionality:
-
-Create:
-
-Site One
-Site Two
-
-Site Two can contain smaller amounts of demo data.
-
-The reviewer account should be able to switch between them.
-
-Do not create extra sites purely to fill the screen.
-
----
-
-# 16. Trial / Subscription State
-
-For App Review, use an account that will remain operational for the entire review period.
-
-Do not give Apple a trial account that could expire during review.
+Recommended:
+Use a dedicated review/demo entitlement rather than relying on a normal trial countdown.
 
 Before submission confirm:
 
-- entitlement is active
-- account will not become locked
-- reviewer does not need payment details
-- reviewer can access all relevant functionality
+account is active
 
----
+access will not expire unexpectedly
 
-# 17. Review Instructions
+no payment card is required
 
-Suggested App Store Connect notes:
+no subscription purchase is required by the reviewer
 
-KitchenOps requires authentication.
+all major functionality is available
 
-Please use the reviewer credentials supplied in the Sign-In Information section.
+no billing prompt blocks testing
 
-The account belongs to a fictional demonstration business named KitchenOps Demo and contains representative operational data.
+Do not give Apple an account that may become locked during review.
 
-Primary demonstration site:
+4. Reviewer Access
+
+The Apple review account should be able to inspect:
+
+Dashboard
+
+Prep Planner
+
+Recipes
+
+Products
+
+Inventory
+
+Purchasing
+
+Waste
+
+Stocktakes
+
+Handover
+
+Suppliers
+
+Users
+
+Settings
+
+Account & Privacy
+
+Also demonstrate:
+
+site switching
+
+multi-site view
+
+team/role management
+
+account deletion path
+
+The review account should not open into an empty business.
+
+5. Demo Products
+
+Populate Site One with at least these fictional products:
+
+Bacon
+
+Mushrooms
+
+Pancake Mix
+
+Brownies
+
+Tomato Relish
+
+BBQ Sauce
+
+Eggs
+
+Sausages
+
+Hash Browns
+
+Chicken
+
+Where supported, each product should have believable values for:
+
+category
+
+supplier
+
+order unit
+
+inventory unit
+
+current stock
+
+minimum stock
+
+maximum stock
+
+price
+
+storage location
+
+Example storage locations:
+
+Walk-in Fridge
+
+Main Fridge
+
+Dry Store
+
+Freezer
+
+Prep Fridge
+
+Avoid obviously fake values such as all products having identical quantities or prices.
+
+6. Demo Suppliers
+
+Create at least three fictional suppliers.
+
+Fresh Foods Supply
+
+Example products:
+
+Mushrooms
+
+Eggs
+
+Bacon
+
+Sausages
+
+Kitchen Wholesale
+
+Example products:
+
+Pancake Mix
+
+Hash Browns
+
+Chicken
+
+BBQ Sauce
+
+Midlands Produce
+
+Example products:
+
+Tomatoes
+
+Fresh herbs
+
+Other produce used by demo recipes
+
+Use fictional contact information only.
+
+Suggested domain format if email is required:
+
+orders@example.com
+
+Do not use real supplier details.
+
+7. Prep Planner
+
+The Prep Planner should show a believable mix of states immediately.
+
+Today
+
+Example:
+
+Brownies — Planned
+
+Pancake Mix — In Progress
+
+Roasted Mushrooms — Complete
+
+Tomato Relish — Awaiting Approval
+
+Bacon — Planned
+
+BBQ Sauce — Complete
+
+Tomorrow
+
+Add several planned items, for example:
+
+Pancake Mix
+
+Brownies
+
+Tomato Relish
+
+Roasted Mushrooms
+
+The aim is to show:
+
+planning
+
+active production
+
+completion
+
+approval
+
+tomorrow planning
+
+Do not fill every item with the same status.
+
+8. Recipes
+
+Create representative recipes that connect naturally to the demo products.
+
+Recommended:
+
+Pancake Mix
+
+Brownies
+
+Tomato Relish
+
+BBQ Sauce
+
+Roasted Mushrooms
+
+Where supported include:
+
+ingredients
+
+quantities
+
+yield
+
+preparation method
+
+cost information
+
+Keep recipe data polished enough to be used in App Store screenshots.
+
+9. Inventory
+
+Populate realistic fictional stock quantities.
+
+The inventory history should include examples of:
+
+Delivery
+
+Production
+
+Waste
+
+Stocktake
+
+Adjustment
+
+Use varied but sensible numbers.
+
+Example:
+
+Bacon: 8 packs
+
+Eggs: 90 each
+
+Mushrooms: 4 kg
+
+Pancake Mix: 6 kg
+
+Hash Browns: 42 each
+
+These are demo values only and can be adjusted to fit the actual KitchenOps units.
+
+The goal is to make the movement/history UI look genuinely used.
+
+10. Purchasing
+
+Create at least two useful orders.
+
+Order A — Completed
+
+Supplier:
+Fresh Foods Supply
+
+Include:
+
+Bacon
+
+Eggs
+
+Mushrooms
+
+Status:
+Completed
+
+Show:
+
+ordered quantities
+
+received quantities
+
+prices
+
+supplier
+
+Order B — Sent / Outstanding
+
+Supplier:
+Kitchen Wholesale
+
+Include:
+
+Hash Browns
+
+Chicken
+
+BBQ Sauce
+
+Status:
+Sent
+
+This lets Apple inspect:
+
+order history
+
+active purchasing
+
+receiving behaviour
+
+Avoid leaving every order as Draft.
+
+11. Waste
+
+Add several realistic small waste entries.
+
+Examples:
+
+Bacon — overproduction
+
+Mushrooms — quality issue
+
+Pancake Mix — preparation waste
+
+Brownies — damaged portion
+
+Use sensible quantities.
+
+The demo should show that waste is recorded routinely without making the business appear badly managed.
+
+12. Stocktakes
+
+Prepare at least:
+
+one older completed stocktake
+
+one recent completed stocktake
+
+If useful for demonstrating interaction:
+
+one draft/in-progress stocktake
+
+This gives:
+
+history
+
+comparison
+
+completion data
+
+meaningful dashboard information
+
+Do not leave the stocktake module empty.
+
+13. Handover
+
+Use short, realistic fictional operational notes.
+
+Current / Today
+
+Prep completed for tomorrow. Check mushroom delivery on arrival and confirm pancake mix stock before breakfast service.
+
+Next Shift / Tomorrow
+
+Busy breakfast expected. Bacon and mushrooms have been prepped. Check the outstanding supplier order before service.
+
+Optional additional note:
+
+Brownies cooling in prep area. Update stock once portioned.
+
+Do not include:
+
+real staff names
+
+real incidents
+
+customer complaints
+
+personal information
+
+14. Fictional Team Members
+
+Create fictional team members only.
+
+Suggested:
+
+Alex Carter
+
+Role:
+Manager
+
+Jamie Reed
+
+Role:
+Chef
+
+Sam Taylor
+
+Role:
+Chef
+
+If the Manager/Chef PIN or shared-device team-member switching is demonstrated, these names can be used.
+
+Do not reuse real employee names or PINs.
+
+15. Operations Users
+
+The Users screen should demonstrate the distinction between Operations accounts and Manager/Chef PIN users.
+
+Recommended:
+
+Apple Review Operations account — active
+
+one additional fictional Operations account — active
+
+no unnecessary pending invitations at submission time
+
+This is especially useful because account deletion has a safeguard preventing the sole active Operations user from orphaning the business.
+
+Before submission:
+
+verify Apple reviewer can open Users
+
+verify roles are understandable
+
+verify no real email addresses are exposed
+
+remove stale/pending test invites that add confusion
+
+16. Dashboard
+
+The Dashboard should look active immediately after login.
+
+Aim to show:
+
+prep activity
+
+handover information
+
+waste activity
+
+operational attention items
+
+useful stocktake information
+
+site selector
+
+Avoid:
+
+all zero values
+
+large empty sections
+
+stale test errors
+
+warnings created solely for development
+
+The Dashboard will likely be Screenshot 1, so it should receive the most polishing.
+
+17. Multi-Site Demo
+
+KitchenOps 1.0.6 supports iPhone + iPad and the screenshot plan includes a Multi-Site screenshot.
+
+Create:
+
 Site One
 
-The account has access to the main KitchenOps workflows including Prep Planner, Recipes, Products, Inventory, Purchasing, Waste, Stocktakes, Handovers, Suppliers, Users and Settings.
+Site Two
 
-No real customer or employee information is contained in the demonstration account.
+Site Three
 
----
+Site One
 
-# 18. Before Submission
+Full demo data.
 
-Confirm:
+Site Two
 
-- [ ] Reviewer email works
-- [ ] Reviewer password works
-- [ ] Manager permissions correct
-- [ ] KitchenOps Demo business exists
-- [ ] Site One exists
-- [ ] Demo products populated
-- [ ] Demo suppliers populated
-- [ ] Prep Planner populated
-- [ ] Recipes populated
-- [ ] Inventory populated
-- [ ] Purchasing populated
-- [ ] Waste records populated
-- [ ] Stocktakes populated
-- [ ] Handover populated
-- [ ] Fictional users populated
-- [ ] Dashboard is not empty
-- [ ] Reviewer entitlement remains active
-- [ ] No real personal/customer data present
-- [ ] Credentials added privately to App Store Connect
+Smaller but believable activity:
+
+a few products
+
+prep
+
+handover
+
+one stocktake/order where useful
+
+Site Three
+
+Enough data to make the All Sites view meaningful.
+
+The reviewer must be able to:
+
+switch sites
+
+return to All Sites
+
+understand that data is site-specific
+
+see useful multi-site summaries
+
+Do not create more sites purely to fill the UI.
+
+18. Screenshot Alignment
+
+The same KitchenOps Demo environment should be used for:
+
+Apple review
+
+iPhone screenshots
+
+iPad screenshots
+
+TestFlight testing
+
+This prevents inconsistencies between what Apple sees in screenshots and what the reviewer sees after logging in.
+
+Screenshot plan:
+release/ios/SCREENSHOT-PLAN.md
+
+The most important screens to polish:
+
+Dashboard
+
+Prep Planner
+
+Purchasing
+
+Inventory
+
+Multi-Site
+
+19. Account Deletion Demonstration
+
+Account deletion is available at:
+
+Settings > Account & Privacy
+
+The reviewer account must be able to see this path.
+
+However, the demo account should be configured so a reviewer testing account deletion does not accidentally orphan the KitchenOps Demo business.
+
+Before submission:
+
+at least one other active Operations user exists
+
+deletion screen loads
+
+required DELETE confirmation is shown
+
+wording explains the action
+
+no real business/customer data is at risk
+
+If Apple actually deletes the reviewer account during testing, be prepared to recreate/reset the reviewer credentials promptly.
+
+20. Trial Behaviour
+
+The general KitchenOps product offers:
+
+30-day free trial
+
+no card required
+
+The Apple reviewer should not need to experience trial signup just to access the app.
+
+However, if trial creation is a visible flow in the production build, ensure:
+
+it works on iOS
+
+no prohibited/unresolved payment link is shown
+
+no card is required
+
+expiry messaging is clear
+
+The main reviewer credentials should remain on a non-expiring review entitlement.
+
+21. Signup / Invitation Flow
+
+Because KitchenOps supports Operations invitations, perform one clean TestFlight test before submission:
+
+create invitation
+
+receive invite email
+
+open invite
+
+sign up if required
+
+accept invite
+
+verify membership becomes active
+
+verify pending invite disappears
+
+verify wrong-account switching
+
+verify login redirect returns to invitation
+
+This does not need to be the primary path Apple uses for review.
+
+The reviewer account should already exist.
+
+22. Clean-Up Before Submission
+
+Before entering reviewer credentials in App Store Connect:
+
+remove development/test businesses not needed for review
+
+remove stale pending invitations
+
+remove accidental duplicate users
+
+remove obviously fake/debug records
+
+remove errors deliberately created during testing
+
+check Dashboard
+
+check every screenshot-target screen
+
+check all site names
+
+check all fictional names
+
+verify there is no real personal/customer data
+
+verify no secrets are visible
+
+Do not over-clean the account until it looks empty. It should look like a small operating hospitality business.
+
+23. Final App Store Connect Review Notes
+
+Use this as the basis for the Review Notes field:
+
+KitchenOps is a cloud-based hospitality operations platform for restaurants, cafés and hospitality teams.
+
+Authentication is required to access the application. Please use the reviewer credentials supplied in the Sign-In Information section.
+
+The supplied account belongs to a fictional demonstration business named KitchenOps Demo. The primary demonstration site is Site One, with additional fictional sites available to demonstrate multi-site functionality.
+
+The account contains representative demo data so the main workflows can be tested immediately, including Prep Planner, Recipes, Products, Inventory, Purchasing, Waste, Stocktakes, Handovers, Suppliers, Users and Settings.
+
+KitchenOps requires an internet connection because operational data is stored in the KitchenOps cloud service.
+
+Account deletion can be initiated from Settings > Account & Privacy.
+
+No real customer, employee or supplier information is contained in the demonstration account.
+
+24. Reviewer Credentials Record
+
+Do NOT enter actual credentials in this repository.
+
+Use this section only as a reminder:
+
+Reviewer email:
+ENTER DIRECTLY IN APP STORE CONNECT
+
+Reviewer password:
+ENTER DIRECTLY IN APP STORE CONNECT
+
+Business:
+KitchenOps Demo
+
+Primary site:
+Site One
+
+Access level:
+Operations
+
+25. Final Reviewer Account Test
+
+Run this test from a clean/private browser session and again from the final TestFlight build.
+
+Launch KitchenOps
+
+Login using reviewer credentials
+
+Dashboard loads without setup prompts
+
+Site One is available
+
+All Sites is available
+
+Site Two / Site Three are available
+
+Prep Planner contains demo data
+
+Recipes contain demo data
+
+Products contain demo data
+
+Inventory contains demo data
+
+Purchasing contains demo data
+
+Waste contains demo data
+
+Stocktakes contain demo data
+
+Handover contains demo data
+
+Suppliers contain demo data
+
+Users loads correctly
+
+Settings loads correctly
+
+Account & Privacy loads correctly
+
+No feature requires a payment
+
+No feature requires manual approval
+
+No feature unexpectedly expires
+
+Logout works
+
+Login works again
+
+Session persistence works
+
+App can be backgrounded/resumed
+
+No real personal data is exposed
+
+Final Decision
+
+KitchenOps App Review should use:
+
+Business: KitchenOps Demo
+Primary site: Site One
+Additional sites: Site Two and Site Three
+Reviewer account type: Operations
+Entitlement: active/non-expiring for the review period
+Credentials: stored only in App Store Connect
+Demo data: shared with the final iPhone/iPad screenshot environment
+
+Create the actual reviewer account shortly before TestFlight/App Store submission, not now.
