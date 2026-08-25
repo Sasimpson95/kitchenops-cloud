@@ -1076,6 +1076,43 @@ App Store Submission
 
 NOT STARTED
 
+# Codemagic Hosted Mac — CONFIRMED
+
+KitchenOps can be compiled for iOS without owning a Mac.
+
+Confirmed workflow:
+
+Windows development
+→ GitHub
+→ Codemagic Mac mini M2
+→ Xcode 26.4
+→ iOS Simulator build
+
+Codemagic workflow:
+`KitchenOps iOS Build Check`
+
+Confirmed successful:
+- npm ci
+- TypeScript check
+- Next.js production build
+- iOS readiness check
+- Capacitor iOS sync
+- Xcode iOS Simulator compilation
+
+The first hosted Mac build completed successfully.
+
+This unsigned workflow should remain as the permanent iOS sanity/build check.
+
+A separate signed workflow will be added later for:
+
+GitHub
+→ Codemagic
+→ signed iOS archive
+→ App Store Connect
+→ TestFlight
+
+Do not replace the unsigned Simulator workflow when TestFlight signing is added.
+
 Final Technical Milestone
 
 The next major iOS technical milestone is:
