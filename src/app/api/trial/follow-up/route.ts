@@ -61,7 +61,7 @@ function getDateWindowForDay3() {
 
 async function handleFollowUp(request: NextRequest) {
   try {
-    const expectedSecret = process.env.KITCHENOPS_CRON_SECRET?.trim();
+    const expectedSecret = process.env.CRON_SECRET?.trim();
     const suppliedSecret = request.headers
       .get("authorization")
       ?.replace(/^Bearer\s+/i, "")
