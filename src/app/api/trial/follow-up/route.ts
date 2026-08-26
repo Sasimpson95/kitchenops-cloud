@@ -59,7 +59,7 @@ function getDateWindowForDay3() {
   };
 }
 
-export async function POST(request: NextRequest) {
+async function handleFollowUp(request: NextRequest) {
   try {
     const expectedSecret = process.env.KITCHENOPS_CRON_SECRET?.trim();
     const suppliedSecret = request.headers
@@ -232,3 +232,15 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function GET(request: NextRequest) {
+  return handleFollowUp(request);
+}
+
+export async function POST(request: NextRequest) {
+  return handleFollowUp(request);
+}
+
+
+
+
