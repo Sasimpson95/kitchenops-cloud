@@ -9,6 +9,7 @@ import {
   HelpCircle,
   Info,
   MessageSquare,
+  Moon,
   PlugZap,
   Settings2,
   Sparkles,
@@ -25,6 +26,13 @@ import {
 } from "@/config/version";
 
 const sections = [
+  {
+    title: "Appearance",
+    description:
+      "Choose Light, Dark or System appearance for this device.",
+    href: "/settings/appearance",
+    icon: Moon,
+  },
   {
     title: "Product Setup",
     description:

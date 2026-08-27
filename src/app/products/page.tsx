@@ -82,6 +82,17 @@ function money(
   ).format(value);
 }
 
+function quantity(
+  value: number
+): string {
+  return new Intl.NumberFormat(
+    "en-GB",
+    {
+      maximumFractionDigits: 3,
+    }
+  ).format(Math.abs(value) < 0.0005 ? 0 : value);
+}
+
 function ProductsContent() {
   const router = useRouter();
   const initialUser = getCurrentUser();
@@ -776,7 +787,7 @@ function ProductsContent() {
                           </p>
 
                           <p className="mt-1 text-2xl font-bold text-gray-950">
-                            {stock}{" "}
+                            {quantity(stock)}{" "}
                             {product.inventoryUnit}
                           </p>
                         </div>

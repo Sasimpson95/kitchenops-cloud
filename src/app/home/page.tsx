@@ -556,7 +556,7 @@ export default function DashboardPage() {
 
   return (
     <ProtectedPage>
-      <main className="ko-page ko-enter">
+      <main className="ko-page ko-dashboard-page ko-enter">
         <div className="w-full">
           <header className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-violet-950 via-violet-900 to-purple-700 p-6 text-white shadow-lg sm:p-8">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
