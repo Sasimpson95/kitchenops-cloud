@@ -68,7 +68,7 @@ textarea:focus-visible {
   }
 }
 
-/* Android Preview 2: native-feeling mobile behaviour */
+/* Native-feeling mobile behaviour */
 html,
 body {
   min-height: 100%;
@@ -157,7 +157,7 @@ body {
   }
 }
 
-/* KitchenOps Preview 6A design foundation */
+/* KitchenOps design foundation */
 :root {
   --ko-primary-50: #f5f3ff;
   --ko-primary-100: #ede9fe;
@@ -240,7 +240,7 @@ body {
   }
 }
 
-/* KitchenOps Preview 6B.6 — full design-system conversion */
+/* KitchenOps full design-system conversion */
 .ko-page {
   min-height: 100vh;
   background:
@@ -376,7 +376,7 @@ body {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* KitchenOps dark mode foundation — Light / Dark / System */
+/* KitchenOps dark mode foundation - Light / Dark / System */
 :root {
   --ko-surface-subtle: #f8fafc;
   --ko-surface-raised: #ffffff;
@@ -552,7 +552,7 @@ html.dark ::selection {
 }
 
 
-/* KitchenOps dark mode Phase 2 — Dashboard colour polish */
+/* KitchenOps dark mode Phase 2 - Dashboard colour polish */
 html.dark .ko-dashboard-page .bg-blue-50 {
   background-color: rgb(30 58 95 / 0.38) !important;
 }
@@ -624,7 +624,7 @@ html.dark .ko-dashboard-page [class*="hover:bg-violet-50"]:hover {
   }
 }
 
-/* KitchenOps dark mode Phase 3 — app-wide colour cleanup */
+/* KitchenOps dark mode Phase 3 - app-wide colour cleanup */
 html.dark .bg-blue-50,
 html.dark .bg-blue-100 {
   background-color: rgb(30 58 95 / 0.38) !important;

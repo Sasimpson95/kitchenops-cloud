@@ -99,7 +99,7 @@ const sections = [
   {
     title: "Release Notes",
     description:
-      "See what has changed in recent KitchenOps previews.",
+      "See what has changed in recent KitchenOps releases.",
     href: "/settings/release-notes",
     icon: Sparkles,
   },
