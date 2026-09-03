@@ -27,10 +27,11 @@ async function sendResendEmail(args: {
       "Idempotency-Key": args.idempotencyKey,
     },
     body: JSON.stringify({
-      from: args.from,
-      to: [args.to],
-      subject: args.subject,
-      html: args.html,
+  from: args.from,
+  to: [args.to],
+  reply_to: ["hello@kitchenops.co.uk"],
+  subject: args.subject,
+  html: args.html,
     }),
   });
 
