@@ -618,7 +618,11 @@ export default function LoginPage() {
                     </button>
                   </div>
                 </label>
-                {error && <p className="rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</p>}
+                <div className="flex justify-end">
+                  <Link href="/forgot-password" className="text-sm font-semibold text-violet-800 hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>                {error && <p className="rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</p>}
                 <button disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900 disabled:opacity-60">
                   {loading && <Loader2 size={18} className="animate-spin" />}
                   Sign in
