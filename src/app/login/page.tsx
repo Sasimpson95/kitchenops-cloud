@@ -687,7 +687,7 @@ export default function LoginPage() {
                   <>
                     <label className="block">
                       <span className="text-sm font-semibold text-gray-700">Site</span>
-                      <select value={siteId} onChange={(e) => { setSiteId(e.target.value); setStaffId(""); }} className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-800">
+                      <select value={siteId} onChange={(e) => { setSiteId(e.target.value); setStaffId(""); }} className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-950 outline-none focus:border-violet-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                         {sites.map((site) => <option key={site.id} value={site.id}>{site.name}</option>)}
                       </select>
                     </label>
@@ -695,7 +695,7 @@ export default function LoginPage() {
                       <span className="text-sm font-semibold text-gray-700">Name</span>
                       <div className="relative mt-2">
                         <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <select value={staffId} onChange={(e) => setStaffId(e.target.value)} className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-violet-800">
+                        <select value={staffId} onChange={(e) => setStaffId(e.target.value)} className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-950 outline-none focus:border-violet-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                           <option value="">Choose your name</option>
                           {selectedSite?.staff.map((staff) => <option key={staff.id} value={staff.id}>{staff.name} — {staff.role}</option>)}
                         </select>
