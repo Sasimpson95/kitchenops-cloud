@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
 
 type Plan = "1-site" | "3-sites" | "6-sites";
 
@@ -43,8 +43,55 @@ export default function SubscriptionRequiredPage() {
 
   const [loadingPlan, setLoadingPlan] = useState<Plan | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingPayment, setConfirmingPayment] = useState(false);
 
   const checkoutState = searchParams.get("checkout");
+
+  useEffect(() => {
+    if (checkoutState !== "success") {
+      return;
+    }
+
+    let cancelled = false;
+    let attempts = 0;
+
+    setConfirmingPayment(true);
+
+    async function checkSubscription() {
+      try {
+        const response = await fetch("/api/auth/session", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+
+        if (!data.subscriptionRequired) {
+          window.location.href = "/home";
+          return;
+        }
+      } catch (checkError) {
+        console.error("Subscription confirmation error:", checkError);
+      }
+
+      attempts += 1;
+
+      if (!cancelled && attempts < 20) {
+        window.setTimeout(checkSubscription, 1500);
+      } else if (!cancelled) {
+        setConfirmingPayment(false);
+      }
+    }
+
+    checkSubscription();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [checkoutState]);
 
   async function startCheckout(plan: Plan) {
     try {
@@ -110,9 +157,16 @@ export default function SubscriptionRequiredPage() {
           )}
 
           {checkoutState === "success" && (
-            <div className="mx-auto mt-7 max-w-3xl rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-              Payment received. We&apos;re confirming your KitchenOps
-              subscription.
+            <div className="mx-auto mt-7 max-w-3xl rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-900">
+              <p className="font-semibold">
+                Payment received.
+              </p>
+
+              <p className="mt-1 text-sm">
+                {confirmingPayment
+                  ? "We’re confirming your KitchenOps subscription. You’ll be redirected automatically."
+                  : "Your payment was successful. If you are not redirected automatically, refresh this page."}
+              </p>
             </div>
           )}
 
@@ -174,7 +228,7 @@ export default function SubscriptionRequiredPage() {
                   <button
                     type="button"
                     onClick={() => startCheckout(plan.id)}
-                    disabled={loadingPlan !== null}
+                    disabled={loadingPlan !== null || confirmingPayment}
                     className="mt-7 rounded-xl bg-violet-700 px-5 py-3 font-semibold text-white transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loading ? "Opening checkout..." : "Choose plan"}
