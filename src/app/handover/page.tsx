@@ -12,12 +12,14 @@ import {
   rollOverHandoversIfNeeded,
   saveSiteHandover,
   subscribeToHandoverChanges,
+  type HandoverDepartment,
 } from "@/lib/handoverStore";
 
 type History = {
   id: string;
   site_name: string;
   handover_day: "today" | "tomorrow";
+  handover_department: HandoverDepartment;
   notes: string[];
   updated_by: string;
   created_at: string;
@@ -51,9 +53,19 @@ export default function HandoverPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [operationsDepartment, setOperationsDepartment] =
+    useState<HandoverDepartment>("boh");
+
+  const department: HandoverDepartment =
+    currentUser?.role === "foh_manager" ? "foh" :
+    currentUser?.role === "operations" ? operationsDepartment : "boh";
+
+  const departmentLabel = department === "foh" ? "FOH Manager" : "BOH Manager";
 
   const canWriteHandover =
-    currentUser?.role === "manager" || currentUser?.role === "operations";
+    currentUser?.role === "manager" ||
+    currentUser?.role === "foh_manager" ||
+    currentUser?.role === "operations";
 
   useEffect(() => {
     const user = getCurrentUser();
@@ -77,8 +89,8 @@ export default function HandoverPage() {
     if (!selectedSite) return;
 
     const refresh = (): void => {
-      const today = getSiteHandover(selectedSite, "today");
-      const tomorrow = getSiteHandover(selectedSite, "tomorrow");
+      const today = getSiteHandover(selectedSite, "today", department);
+      const tomorrow = getSiteHandover(selectedSite, "tomorrow", department);
       setTodayNotes(today.notes);
       setTodayVisibleToChefs(today.visibleToChefs);
       setTomorrowText(tomorrow.notes.join("\n"));
@@ -87,7 +99,7 @@ export default function HandoverPage() {
 
     refresh();
     return subscribeToHandoverChanges(refresh);
-  }, [selectedSite]);
+  }, [selectedSite, department]);
 
   async function loadHistory(siteName = selectedSite): Promise<void> {
     if (!siteName) return;
@@ -95,7 +107,7 @@ export default function HandoverPage() {
     setLoadingHistory(true);
     try {
       const response = await fetch(
-        `/api/cloud/handovers?siteName=${encodeURIComponent(siteName)}`,
+        `/api/cloud/handovers?siteName=${encodeURIComponent(siteName)}&department=${department}`,
         { cache: "no-store" }
       );
       const data = (await response.json()) as { history?: History[] };
@@ -107,7 +119,7 @@ export default function HandoverPage() {
 
   useEffect(() => {
     void loadHistory(selectedSite);
-  }, [selectedSite]);
+  }, [selectedSite, department]);
 
   async function saveTomorrow(): Promise<void> {
     if (!currentUser || !selectedSite || !canWriteHandover) return;
@@ -126,9 +138,10 @@ export default function HandoverPage() {
       saveSiteHandover({
         siteName: selectedSite,
         day: "tomorrow",
+        department,
         notes,
         updatedBy,
-        visibleToChefs: tomorrowVisibleToChefs,
+        visibleToChefs: department === "boh" && tomorrowVisibleToChefs,
       });
 
       const response = await fetch("/api/cloud/handovers", {
@@ -137,9 +150,10 @@ export default function HandoverPage() {
         body: JSON.stringify({
           siteName: selectedSite,
           day: "tomorrow",
+          department,
           notes,
           updatedBy,
-          visibleToChefs: tomorrowVisibleToChefs,
+          visibleToChefs: department === "boh" && tomorrowVisibleToChefs,
         }),
       });
 
@@ -228,22 +242,34 @@ export default function HandoverPage() {
             <div>
               <h1 className="text-4xl font-bold text-gray-950">Handover</h1>
               <p className="mt-2 text-gray-600">
-                Simple notes written by the manager the day before for the next kitchen team.
+                {departmentLabel} handover notes for the next team.
                 {currentUser.role === "chef" &&
-                  " Reading handover notes is optional."}
+                  " Reading shared handover notes is optional."}
               </p>
             </div>
 
             {currentUser.role === "operations" && (
-              <select
-                value={selectedSite}
-                onChange={(event) => setSelectedSite(event.target.value)}
-                className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
-              >
-                {sites.map((site) => (
-                  <option key={site}>{site}</option>
-                ))}
-              </select>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <select
+                  value={selectedSite}
+                  onChange={(event) => setSelectedSite(event.target.value)}
+                  className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
+                >
+                  {sites.map((site) => (
+                    <option key={site}>{site}</option>
+                  ))}
+                </select>
+                <select
+                  value={operationsDepartment}
+                  onChange={(event) =>
+                    setOperationsDepartment(event.target.value as HandoverDepartment)
+                  }
+                  className="rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
+                >
+                  <option value="boh">BOH Manager Handover</option>
+                  <option value="foh">FOH Manager Handover</option>
+                </select>
+              </div>
             )}
           </div>
 
@@ -251,9 +277,9 @@ export default function HandoverPage() {
             <div className="flex items-center gap-3">
               <CalendarDays size={22} className="text-violet-800" />
               <div>
-                <h2 className="text-xl font-bold text-gray-950">Today's Handover</h2>
+                <h2 className="text-xl font-bold text-gray-950">Today's {departmentLabel} Handover</h2>
                 <p className="text-sm text-gray-500">
-                  Notes left by yesterday's manager for {selectedSite}.
+                  Notes left by yesterday's {departmentLabel} for {selectedSite}.
                 </p>
               </div>
             </div>
@@ -282,7 +308,7 @@ export default function HandoverPage() {
                 <CalendarDays size={22} className="text-violet-800" />
                 <div>
                   <h2 className="text-xl font-bold text-gray-950">
-                    Tomorrow's Handover
+                    Tomorrow's {departmentLabel} Handover
                   </h2>
                   <p className="text-sm text-gray-500">
                     For {formatTomorrow()} · {selectedSite}
@@ -308,25 +334,27 @@ export default function HandoverPage() {
                 />
               </label>
 
-              <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-violet-200 bg-violet-50 p-4">
-                <input
-                  type="checkbox"
-                  checked={tomorrowVisibleToChefs}
-                  onChange={(event) => {
-                    setTomorrowVisibleToChefs(event.target.checked);
-                    setSaved(false);
-                  }}
-                  className="mt-1 h-5 w-5 accent-violet-800"
-                />
-                <span>
-                  <span className="block font-semibold text-violet-950">
-                    Visible to chefs
+              {department === "boh" && (
+                <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-violet-200 bg-violet-50 p-4">
+                  <input
+                    type="checkbox"
+                    checked={tomorrowVisibleToChefs}
+                    onChange={(event) => {
+                      setTomorrowVisibleToChefs(event.target.checked);
+                      setSaved(false);
+                    }}
+                    className="mt-1 h-5 w-5 accent-violet-800"
+                  />
+                  <span>
+                    <span className="block font-semibold text-violet-950">
+                      Visible to chefs
+                    </span>
+                    <span className="mt-1 block text-sm text-violet-800">
+                      Leave this off for manager-only notes. Turn it on only when tomorrow's kitchen team should see this handover.
+                    </span>
                   </span>
-                  <span className="mt-1 block text-sm text-violet-800">
-                    Leave this off for manager-only notes. Turn it on only when tomorrow's kitchen team should see this handover.
-                  </span>
-                </span>
-              </label>
+                </label>
+              )}
 
               <p className="mt-3 text-xs text-gray-500">
                 Put each note on a new line. Tomorrow these notes automatically become Today's Handover.
@@ -349,7 +377,7 @@ export default function HandoverPage() {
                   className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900 disabled:opacity-60"
                 >
                   <Save size={18} />
-                  {saving ? "Saving..." : "Save Tomorrow's Handover"}
+                  {saving ? "Saving..." : `Save Tomorrow's ${departmentLabel} Handover`}
                 </button>
               </div>
             </section>
@@ -361,7 +389,7 @@ export default function HandoverPage() {
               <div>
                 <h2 className="text-2xl font-bold text-gray-950">Handover History</h2>
                 <p className="text-sm text-gray-500">
-                  Previous manager handover notes for {selectedSite}.
+                  Previous {departmentLabel} handover notes for {selectedSite}.
                 </p>
               </div>
             </div>
@@ -395,7 +423,7 @@ export default function HandoverPage() {
                             minute: "2-digit",
                           })}
                         </p>
-                        {item.visible_to_chefs && (
+                        {department === "boh" && item.visible_to_chefs && (
                           <span className="mt-2 inline-flex rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800">
                             Shared with chefs
                           </span>

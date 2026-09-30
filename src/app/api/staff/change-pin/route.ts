@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       siteId: staff.site_id,
       siteName: site.name,
       name: staff.name,
-      role: staff.role as "manager" | "chef",
+      role: staff.role as "manager" | "foh_manager" | "chef",
       pinChangeRequired: false,
       expiresAt: signedStaff.expiresAt,
     };

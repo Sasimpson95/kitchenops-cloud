@@ -39,6 +39,7 @@ import { getRecipeCostingSetting } from "@/lib/recipeCostingStore";
 
 import type {
   ProductionDay,
+  ProductionDepartment,
   ProductionItem,
 } from "@/data/production";
 
@@ -129,6 +130,15 @@ export default function PrepPlannerPage() {
     useState(1);
 
   const [
+    addDepartment,
+    setAddDepartment,
+  ] = useState<ProductionDepartment>(
+    initialUser?.role === "foh_manager"
+      ? "foh"
+      : "boh"
+  );
+
+  const [
     selectedRecipeCard,
     setSelectedRecipeCard,
   ] = useState<Recipe | null>(null);
@@ -213,7 +223,7 @@ export default function PrepPlannerPage() {
       setSelectedSite("All Sites");
     }
 
-    if (user.role === "manager") {
+    if (user.role === "manager" || user.role === "foh_manager") {
       const requestedDay = new URLSearchParams(window.location.search).get("day");
       setSelectedDay(requestedDay === "today" ? "today" : "tomorrow");
     }
@@ -267,7 +277,8 @@ export default function PrepPlannerPage() {
     currentUser?.role === "operations";
 
   const isManager =
-    currentUser?.role === "manager";
+    currentUser?.role === "manager" ||
+    currentUser?.role === "foh_manager";
 
   const hasSelectedSpecificSite =
     selectedSite !== "All Sites";
@@ -276,6 +287,38 @@ export default function PrepPlannerPage() {
     Boolean(currentUser) &&
     hasSelectedSpecificSite &&
     (isManager || isOperations);
+
+  function canManageDepartment(
+    item: ProductionItem
+  ): boolean {
+    if (!currentUser) return false;
+
+    if (currentUser.role === "operations") {
+      return true;
+    }
+
+    if (currentUser.role === "foh_manager") {
+      return item.department === "foh";
+    }
+
+    return item.department === "boh";
+  }
+
+  function canManagerEditItem(
+    item: ProductionItem
+  ): boolean {
+    return canEdit && canManageDepartment(item);
+  }
+
+  const visibleItems = useMemo(() => {
+    if (currentUser?.role !== "chef") {
+      return items;
+    }
+
+    return items.filter(
+      (item) => item.department === "boh"
+    );
+  }, [currentUser, items]);
 
   const selectedDayItems =
     useMemo(() => {
@@ -289,7 +332,7 @@ export default function PrepPlannerPage() {
         .trim()
         .toLowerCase();
 
-      return items
+      return visibleItems
         .filter(
           (item) =>
             item.site === selectedSite &&
@@ -311,7 +354,7 @@ export default function PrepPlannerPage() {
             )
         );
     }, [
-      items,
+      visibleItems,
       search,
       selectedDay,
       selectedSite,
@@ -358,18 +401,22 @@ export default function PrepPlannerPage() {
       return [];
     }
 
-    return items.filter(
+    return visibleItems.filter(
       (item) =>
         item.site === selectedSite
     );
-  }, [items, selectedSite]);
+  }, [visibleItems, selectedSite]);
 
   const selectedSiteHistory = useMemo(() => {
     if (!hasSelectedSpecificSite) return [];
     return history
-      .filter((record) => record.site === selectedSite)
+      .filter(
+        (record) =>
+          record.site === selectedSite &&
+          (currentUser?.role !== "chef" || record.department === "boh")
+      )
       .slice(0, 20);
-  }, [history, hasSelectedSpecificSite, selectedSite]);
+  }, [history, hasSelectedSpecificSite, selectedSite, currentUser]);
 
   const todayItems =
     selectedSiteItems.filter(
@@ -393,6 +440,16 @@ export default function PrepPlannerPage() {
     todayItems.filter(
       (item) =>
         item.status === "awaitingApproval"
+    );
+
+  const manageableAwaitingApprovalToday =
+    awaitingApprovalToday.filter(
+      (item) =>
+        currentUser?.role === "operations" ||
+        currentUser?.role === "manager" ||
+        currentUser?.role === "foh_manager"
+          ? canManageDepartment(item)
+          : false
     );
 
   const siteSummaries = useMemo(() => {
@@ -471,6 +528,11 @@ export default function PrepPlannerPage() {
 
     setSelectedRecipe(firstRecipe);
     setQuantity(1);
+    setAddDepartment(
+      currentUser?.role === "foh_manager"
+        ? "foh"
+        : "boh"
+    );
     setAddRecipeSearch("");
     setError("");
     setAdding(true);
@@ -480,6 +542,11 @@ export default function PrepPlannerPage() {
     setAdding(false);
     setSelectedRecipe(null);
     setQuantity(1);
+    setAddDepartment(
+      currentUser?.role === "foh_manager"
+        ? "foh"
+        : "boh"
+    );
     setAddRecipeSearch("");
     setError("");
   }
@@ -505,6 +572,13 @@ export default function PrepPlannerPage() {
         name: selectedRecipe.name,
         emoji:
           selectedRecipe.emoji,
+
+        department:
+          currentUser?.role === "operations"
+            ? addDepartment
+            : currentUser?.role === "foh_manager"
+              ? "foh"
+              : "boh",
 
         planned: quantity,
         day: selectedDay,
@@ -559,7 +633,7 @@ export default function PrepPlannerPage() {
   function openEditQuantity(
     item: ProductionItem
   ): void {
-    if (!canEdit) {
+    if (!canManagerEditItem(item)) {
       return;
     }
 
@@ -589,9 +663,9 @@ export default function PrepPlannerPage() {
       return;
     }
 
-    if (!canEdit) {
+    if (!canManagerEditItem(editingItem)) {
       setError(
-        "Select a specific site before editing prep."
+        "You can only edit prep for your own department."
       );
 
       return;
@@ -625,6 +699,15 @@ export default function PrepPlannerPage() {
   }
 
   function openCompletion(item: ProductionItem): void {
+    if (!currentUser) return;
+
+    const canComplete =
+      currentUser.role === "chef"
+        ? item.department === "boh"
+        : canManagerEditItem(item);
+
+    if (!canComplete) return;
+
     setCompletingItem(item);
     setCompletionQuantity(item.produced > 0 ? item.produced : item.planned);
     setCompletionError("");
@@ -638,6 +721,18 @@ export default function PrepPlannerPage() {
 
   function completeSelectedPrep(): void {
     if (!completingItem || !currentUser) return;
+
+    const canComplete =
+      currentUser.role === "chef"
+        ? completingItem.department === "boh"
+        : canManagerEditItem(completingItem);
+
+    if (!canComplete) {
+      setCompletionError(
+        "You can only complete prep for your own department."
+      );
+      return;
+    }
 
     if (!Number.isFinite(completionQuantity) || completionQuantity <= 0) {
       setCompletionError("Enter how many batches were made.");
@@ -674,7 +769,7 @@ export default function PrepPlannerPage() {
   function openApproval(
     item: ProductionItem
   ): void {
-    if (!canEdit || item.status !== "awaitingApproval") return;
+    if (!canManagerEditItem(item) || item.status !== "awaitingApproval") return;
     if (item.site !== selectedSite) return;
 
     setApprovingItem(item);
@@ -692,6 +787,13 @@ export default function PrepPlannerPage() {
 
   function approveSelectedPrep(): void {
     if (!approvingItem || !currentUser) return;
+
+    if (!canManagerEditItem(approvingItem)) {
+      setApprovalError(
+        "You can only approve prep for your own department."
+      );
+      return;
+    }
 
     try {
       approvePrepItem({
@@ -717,7 +819,7 @@ export default function PrepPlannerPage() {
   function handleRemovePrep(
     item: ProductionItem
   ): void {
-    if (!canEdit) {
+    if (!canManagerEditItem(item)) {
       return;
     }
 
@@ -1015,11 +1117,11 @@ export default function PrepPlannerPage() {
                 </div>
               </div>
 
-              {canEdit && awaitingApprovalToday.length > 0 && (
+              {canEdit && manageableAwaitingApprovalToday.length > 0 && (
                 <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-yellow-200 bg-yellow-50 p-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="font-bold text-yellow-950">
-                      {awaitingApprovalToday.length} prep {awaitingApprovalToday.length === 1 ? "item is" : "items are"} awaiting approval
+                      {manageableAwaitingApprovalToday.length} prep {manageableAwaitingApprovalToday.length === 1 ? "item is" : "items are"} awaiting approval
                     </p>
                     <p className="mt-1 text-sm text-yellow-800">
                       Review and approve chef submissions directly in Prep.
@@ -1209,6 +1311,16 @@ export default function PrepPlannerPage() {
                                     {item.name}
                                   </h3>
 
+                                  <div className="mt-2">
+                                    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${
+                                      item.department === "foh"
+                                        ? "bg-fuchsia-50 text-fuchsia-800"
+                                        : "bg-slate-100 text-slate-700"
+                                    }`}>
+                                      {item.department === "foh" ? "FOH" : "BOH"}
+                                    </span>
+                                  </div>
+
                                   <p className="mt-2 text-gray-500">
                                     Planned:{" "}
                                     {
@@ -1284,7 +1396,11 @@ export default function PrepPlannerPage() {
                                 {selectedDay === "today" &&
                                   item.status === "planned" &&
                                   currentUser &&
-                                  (currentUser.role === "chef" || canEdit) && (
+                                  (
+                                    currentUser.role === "chef"
+                                      ? item.department === "boh"
+                                      : canManagerEditItem(item)
+                                  ) && (
                                     <button
                                       type="button"
                                       onClick={() => openCompletion(item)}
@@ -1294,7 +1410,7 @@ export default function PrepPlannerPage() {
                                     </button>
                                   )}
 
-                                {canEdit &&
+                                {canManagerEditItem(item) &&
                                   item.status ===
                                     "planned" && (
                                     <>
@@ -1330,7 +1446,7 @@ export default function PrepPlannerPage() {
                                     </>
                                   )}
 
-                                {canEdit &&
+                                {canManagerEditItem(item) &&
                                   item.status ===
                                     "awaitingApproval" && (
                                     <button
@@ -1383,6 +1499,7 @@ export default function PrepPlannerPage() {
                         <tr className="border-b border-gray-200 text-gray-500">
                           <th className="px-3 py-3 font-semibold">Date</th>
                           <th className="px-3 py-3 font-semibold">Prep</th>
+                          <th className="px-3 py-3 font-semibold">Department</th>
                           <th className="px-3 py-3 font-semibold">Planned</th>
                           <th className="px-3 py-3 font-semibold">Produced</th>
                           <th className="px-3 py-3 font-semibold">Status</th>
@@ -1395,6 +1512,7 @@ export default function PrepPlannerPage() {
                           <tr key={record.id} className="border-b border-gray-100">
                             <td className="px-3 py-4 font-semibold text-gray-700">{record.scheduledDate}</td>
                             <td className="px-3 py-4 font-semibold text-gray-950">{record.emoji} {record.name}</td>
+                            <td className="px-3 py-4 text-gray-700">{record.department === "foh" ? "FOH" : "BOH"}</td>
                             <td className="px-3 py-4 text-gray-700">{record.planned}</td>
                             <td className="px-3 py-4 text-gray-700">{record.produced || "—"}</td>
                             <td className="px-3 py-4">
@@ -1525,6 +1643,43 @@ export default function PrepPlannerPage() {
 
               <div className="mt-6">
                 <p className="mb-3 font-medium text-gray-700">
+                  Department
+                </p>
+
+                {isOperations ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setAddDepartment("boh")}
+                      className={`rounded-xl border px-4 py-3 font-semibold transition ${
+                        addDepartment === "boh"
+                          ? "border-violet-800 bg-violet-50 text-violet-900"
+                          : "border-gray-300 bg-white text-gray-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      BOH
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAddDepartment("foh")}
+                      className={`rounded-xl border px-4 py-3 font-semibold transition ${
+                        addDepartment === "foh"
+                          ? "border-violet-800 bg-violet-50 text-violet-900"
+                          : "border-gray-300 bg-white text-gray-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      FOH
+                    </button>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-gray-200 bg-slate-50 px-4 py-3 font-semibold text-gray-800">
+                    {currentUser?.role === "foh_manager" ? "FOH" : "BOH"}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6">
+                <p className="mb-3 font-medium text-gray-700">
                   Planned Batches
                 </p>
 
@@ -1607,7 +1762,7 @@ export default function PrepPlannerPage() {
           </div>
         )}
 
-        {editingItem && canEdit && (
+        {editingItem && canManagerEditItem(editingItem) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
               <p className="text-center text-sm font-semibold text-violet-800">
@@ -1699,7 +1854,13 @@ export default function PrepPlannerPage() {
           </div>
         )}
 
-        {completingItem && currentUser && (currentUser.role === "chef" || canEdit) && (
+        {completingItem &&
+          currentUser &&
+          (
+            currentUser.role === "chef"
+              ? completingItem.department === "boh"
+              : canManagerEditItem(completingItem)
+          ) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
               <p className="text-center text-sm font-semibold text-violet-800">
@@ -1761,7 +1922,7 @@ export default function PrepPlannerPage() {
           </div>
         )}
 
-        {approvingItem && canEdit && (
+        {approvingItem && canManagerEditItem(approvingItem) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
               <p className="text-center text-sm font-semibold text-violet-800">

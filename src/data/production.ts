@@ -7,6 +7,10 @@ export type ProductionDay =
   | "today"
   | "tomorrow";
 
+export type ProductionDepartment =
+  | "boh"
+  | "foh";
+
 export type ProductionItem = {
   id: number;
 
@@ -14,6 +18,8 @@ export type ProductionItem = {
 
   name: string;
   emoji: string;
+
+  department: ProductionDepartment;
 
   planned: number;
   produced: number;

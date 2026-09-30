@@ -11,7 +11,7 @@ import { getKitchenOpsAccessState } from "@/lib/subscriptionAccess";
 
 export type CloudRequestContext = {
   businessId: string;
-  role: "operations" | "manager" | "chef";
+  role: "operations" | "manager" | "foh_manager" | "chef";
   staffId?: string;
   staffName?: string;
   /** Canonical Supabase site UUID. */
@@ -69,7 +69,7 @@ export async function getCloudRequestContext(): Promise<CloudRequestContext | nu
 
     if (!business?.active || !site?.active) return null;
     if (!getKitchenOpsAccessState(business).allowed) return null;
-    if (staff.role !== "manager" && staff.role !== "chef") return null;
+    if (staff.role !== "manager" && staff.role !== "foh_manager" && staff.role !== "chef") return null;
 
     return {
       businessId: staff.business_id,

@@ -51,3 +51,5 @@ keystore.properties
 
 # Supabase CLI temporary files
 /supabase/.temp/
+.vercel
+.env*

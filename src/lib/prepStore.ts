@@ -3,6 +3,7 @@ import { syncOperationalCollection } from "@/lib/cloud/operationalSync";
 import { getCurrentUser } from "@/lib/currentUser";
 import {
   type ProductionDay,
+  type ProductionDepartment,
   type ProductionItem,
   startingProduction,
 } from "@/data/production";
@@ -35,6 +36,7 @@ export type PrepHistoryRecord = {
   site: string;
   name: string;
   emoji: string;
+  department: ProductionDepartment;
   planned: number;
   produced: number;
   status: ProductionItem["status"];
@@ -49,6 +51,7 @@ export type AddPrepInput = {
   site: string;
   name: string;
   emoji: string;
+  department: ProductionDepartment;
   planned: number;
   day: ProductionDay;
 };
@@ -137,6 +140,7 @@ function archiveTodayItems(items: ProductionItem[]): void {
       site: item.site,
       name: item.name,
       emoji: item.emoji,
+      department: item.department,
       planned: item.planned,
       produced: item.produced,
       status: item.status,
@@ -258,6 +262,11 @@ function normalisePrepItem(
     emoji:
       item.emoji?.trim() ||
       "🍽️",
+
+    department:
+      item.department === "foh"
+        ? "foh"
+        : "boh",
 
     planned: Math.max(
       0,
@@ -444,6 +453,7 @@ export function addPrepItem(
       (item) =>
         item.site === input.site &&
         item.day === input.day &&
+        item.department === input.department &&
         item.name
           .trim()
           .toLowerCase() ===
@@ -483,6 +493,8 @@ export function addPrepItem(
     ),
 
     site: input.site.trim(),
+
+    department: input.department,
 
     name: input.name.trim(),
 
@@ -773,6 +785,8 @@ function applyApprovedProduction(
         (item) =>
           item.site ===
             existingItem.site &&
+          item.department ===
+            existingItem.department &&
           item.day ===
             "tomorrow" &&
           item.name
@@ -814,6 +828,9 @@ function applyApprovedProduction(
 
           site:
             existingItem.site,
+
+          department:
+            existingItem.department,
 
           name:
             existingItem.name,

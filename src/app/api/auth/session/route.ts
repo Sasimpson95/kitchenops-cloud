@@ -67,7 +67,7 @@ export async function GET() {
       !staff.active ||
       !business?.active ||
       !site?.active ||
-      (staff.role !== "manager" && staff.role !== "chef")
+      (staff.role !== "manager" && staff.role !== "foh_manager" && staff.role !== "chef")
     ) {
       return clearStaffCookie(
         NextResponse.json({ authenticated: false }, { status: 401 })
@@ -90,7 +90,7 @@ export async function GET() {
       siteId: staff.site_id,
       siteName: site.name,
       name: staff.name,
-      role: staff.role as "manager" | "chef",
+      role: staff.role as "manager" | "foh_manager" | "chef",
       pinChangeRequired: staff.must_change_pin,
       expiresAt,
     };

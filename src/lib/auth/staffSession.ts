@@ -13,7 +13,7 @@ export type StaffSession = {
   siteId: string;
   siteName: string;
   name: string;
-  role: "manager" | "chef";
+  role: "manager" | "foh_manager" | "chef";
   pinChangeRequired?: boolean;
   expiresAt: number;
 };

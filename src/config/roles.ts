@@ -1,4 +1,4 @@
-export type UserRole = "chef" | "manager" | "operations";
+export type UserRole = "chef" | "manager" | "foh_manager" | "operations";
 
 export type User = {
   name: string;
@@ -8,6 +8,25 @@ export type User = {
   siteId?: string;
 };
 
+const MANAGER_ROUTE_PREFIXES = [
+  "/home",
+  "/production",
+  "/prep-planner",
+  "/recipes",
+  "/products",
+  "/inventory",
+  "/transfers",
+  "/purchasing",
+  "/orders",
+  "/waste",
+  "/stocktakes",
+  "/storage-areas",
+  "/handover",
+  "/reports",
+  "/deliveries",
+  "/notifications",
+];
+
 const ROLE_ROUTE_PREFIXES: Record<Exclude<UserRole, "operations">, string[]> = {
   chef: [
     "/home",
@@ -16,24 +35,8 @@ const ROLE_ROUTE_PREFIXES: Record<Exclude<UserRole, "operations">, string[]> = {
     "/handover",
     "/notifications",
   ],
-  manager: [
-    "/home",
-    "/production",
-    "/prep-planner",
-    "/recipes",
-    "/products",
-    "/inventory",
-    "/transfers",
-    "/purchasing",
-    "/orders",
-    "/waste",
-    "/stocktakes",
-    "/storage-areas",
-    "/handover",
-    "/reports",
-    "/deliveries",
-    "/notifications",
-  ],
+  manager: MANAGER_ROUTE_PREFIXES,
+  foh_manager: MANAGER_ROUTE_PREFIXES,
 };
 
 export function isRouteAllowedForRole(role: UserRole, pathname: string): boolean {

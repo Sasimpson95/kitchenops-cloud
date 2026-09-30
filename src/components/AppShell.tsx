@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 
@@ -54,6 +54,21 @@ type NavigationItem = {
   href: string;
 };
 
+const managerNavItems: NavigationItem[] = [
+  { label: "Dashboard", href: "/home" },
+  { label: "Prep", href: "/production?day=today" },
+  { label: "Recipes", href: "/recipes" },
+  { label: "Products", href: "/products" },
+  { label: "Inventory", href: "/inventory" },
+  { label: "Transfers", href: "/transfers" },
+  { label: "Purchasing", href: "/purchasing" },
+  { label: "Waste", href: "/waste" },
+  { label: "Stocktakes", href: "/stocktakes" },
+  { label: "Storage Areas", href: "/storage-areas" },
+  { label: "Handover", href: "/handover" },
+  { label: "Reports", href: "/reports" },
+];
+
 const navItemsByRole: Record<
   User["role"],
   NavigationItem[]
@@ -77,56 +92,8 @@ const navItemsByRole: Record<
     },
   ],
 
-  manager: [
-    {
-      label: "Dashboard",
-      href: "/home",
-    },
-    {
-      label: "Prep",
-      href: "/production?day=today",
-    },
-    {
-      label: "Recipes",
-      href: "/recipes",
-    },
-    {
-      label: "Products",
-      href: "/products",
-    },
-    {
-      label: "Inventory",
-      href: "/inventory",
-    },
-    {
-      label: "Transfers",
-      href: "/transfers",
-    },
-    {
-      label: "Purchasing",
-      href: "/purchasing",
-    },
-    {
-      label: "Waste",
-      href: "/waste",
-    },
-    {
-      label: "Stocktakes",
-      href: "/stocktakes",
-    },
-    {
-      label: "Storage Areas",
-      href: "/storage-areas",
-    },
-    {
-      label: "Handover",
-      href: "/handover",
-    },
-    {
-      label: "Reports",
-      href: "/reports",
-    },
-  ],
+  manager: managerNavItems,
+  foh_manager: managerNavItems,
 
   operations: [
     {
@@ -201,7 +168,13 @@ function Brand({
         </p>
 
         <p className="truncate text-sm capitalize text-gray-500">
-          {currentUser.role} mode
+          {currentUser.role === "manager"
+            ? "BOH Manager"
+            : currentUser.role === "foh_manager"
+              ? "FOH Manager"
+              : currentUser.role === "operations"
+                ? "Operations"
+                : "Chef"} mode
         </p>
       </div>
     </div>

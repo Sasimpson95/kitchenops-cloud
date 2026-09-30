@@ -1,11 +1,7 @@
 "use client";
 
 import { toast } from "@/lib/toast";
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   Check,
@@ -21,12 +17,8 @@ import {
 } from "lucide-react";
 
 import ProtectedPage from "@/components/ProtectedPage";
-import {
-  getCloudSession,
-} from "@/lib/cloudSession";
-import {
-  createClient,
-} from "@/lib/supabase/client";
+import { getCloudSession } from "@/lib/cloudSession";
+import { createClient } from "@/lib/supabase/client";
 
 type Site = {
   id: string;
@@ -36,16 +28,13 @@ type Site = {
 type Staff = {
   id: string;
   name: string;
-  role: "manager" | "chef";
+  role: "manager" | "foh_manager" | "chef";
   active: boolean;
   must_change_pin: boolean;
   last_login_at: string | null;
   created_at: string;
   site_id: string;
-  sites:
-    | { name: string }
-    | { name: string }[]
-    | null;
+  sites: { name: string } | { name: string }[] | null;
 };
 
 type OperationsUser = {
@@ -108,7 +97,7 @@ export default function UsersPage() {
   const [sites, setSites] = useState<Site[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [name, setName] = useState("");
-  const [role, setRole] = useState<"manager" | "chef">("chef");
+  const [role, setRole] = useState<"manager" | "foh_manager" | "chef">("chef");
   const [siteId, setSiteId] = useState("");
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(true);
@@ -128,14 +117,10 @@ export default function UsersPage() {
         cache: "no-store",
       });
 
-      const data =
-        (await response.json()) as OperationsUsersResponse;
+      const data = (await response.json()) as OperationsUsersResponse;
 
       if (!response.ok || !data.ok) {
-        throw new Error(
-          data.error ??
-            "Operations users could not be loaded."
-        );
+        throw new Error(data.error ?? "Operations users could not be loaded.");
       }
 
       setOperationsUsers(data.operationsUsers ?? []);
@@ -144,7 +129,7 @@ export default function UsersPage() {
       setOperationsError(
         caughtError instanceof Error
           ? caughtError.message
-          : "Operations users could not be loaded."
+          : "Operations users could not be loaded.",
       );
     } finally {
       setOperationsLoading(false);
@@ -183,7 +168,7 @@ export default function UsersPage() {
         supabase
           .from("staff_members")
           .select(
-            "id,name,role,active,must_change_pin,last_login_at,created_at,site_id,sites(name)"
+            "id,name,role,active,must_change_pin,last_login_at,created_at,site_id,sites(name)",
           )
           .eq("business_id", nextBusinessId)
           .order("name"),
@@ -194,16 +179,13 @@ export default function UsersPage() {
 
       const nextSites = siteResult.data ?? [];
       setSites(nextSites);
-      setSiteId(
-        (current) =>
-          current || nextSites[0]?.id || ""
-      );
+      setSiteId((current) => current || nextSites[0]?.id || "");
       setStaff((staffResult.data ?? []) as Staff[]);
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "Users could not be loaded."
+          : "Users could not be loaded.",
       );
     } finally {
       setLoading(false);
@@ -211,10 +193,7 @@ export default function UsersPage() {
   }, []);
 
   useEffect(() => {
-    void Promise.all([
-      load(),
-      loadOperationsUsers(),
-    ]);
+    void Promise.all([load(), loadOperationsUsers()]);
   }, [load, loadOperationsUsers]);
 
   async function copyCode(): Promise<void> {
@@ -245,26 +224,22 @@ export default function UsersPage() {
     setOperationsError("");
 
     try {
-      const response = await fetch(
-        "/api/operations/invite",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: nextName,
-            email: nextEmail,
-          }),
-        }
-      );
+      const response = await fetch("/api/operations/invite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: nextName,
+          email: nextEmail,
+        }),
+      });
 
       const data = (await response.json()) as ApiResponse;
 
       if (!response.ok || !data.ok) {
         throw new Error(
-          data.error ??
-            "The Operations invitation could not be sent."
+          data.error ?? "The Operations invitation could not be sent.",
         );
       }
 
@@ -273,8 +248,7 @@ export default function UsersPage() {
 
       toast.success(
         "Invitation sent",
-        data.message ??
-          `Operations invitation sent to ${nextEmail}.`
+        data.message ?? `Operations invitation sent to ${nextEmail}.`,
       );
 
       await loadOperationsUsers();
@@ -282,20 +256,18 @@ export default function UsersPage() {
       setOperationsError(
         caughtError instanceof Error
           ? caughtError.message
-          : "The Operations invitation could not be sent."
+          : "The Operations invitation could not be sent.",
       );
     } finally {
       setOperationsSaving(false);
     }
   }
 
-  async function revokeOperationsInvite(
-    invite: PendingInvite
-  ): Promise<void> {
+  async function revokeOperationsInvite(invite: PendingInvite): Promise<void> {
     if (revokingInviteId) return;
 
     const confirmed = window.confirm(
-      `Revoke the Operations invitation for ${invite.email}?`
+      `Revoke the Operations invitation for ${invite.email}?`,
     );
 
     if (!confirmed) return;
@@ -304,31 +276,25 @@ export default function UsersPage() {
     setOperationsError("");
 
     try {
-      const response = await fetch(
-        "/api/operations/invite/revoke",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            invitationId: invite.id,
-          }),
-        }
-      );
+      const response = await fetch("/api/operations/invite/revoke", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          invitationId: invite.id,
+        }),
+      });
 
       const data = (await response.json()) as ApiResponse;
 
       if (!response.ok || !data.ok) {
-        throw new Error(
-          data.error ??
-            "The invitation could not be revoked."
-        );
+        throw new Error(data.error ?? "The invitation could not be revoked.");
       }
 
       toast.success(
         "Invitation revoked",
-        `${invite.email} can no longer use that invitation.`
+        `${invite.email} can no longer use that invitation.`,
       );
 
       await loadOperationsUsers();
@@ -336,7 +302,7 @@ export default function UsersPage() {
       setOperationsError(
         caughtError instanceof Error
           ? caughtError.message
-          : "The invitation could not be revoked."
+          : "The invitation could not be revoked.",
       );
     } finally {
       setRevokingInviteId("");
@@ -344,12 +310,7 @@ export default function UsersPage() {
   }
 
   async function createStaff(): Promise<void> {
-    if (
-      !name.trim() ||
-      !siteId ||
-      !/^\d{4}$/.test(pin) ||
-      !businessId
-    ) {
+    if (!name.trim() || !siteId || !/^\d{4}$/.test(pin) || !businessId) {
       setError("Enter a name, site and four-digit PIN.");
       return;
     }
@@ -358,16 +319,13 @@ export default function UsersPage() {
     setError("");
 
     const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc(
-      "create_staff_member",
-      {
-        requested_business_id: businessId,
-        requested_site_id: siteId,
-        staff_name: name.trim(),
-        staff_role: role,
-        temporary_pin: pin,
-      }
-    );
+    const { error: rpcError } = await supabase.rpc("create_staff_member", {
+      requested_business_id: businessId,
+      requested_site_id: siteId,
+      staff_name: name.trim(),
+      staff_role: role,
+      temporary_pin: pin,
+    });
 
     if (rpcError) {
       setError(rpcError.message);
@@ -397,34 +355,26 @@ export default function UsersPage() {
   async function resetPin(item: Staff): Promise<void> {
     const random = new Uint32Array(1);
     window.crypto.getRandomValues(random);
-    const next = String(random[0] % 10000).padStart(
-      4,
-      "0"
-    );
+    const next = String(random[0] % 10000).padStart(4, "0");
 
     const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc(
-      "reset_staff_pin",
-      {
-        requested_staff_id: item.id,
-        temporary_pin: next,
-      }
-    );
+    const { error: rpcError } = await supabase.rpc("reset_staff_pin", {
+      requested_staff_id: item.id,
+      temporary_pin: next,
+    });
 
     if (rpcError) {
       setError(rpcError.message);
     } else {
-      await navigator.clipboard
-        .writeText(next)
-        .catch(() => undefined);
+      await navigator.clipboard.writeText(next).catch(() => undefined);
 
       window.alert(
-        `Temporary PIN for ${item.name}: ${next}\n\nThe PIN has been copied to your clipboard. ${item.name} must use it once, then choose a new PIN at sign-in.`
+        `Temporary PIN for ${item.name}: ${next}\n\nThe PIN has been copied to your clipboard. ${item.name} must use it once, then choose a new PIN at sign-in.`,
       );
 
       toast.success(
         "Temporary PIN reset",
-        "The user must choose a new PIN at their next sign-in."
+        "The user must choose a new PIN at their next sign-in.",
       );
 
       await load();
@@ -435,26 +385,21 @@ export default function UsersPage() {
     const relation = item.sites;
 
     return Array.isArray(relation)
-      ? relation[0]?.name ?? "Unknown"
-      : relation?.name ?? "Unknown";
+      ? (relation[0]?.name ?? "Unknown")
+      : (relation?.name ?? "Unknown");
   }
 
   return (
     <ProtectedPage>
       <main className="ko-page ko-enter">
         <div className="w-full max-w-6xl">
-          <p className="font-semibold text-violet-800">
-            Operations
-          </p>
+          <p className="font-semibold text-violet-800">Operations</p>
 
-          <h1 className="mt-1 text-4xl font-bold">
-            Users
-          </h1>
+          <h1 className="mt-1 text-4xl font-bold">Users</h1>
 
           <p className="mt-2 max-w-3xl text-gray-600">
-            Manage business-wide Operations accounts and
-            Manager or Chef PIN accounts for shared kitchen
-            devices.
+            Manage business-wide Operations accounts and BOH Manager, FOH
+            Manager or Chef PIN accounts for shared devices.
           </p>
 
           <section className="mt-8 rounded-2xl border border-violet-200 bg-white p-6 shadow-sm sm:p-8">
@@ -473,11 +418,9 @@ export default function UsersPage() {
                 </h2>
 
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-                  Operations users sign in with their own
-                  email and password and can manage the
-                  KitchenOps business. Invitations do not
-                  count as active Operations users until
-                  they have been accepted.
+                  Operations users sign in with their own email and password and
+                  can manage the KitchenOps business. Invitations do not count
+                  as active Operations users until they have been accepted.
                 </p>
               </div>
             </div>
@@ -488,8 +431,7 @@ export default function UsersPage() {
               </h3>
 
               <p className="mt-1 text-sm text-gray-500">
-                The person will receive an email with a
-                secure invitation link.
+                The person will receive an email with a secure invitation link.
               </p>
 
               <div className="mt-5 grid gap-4 md:grid-cols-[1fr_1.4fr_auto]">
@@ -524,9 +466,7 @@ export default function UsersPage() {
                       type="email"
                       value={operationsEmail}
                       onChange={(event) => {
-                        setOperationsEmail(
-                          event.target.value
-                        );
+                        setOperationsEmail(event.target.value);
                         setOperationsError("");
                       }}
                       placeholder="alex@example.com"
@@ -542,17 +482,12 @@ export default function UsersPage() {
                   className="mt-auto flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white hover:bg-violet-900 disabled:opacity-60"
                 >
                   {operationsSaving ? (
-                    <Loader2
-                      className="animate-spin"
-                      size={18}
-                    />
+                    <Loader2 className="animate-spin" size={18} />
                   ) : (
                     <UserRoundPlus size={18} />
                   )}
 
-                  {operationsSaving
-                    ? "Sending..."
-                    : "Send Invite"}
+                  {operationsSaving ? "Sending..." : "Send Invite"}
                 </button>
               </div>
 
@@ -570,12 +505,7 @@ export default function UsersPage() {
                 </h3>
 
                 <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800">
-                  {
-                    operationsUsers.filter(
-                      (item) => item.active
-                    ).length
-                  }{" "}
-                  active
+                  {operationsUsers.filter((item) => item.active).length} active
                 </span>
               </div>
 
@@ -626,9 +556,7 @@ export default function UsersPage() {
                               : "bg-gray-200 text-gray-700"
                           }`}
                         >
-                          {item.active
-                            ? "Active"
-                            : "Disabled"}
+                          {item.active ? "Active" : "Disabled"}
                         </span>
                       </div>
 
@@ -661,8 +589,7 @@ export default function UsersPage() {
               </div>
 
               <p className="mt-1 text-sm text-gray-500">
-                Pending invitations do not count as active
-                Operations users.
+                Pending invitations do not count as active Operations users.
               </p>
 
               {operationsLoading ? (
@@ -691,10 +618,7 @@ export default function UsersPage() {
                           </p>
 
                           <p className="mt-2 text-xs font-semibold text-amber-800">
-                            Expires{" "}
-                            {formatDate(
-                              invite.expiresAt
-                            )}
+                            Expires {formatDate(invite.expiresAt)}
                           </p>
                         </div>
 
@@ -705,28 +629,15 @@ export default function UsersPage() {
 
                           <button
                             type="button"
-                            onClick={() =>
-                              revokeOperationsInvite(
-                                invite
-                              )
-                            }
-                            disabled={
-                              Boolean(
-                                revokingInviteId
-                              )
-                            }
+                            onClick={() => revokeOperationsInvite(invite)}
+                            disabled={Boolean(revokingInviteId)}
                             className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
                           >
-                            {revokingInviteId ===
-                            invite.id ? (
-                              <Loader2
-                                size={15}
-                                className="animate-spin"
-                              />
+                            {revokingInviteId === invite.id ? (
+                              <Loader2 size={15} className="animate-spin" />
                             ) : (
                               <Trash2 size={15} />
                             )}
-
                             Revoke
                           </button>
                         </div>
@@ -745,13 +656,12 @@ export default function UsersPage() {
               </p>
 
               <h2 className="mt-1 text-2xl font-bold text-gray-950">
-                Manager & Chef Users
+                BOH Manager, FOH Manager & Chef Users
               </h2>
 
               <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-                These are site-based PIN accounts for shared
-                kitchen devices. They are separate from
-                Operations email accounts.
+                These are site-based PIN accounts for shared kitchen devices.
+                They are separate from Operations email accounts.
               </p>
             </div>
           </div>
@@ -762,13 +672,10 @@ export default function UsersPage() {
                 {businessName}
               </p>
 
-              <h2 className="mt-1 text-2xl font-bold">
-                Business Code
-              </h2>
+              <h2 className="mt-1 text-2xl font-bold">Business Code</h2>
 
               <p className="mt-2 text-sm text-violet-100">
-                Staff enter this before choosing their site
-                and name.
+                Staff enter this before choosing their site and name.
               </p>
             </div>
 
@@ -782,11 +689,7 @@ export default function UsersPage() {
                 onClick={copyCode}
                 className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 font-semibold text-violet-950"
               >
-                {copied ? (
-                  <Check size={18} />
-                ) : (
-                  <Copy size={18} />
-                )}
+                {copied ? <Check size={18} /> : <Copy size={18} />}
 
                 {copied ? "Copied" : "Copy"}
               </button>
@@ -794,16 +697,12 @@ export default function UsersPage() {
           </section>
 
           <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold">
-              New Kitchen User
-            </h2>
+            <h2 className="text-xl font-bold">New Kitchen User</h2>
 
             <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
               <input
                 value={name}
-                onChange={(event) =>
-                  setName(event.target.value)
-                }
+                onChange={(event) => setName(event.target.value)}
                 placeholder="Name"
                 className="rounded-xl border border-gray-300 px-4 py-3"
               />
@@ -812,31 +711,23 @@ export default function UsersPage() {
                 value={role}
                 onChange={(event) =>
                   setRole(
-                    event.target.value as
-                      | "manager"
-                      | "chef"
+                    event.target.value as "manager" | "foh_manager" | "chef",
                   )
                 }
                 className="rounded-xl border border-gray-300 px-4 py-3"
               >
                 <option value="chef">Chef</option>
-                <option value="manager">
-                  Manager
-                </option>
+                <option value="manager">BOH Manager</option>
+                <option value="foh_manager">FOH Manager</option>
               </select>
 
               <select
                 value={siteId}
-                onChange={(event) =>
-                  setSiteId(event.target.value)
-                }
+                onChange={(event) => setSiteId(event.target.value)}
                 className="rounded-xl border border-gray-300 px-4 py-3"
               >
                 {sites.map((site) => (
-                  <option
-                    key={site.id}
-                    value={site.id}
-                  >
+                  <option key={site.id} value={site.id}>
                     {site.name}
                   </option>
                 ))}
@@ -847,11 +738,7 @@ export default function UsersPage() {
                 maxLength={4}
                 value={pin}
                 onChange={(event) =>
-                  setPin(
-                    event.target.value
-                      .replace(/\D/g, "")
-                      .slice(0, 4)
-                  )
+                  setPin(event.target.value.replace(/\D/g, "").slice(0, 4))
                 }
                 placeholder="Temporary PIN"
                 className="rounded-xl border border-gray-300 px-4 py-3"
@@ -864,14 +751,10 @@ export default function UsersPage() {
                 className="flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-5 py-3 font-semibold text-white disabled:opacity-60"
               >
                 {saving ? (
-                  <Loader2
-                    className="animate-spin"
-                    size={18}
-                  />
+                  <Loader2 className="animate-spin" size={18} />
                 ) : (
                   <Plus size={18} />
                 )}
-
                 Create
               </button>
             </div>
@@ -884,17 +767,13 @@ export default function UsersPage() {
           </section>
 
           <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold">
-              Kitchen Team
-            </h2>
+            <h2 className="text-xl font-bold">Kitchen Team</h2>
 
             {loading ? (
-              <p className="mt-5 text-gray-500">
-                Loading users...
-              </p>
+              <p className="mt-5 text-gray-500">Loading users...</p>
             ) : staff.length === 0 ? (
               <p className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-gray-500">
-                No Manager or Chef accounts yet.
+                No BOH Manager, FOH Manager or Chef accounts yet.
               </p>
             ) : (
               <div className="mt-5 space-y-3">
@@ -910,13 +789,15 @@ export default function UsersPage() {
                         </div>
 
                         <div>
-                          <p className="font-bold">
-                            {item.name}
-                          </p>
+                          <p className="font-bold">{item.name}</p>
 
                           <p className="mt-1 text-sm capitalize text-gray-500">
-                            {item.role} •{" "}
-                            {siteName(item)}
+                            {item.role === "manager"
+                              ? "BOH Manager"
+                              : item.role === "foh_manager"
+                                ? "FOH Manager"
+                                : "Chef"}{" "}
+                            • {siteName(item)}
                           </p>
                         </div>
                       </div>
@@ -929,16 +810,12 @@ export default function UsersPage() {
                               : "bg-gray-200 text-gray-700"
                           }`}
                         >
-                          {item.active
-                            ? "Active"
-                            : "Disabled"}
+                          {item.active ? "Active" : "Disabled"}
                         </span>
 
                         <button
                           type="button"
-                          onClick={() =>
-                            resetPin(item)
-                          }
+                          onClick={() => resetPin(item)}
                           className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-3 py-2 text-sm font-semibold"
                         >
                           <RotateCcw size={15} />
@@ -947,14 +824,10 @@ export default function UsersPage() {
 
                         <button
                           type="button"
-                          onClick={() =>
-                            toggle(item)
-                          }
+                          onClick={() => toggle(item)}
                           className="rounded-xl border border-gray-300 px-3 py-2 text-sm font-semibold"
                         >
-                          {item.active
-                            ? "Disable"
-                            : "Enable"}
+                          {item.active ? "Disable" : "Enable"}
                         </button>
                       </div>
                     </div>
@@ -966,9 +839,7 @@ export default function UsersPage() {
                         </p>
 
                         <p className="mt-1 font-semibold text-gray-700">
-                          {formatDate(
-                            item.last_login_at
-                          )}
+                          {formatDate(item.last_login_at)}
                         </p>
                       </div>
 
@@ -978,9 +849,7 @@ export default function UsersPage() {
                         </p>
 
                         <p className="mt-1 font-semibold text-gray-700">
-                          {formatDate(
-                            item.created_at
-                          )}
+                          {formatDate(item.created_at)}
                         </p>
                       </div>
 
@@ -990,9 +859,7 @@ export default function UsersPage() {
                         </p>
 
                         <p className="mt-1 font-semibold text-gray-700">
-                          {item.must_change_pin
-                            ? "Temporary PIN"
-                            : "PIN set"}
+                          {item.must_change_pin ? "Temporary PIN" : "PIN set"}
                         </p>
                       </div>
                     </div>

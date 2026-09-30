@@ -157,6 +157,7 @@ function validateChefPrepUpdate(
     "site",
     "name",
     "emoji",
+    "department",
     "planned",
     "day",
     "scheduledDate",
@@ -186,6 +187,44 @@ function validateChefPrepUpdate(
   return null;
 }
 
+function getPrepDepartment(
+  data: Record<string, unknown> | null
+): "boh" | "foh" {
+  // Legacy prep records pre-date department support and are BOH.
+  return data?.department === "foh" ? "foh" : "boh";
+}
+
+function canEditPrepDepartment(
+  context: CloudRequestContext,
+  data: Record<string, unknown> | null
+): boolean {
+  if (!data) return false;
+
+  const department = getPrepDepartment(data);
+
+  if (context.role === "operations") return true;
+  if (context.role === "foh_manager") return department === "foh";
+
+  // Existing managers are BOH managers. Chefs also work with BOH prep only.
+  return department === "boh";
+}
+
+function canAccessHandoverDepartment(
+  context: CloudRequestContext,
+  data: Record<string, unknown> | null
+): boolean {
+  if (!data) return false;
+
+  // Legacy handovers pre-date department support and are BOH.
+  const department = data.department === "foh" ? "foh" : "boh";
+
+  if (context.role === "operations") return true;
+  if (context.role === "foh_manager") return department === "foh";
+
+  // Existing managers are BOH managers. Chef handover access also remains BOH.
+  return department === "boh";
+}
+
 async function canAccessExistingRecord(input: {
   context: CloudRequestContext;
   kind: OperationalKind;
@@ -206,6 +245,13 @@ async function canAccessExistingRecord(input: {
   if (input.context.role !== "operations") {
     const accessKeys = getContextSiteAccessKeys(input.context);
     if (!data.site_keys.some((key: string) => accessKeys.includes(key))) return null;
+  }
+
+  if (
+    input.kind === "handovers" &&
+    !canAccessHandoverDepartment(input.context, asRecord(data.data))
+  ) {
+    return null;
   }
 
   return data as ExistingOperationalRecord;
@@ -232,10 +278,30 @@ export async function GET() {
     const { data, error } = await query;
     if (error) return fail(error.message, 500);
 
-    const records = (data ?? []).filter((row: { kind: string }) => {
-      if (context.role !== "chef") return true;
-      return CHEF_READ_KINDS.has(row.kind as OperationalKind);
-    });
+    const records = (data ?? []).filter(
+      (row: { kind: string; data: unknown }) => {
+        const kind = row.kind as OperationalKind;
+
+        if (
+          kind === "handovers" &&
+          !canAccessHandoverDepartment(context, asRecord(row.data))
+        ) {
+          return false;
+        }
+
+        if (context.role !== "chef") return true;
+        if (!CHEF_READ_KINDS.has(kind)) return false;
+
+        if (
+          (kind === "prep" || kind === "prep_history") &&
+          getPrepDepartment(asRecord(row.data)) !== "boh"
+        ) {
+          return false;
+        }
+
+        return true;
+      }
+    );
 
     return NextResponse.json({ records });
   } catch (error) {
@@ -291,6 +357,13 @@ export async function PUT(request: NextRequest) {
         if (!existing) continue;
 
         if (kind === "prep") {
+          if (!canEditPrepDepartment(context, asRecord(existing.data))) {
+            return fail(
+              "This account does not have permission to delete that prep department.",
+              403
+            );
+          }
+
           const expected = resolveExpectedPrepRevision(existing, rawChange);
           if (!expected.valid || !expected.revision) return prepConflict(id);
 
@@ -345,22 +418,71 @@ export async function PUT(request: NextRequest) {
         }
       }
 
+      if (
+        kind === "handovers" &&
+        !canAccessHandoverDepartment(context, data)
+      ) {
+        return fail(
+          "This account does not have permission to edit that handover department.",
+          403
+        );
+      }
+
+      if (kind === "handovers") {
+        const admin = createAdminClient();
+        const { data: existingHandover, error: existingHandoverError } = await admin
+          .from("cloud_operational_records")
+          .select("data")
+          .eq("business_id", context.businessId)
+          .eq("kind", "handovers")
+          .eq("record_id", id)
+          .maybeSingle();
+
+        if (existingHandoverError) throw existingHandoverError;
+
+        if (
+          existingHandover &&
+          !canAccessHandoverDepartment(context, asRecord(existingHandover.data))
+        ) {
+          return fail(
+            "This account does not have permission to overwrite that handover.",
+            403
+          );
+        }
+      }
+
       if (kind === "prep") {
         const existingPrepRecord = await canAccessExistingRecord({ context, kind, id });
         const expected = resolveExpectedPrepRevision(existingPrepRecord, rawChange);
         if (!expected.valid) return prepConflict(id);
 
-        if (context.role === "chef") {
-          if (!existingPrepRecord) {
-            return fail("Chef permission does not allow creating prep items.", 403);
-          }
-          const currentData = asRecord(existingPrepRecord.data);
-          if (!currentData) return fail("The prep record is invalid.", 409);
-          const validationError = validateChefPrepUpdate(currentData, data, context.staffName);
-          if (validationError) return fail(validationError, 403);
+        if (!canEditPrepDepartment(context, data)) {
+          return fail(
+            "This account does not have permission to edit that prep department.",
+            403
+          );
         }
 
         if (existingPrepRecord) {
+          const existingPrepData = asRecord(existingPrepRecord.data);
+          if (!existingPrepData) return fail("The prep record is invalid.", 409);
+
+          if (!canEditPrepDepartment(context, existingPrepData)) {
+            return fail(
+              "This account does not have permission to overwrite that prep department.",
+              403
+            );
+          }
+
+          if (context.role === "chef") {
+            const validationError = validateChefPrepUpdate(
+              existingPrepData,
+              data,
+              context.staffName
+            );
+            if (validationError) return fail(validationError, 403);
+          }
+
           if (!expected.revision) return prepConflict(id);
           const revision = nextRevision(existingPrepRecord.updated_at);
           const { data: updated, error } = await admin
@@ -376,13 +498,16 @@ export async function PUT(request: NextRequest) {
             .eq("updated_at", expected.revision)
             .select("updated_at")
             .maybeSingle();
+
           if (error) throw error;
           if (!updated) return prepConflict(id);
+
           revisions.push({ kind, id, revision: String(updated.updated_at) });
           continue;
         }
 
         if (expected.revision !== null) return prepConflict(id);
+
         if (context.role === "chef") {
           return fail("Chef permission does not allow creating prep items.", 403);
         }
@@ -405,6 +530,7 @@ export async function PUT(request: NextRequest) {
           if (error.code === "23505") return prepConflict(id);
           throw error;
         }
+
         revisions.push({ kind, id, revision: String(inserted.updated_at) });
         continue;
       }

@@ -11,7 +11,7 @@ export type RememberedStaffDevice = {
   siteName: string;
   staffId: string;
   staffName: string;
-  staffRole: "manager" | "chef";
+  staffRole: "manager" | "foh_manager" | "chef";
 };
 
 export function getRememberedStaffDevice():

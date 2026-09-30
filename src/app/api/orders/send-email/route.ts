@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
       return fail("The order references an invalid site.", 400);
     }
 
-    if (context.role === "manager" && context.siteId !== site.id) {
+    if ((context.role === "manager" || context.role === "foh_manager") && context.siteId !== site.id) {
       return fail("Manager permission is limited to the assigned site.", 403);
     }
 

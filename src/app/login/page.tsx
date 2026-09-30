@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -59,7 +59,7 @@ type StaffSite = {
   staff: Array<{
     id: string;
     name: string;
-    role: "manager" | "chef";
+    role: "manager" | "foh_manager" | "chef";
   }>;
 };
 
@@ -114,7 +114,7 @@ export default function LoginPage() {
   const [rememberedStaffName, setRememberedStaffName] =
     useState("");
   const [rememberedStaffRole, setRememberedStaffRole] =
-    useState<"manager" | "chef" | "">("");
+    useState<"manager" | "foh_manager" | "chef" | "">("");
   const [rememberedSiteName, setRememberedSiteName] =
     useState("");
 
@@ -595,7 +595,7 @@ export default function LoginPage() {
                     : "text-gray-600"
                 }`}
               >
-                Manager / Chef
+                BOH Manager / FOH Manager / Chef
               </button>
             </div>
 

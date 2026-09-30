@@ -6,11 +6,13 @@ const ROLLOVER_KEY = "kitchenops-handover-rollover-date";
 const HANDOVER_CHANGED_EVENT = "kitchenops-handover-changed";
 
 export type HandoverDay = "today" | "tomorrow";
+export type HandoverDepartment = "boh" | "foh";
 
 export type SiteHandover = {
   id: string;
   siteName: string;
   day: HandoverDay;
+  department: HandoverDepartment;
   effectiveDate: string;
   notes: string[];
   updatedBy: string;
@@ -66,6 +68,7 @@ function normaliseRecord(value: Partial<SiteHandover>): SiteHandover | null {
     id: value.id,
     siteName: value.siteName,
     day: value.day,
+    department: value.department === "foh" ? "foh" : "boh",
     effectiveDate: value.effectiveDate || dateForDay(value.day, marker),
     notes: Array.isArray(value.notes)
       ? value.notes.map(String).map((note) => note.trim()).filter(Boolean)
@@ -90,9 +93,8 @@ function readRawHandovers(): SiteHandover[] {
       .map((record) => normaliseRecord(record as Partial<SiteHandover>))
       .filter((record): record is SiteHandover => record !== null);
 
-    // Persist the date-aware shape locally before first cloud migration. This
-    // is intentionally a direct write: syncOperationalCollection will migrate
-    // the normalised records once the authenticated cloud layer starts.
+    // Persist the date-aware and department-aware shape locally before cloud
+    // migration. Existing records without a department become BOH handovers.
     if (JSON.stringify(parsed) !== JSON.stringify(normalised)) {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalised));
     }
@@ -112,9 +114,8 @@ function writeRawHandovers(records: SiteHandover[]): void {
 }
 
 /**
- * The effective date travels with each handover record. That makes rollover
- * idempotent across multiple devices: if another device already rolled the
- * records for today, this device detects the dates and does not roll them again.
+ * The effective date travels with each handover record. BOH and FOH are rolled
+ * independently so each department keeps its own today/tomorrow handover.
  */
 export function rollOverHandoversIfNeeded(): void {
   if (typeof window === "undefined") return;
@@ -139,52 +140,65 @@ export function rollOverHandoversIfNeeded(): void {
   const rolled: SiteHandover[] = [];
 
   for (const siteName of sites) {
-    const currentToday = current.find(
-      (record) =>
-        record.siteName === siteName &&
-        record.day === "today" &&
-        record.effectiveDate === todayKey
-    );
+    for (const department of ["boh", "foh"] as const) {
+      const departmentRecords = current.filter(
+        (record) =>
+          record.siteName === siteName &&
+          record.department === department
+      );
 
-    const plannedForToday = current.find(
-      (record) =>
-        record.siteName === siteName &&
-        record.day === "tomorrow" &&
-        record.effectiveDate === todayKey
-    );
-
-    const futureTomorrow = current.find(
-      (record) =>
-        record.siteName === siteName &&
-        record.day === "tomorrow" &&
-        record.effectiveDate === tomorrowKey
-    );
-
-    const sourceToday = currentToday ?? plannedForToday;
-
-    rolled.push({
-      id: sourceToday?.id ?? createId(),
-      siteName,
-      day: "today",
-      effectiveDate: todayKey,
-      notes: sourceToday?.notes ?? [],
-      updatedBy: sourceToday?.updatedBy ?? "Unknown",
-      updatedAt: sourceToday?.updatedAt ?? new Date().toISOString(),
-      visibleToChefs: sourceToday?.visibleToChefs === true,
-    });
-
-    rolled.push(
-      futureTomorrow ?? {
-        id: createId(),
-        siteName,
-        day: "tomorrow",
-        effectiveDate: tomorrowKey,
-        notes: [],
-        updatedBy: "Unknown",
-        updatedAt: new Date().toISOString(),
-        visibleToChefs: false,
+      // Do not create empty FOH records for sites that have never had an FOH
+      // handover. BOH retains the legacy behaviour for existing sites.
+      if (department === "foh" && departmentRecords.length === 0) {
+        continue;
       }
-    );
+
+      const currentToday = departmentRecords.find(
+        (record) =>
+          record.day === "today" &&
+          record.effectiveDate === todayKey
+      );
+
+      const plannedForToday = departmentRecords.find(
+        (record) =>
+          record.day === "tomorrow" &&
+          record.effectiveDate === todayKey
+      );
+
+      const futureTomorrow = departmentRecords.find(
+        (record) =>
+          record.day === "tomorrow" &&
+          record.effectiveDate === tomorrowKey
+      );
+
+      const sourceToday = currentToday ?? plannedForToday;
+
+      rolled.push({
+        id: sourceToday?.id ?? createId(),
+        siteName,
+        day: "today",
+        department,
+        effectiveDate: todayKey,
+        notes: sourceToday?.notes ?? [],
+        updatedBy: sourceToday?.updatedBy ?? "Unknown",
+        updatedAt: sourceToday?.updatedAt ?? new Date().toISOString(),
+        visibleToChefs: sourceToday?.visibleToChefs === true,
+      });
+
+      rolled.push(
+        futureTomorrow ?? {
+          id: createId(),
+          siteName,
+          day: "tomorrow",
+          department,
+          effectiveDate: tomorrowKey,
+          notes: [],
+          updatedBy: "Unknown",
+          updatedAt: new Date().toISOString(),
+          visibleToChefs: false,
+        }
+      );
+    }
   }
 
   writeRawHandovers(rolled);
@@ -198,12 +212,17 @@ export function getHandovers(): SiteHandover[] {
   return readRawHandovers();
 }
 
-export function getSiteHandover(siteName: string, day: HandoverDay): SiteHandover {
+export function getSiteHandover(
+  siteName: string,
+  day: HandoverDay,
+  department: HandoverDepartment = "boh"
+): SiteHandover {
   const expectedDate = dateForDay(day);
   const existing = getHandovers().find(
     (record) =>
       record.siteName === siteName &&
       record.day === day &&
+      record.department === department &&
       record.effectiveDate === expectedDate
   );
 
@@ -213,6 +232,7 @@ export function getSiteHandover(siteName: string, day: HandoverDay): SiteHandove
     id: createId(),
     siteName,
     day,
+    department,
     effectiveDate: expectedDate,
     notes: [],
     updatedBy: "Unknown",
@@ -224,19 +244,24 @@ export function getSiteHandover(siteName: string, day: HandoverDay): SiteHandove
 export function saveSiteHandover(input: {
   siteName: string;
   day: HandoverDay;
+  department?: HandoverDepartment;
   notes: string[];
   updatedBy: string;
   visibleToChefs?: boolean;
 }): SiteHandover {
   const cleanedNotes = input.notes.map((note) => note.trim()).filter(Boolean);
   const effectiveDate = dateForDay(input.day);
+  const department = input.department ?? "boh";
 
   if (typeof window === "undefined") {
     return {
       id: createId(),
-      ...input,
+      siteName: input.siteName,
+      day: input.day,
+      department,
       effectiveDate,
       notes: cleanedNotes,
+      updatedBy: input.updatedBy,
       visibleToChefs: input.visibleToChefs === true,
       updatedAt: new Date().toISOString(),
     };
@@ -248,6 +273,7 @@ export function saveSiteHandover(input: {
     (record) =>
       record.siteName === input.siteName &&
       record.day === input.day &&
+      record.department === department &&
       record.effectiveDate === effectiveDate
   );
 
@@ -255,6 +281,7 @@ export function saveSiteHandover(input: {
     id: existing?.id ?? createId(),
     siteName: input.siteName,
     day: input.day,
+    department,
     effectiveDate,
     notes: cleanedNotes,
     updatedBy: input.updatedBy.trim() || "Unknown",
@@ -268,6 +295,7 @@ export function saveSiteHandover(input: {
         !(
           record.siteName === input.siteName &&
           record.day === input.day &&
+          record.department === department &&
           record.effectiveDate === effectiveDate
         )
     ),

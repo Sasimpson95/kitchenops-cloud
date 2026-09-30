@@ -26,7 +26,7 @@ type StaffLoginResult = {
   siteId: string;
   siteName: string;
   name: string;
-  role: "manager" | "chef";
+  role: "manager" | "foh_manager" | "chef";
 };
 
 export async function POST(request: NextRequest) {

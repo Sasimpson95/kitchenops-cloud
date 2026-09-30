@@ -15,6 +15,15 @@ export type DashboardWidgetPreference = {
   visible: boolean;
 };
 
+const MANAGER_DEFAULTS: DashboardWidgetPreference[] = [
+  { id: "attention", visible: true },
+  { id: "snapshot", visible: true },
+  { id: "quickActions", visible: true },
+  { id: "prep", visible: true },
+  { id: "handover", visible: true },
+  { id: "recentActivity", visible: true },
+];
+
 const ROLE_DEFAULTS: Record<UserRole, DashboardWidgetPreference[]> = {
   chef: [
     { id: "prep", visible: true },
@@ -22,14 +31,8 @@ const ROLE_DEFAULTS: Record<UserRole, DashboardWidgetPreference[]> = {
     { id: "quickActions", visible: true },
     { id: "recentActivity", visible: true },
   ],
-  manager: [
-    { id: "attention", visible: true },
-    { id: "snapshot", visible: true },
-    { id: "quickActions", visible: true },
-    { id: "prep", visible: true },
-    { id: "handover", visible: true },
-    { id: "recentActivity", visible: true },
-  ],
+  manager: MANAGER_DEFAULTS,
+  foh_manager: MANAGER_DEFAULTS,
   operations: [
     { id: "attention", visible: true },
     { id: "snapshot", visible: true },
@@ -37,7 +40,7 @@ const ROLE_DEFAULTS: Record<UserRole, DashboardWidgetPreference[]> = {
     { id: "quickActions", visible: true },
     { id: "recentActivity", visible: true },
     { id: "prep", visible: false },
-    { id: "handover", visible: false },
+    { id: "handover", visible: true },
   ],
 };
 
