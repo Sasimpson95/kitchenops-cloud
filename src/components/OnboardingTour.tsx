@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Boxes,
   Building2,
@@ -52,19 +52,19 @@ const steps: TourStep[] = [
     ],
   },
   {
-    eyebrow: "Step 1 · Set up your business",
+    eyebrow: "Step 1 - Set up your business",
     title: "Start with your sites and team.",
     description:
       "Your sites define where KitchenOps activity belongs. Then add the Managers and Chefs who will use each location.",
     icon: Building2,
     bullets: [
-      "Create each trading location in Settings → Sites",
-      "Add Managers and Chefs in Settings → Users",
+      "Create each trading location in Settings > Sites",
+      "Add Managers and Chefs in Settings > Users",
       "Assign each team member to the correct site",
     ],
   },
   {
-    eyebrow: "Step 2 · Build your catalogue",
+    eyebrow: "Step 2 - Build your catalogue",
     title: "Add the products you actually buy.",
     description:
       "Products are the foundation for stock, ordering, recipes, waste and costing. Add suppliers and storage details as you go.",
@@ -76,7 +76,7 @@ const steps: TourStep[] = [
     ],
   },
   {
-    eyebrow: "Step 3 · Recipes & prep",
+    eyebrow: "Step 3 - Recipes & prep",
     title: "Turn your catalogue into kitchen workflows.",
     description:
       "Build preparations and finished menu items from products, then use Prep to plan what the kitchen needs to produce.",
@@ -84,11 +84,11 @@ const steps: TourStep[] = [
     bullets: [
       "Create preparations/components with sensible yields",
       "Build finished dishes for costing and recipe reference",
-      "Plan tomorrow’s prep and record today’s production",
+      "Plan tomorrow's prep and record today's production",
     ],
   },
   {
-    eyebrow: "Step 4 · Purchasing & stock",
+    eyebrow: "Step 4 - Purchasing & stock",
     title: "Keep orders and inventory connected.",
     description:
       "Create supplier orders, email them directly from KitchenOps, receive deliveries and keep your stock position current.",
@@ -100,7 +100,7 @@ const steps: TourStep[] = [
     ],
   },
   {
-    eyebrow: "Step 5 · Run the daily operation",
+    eyebrow: "Step 5 - Run the daily operation",
     title: "Build the habits that keep the kitchen controlled.",
     description:
       "Once setup is complete, KitchenOps becomes the daily operating rhythm for prep, waste, handovers and management review.",
@@ -127,6 +127,7 @@ export default function OnboardingTour({
   currentUser,
 }: OnboardingTourProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
 
@@ -142,11 +143,17 @@ export default function OnboardingTour({
   useEffect(() => {
     if (!eligible || !businessId) return;
 
+    if (pathname === "/getting-started") {
+      completeOnboardingTour(businessId);
+      setOpen(false);
+      return;
+    }
+
     if (!hasCompletedOnboardingTour(businessId)) {
       setStepIndex(0);
       setOpen(true);
     }
-  }, [businessId, eligible]);
+  }, [businessId, eligible, pathname]);
 
   useEffect(() => {
     if (!eligible) return;
@@ -195,7 +202,7 @@ export default function OnboardingTour({
   function finishAndSetUp() {
     markComplete();
     setOpen(false);
-    router.push("/settings/sites");
+    router.push("/getting-started");
   }
 
   if (!open || !eligible) return null;
@@ -230,7 +237,7 @@ export default function OnboardingTour({
                 A quick tour before you start.
               </h2>
               <p className="mt-3 text-sm leading-6 text-violet-200">
-                We’ll show you the best order to set KitchenOps up. You can replay this introduction any time from the Help Centre.
+                We'll show you the best order to set KitchenOps up. You can replay this introduction any time from the Help Centre.
               </p>
             </div>
 

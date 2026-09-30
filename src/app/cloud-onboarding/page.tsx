@@ -47,7 +47,8 @@ export default function CloudOnboardingPage() {
         authenticated = true;
       } else {
         // A previous setup attempt may have created the Auth account before business setup failed.
-        // Re-use that account when the supplied password is correct instead of trapping the user at “already exists”.
+        // Re-use that account when the supplied password is correct instead of
+        // trapping the user at "already exists".
         const { data: signIn, error: signInError } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
@@ -84,7 +85,7 @@ export default function CloudOnboardingPage() {
       }
 
       setCurrentUser({ name: operationsName.trim(), role: "operations", site: "All Sites" });
-      router.replace("/home");
+      router.replace("/getting-started");
       router.refresh();
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "KitchenOps could not create the business.");

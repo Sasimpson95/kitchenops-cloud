@@ -710,6 +710,69 @@ export function createProduct(
   return product;
 }
 
+export function createProductsBulk(
+  inputs: CreateProductInput[]
+): Product[] {
+  if (inputs.length === 0) {
+    return [];
+  }
+
+  inputs.forEach(validateProductInput);
+
+  const products = getProducts();
+
+  const existingNames = new Set(
+    products.map((product) =>
+      product.name.trim().toLowerCase()
+    )
+  );
+
+  const importedNames = new Set<string>();
+
+  inputs.forEach((input) => {
+    const normalisedName =
+      input.name.trim().toLowerCase();
+
+    if (existingNames.has(normalisedName)) {
+      throw new Error(
+        `A product named "${input.name.trim()}" already exists.`
+      );
+    }
+
+    if (importedNames.has(normalisedName)) {
+      throw new Error(
+        `The import contains "${input.name.trim()}" more than once.`
+      );
+    }
+
+    importedNames.add(normalisedName);
+  });
+
+  const timestamp = now();
+  let nextId = getNextProductId(products);
+
+  const created = inputs.map((input) => {
+    const product = normaliseProduct({
+      id: nextId,
+      ...input,
+      location: input.storageArea,
+      active: true,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+
+    nextId += 1;
+
+    return product;
+  });
+
+  saveProducts([
+    ...products,
+    ...created,
+  ]);
+
+  return created;
+}
 export function updateProduct(
   id: number,
   input: UpdateProductInput
