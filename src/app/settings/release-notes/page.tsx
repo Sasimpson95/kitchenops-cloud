@@ -6,6 +6,23 @@ import { PageHeader, SectionCard } from "@/components/ui";
 
 const notes = [
   {
+    version: "1.0.6 - October 2026",
+    title: "Latest Improvements",
+    items: [
+      "Introduced the FOH Manager role with department-specific access and responsibilities",
+      "Improved FOH and BOH handovers to support clearer communication between departments",
+      "Added guided business setup for sites, suppliers, products, storage areas and team members",
+      "Added CSV and Excel product importing with guided column mapping",
+      "Setup progress is now saved against the business, allowing unfinished onboarding to resume after signing back in",
+      "Added Finish setup later and a dashboard reminder to continue unfinished setup",
+      "Improved onboarding navigation when suppliers or product importing are skipped",
+      "Fixed site information not refreshing correctly after creating a new site during setup",
+      "Improved iPhone navigation and header spacing around the Dynamic Island and native status bar",
+      "Fixed dashboard notifications displaying internal site IDs instead of readable site names",
+      "Additional stability, navigation and usability improvements",
+    ],
+  },
+  {
     version: "1.0.6",
     title: "Production Release",
     items: [

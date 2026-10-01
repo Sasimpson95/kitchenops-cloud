@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -34,6 +34,8 @@ import {
   getCloudSession,
 } from "@/lib/cloudSession";
 
+import { getSetupProgress } from "@/lib/setupProgress";
+
 import {
   setCurrentUser,
 } from "@/lib/currentUser";
@@ -62,6 +64,36 @@ type StaffSite = {
     role: "manager" | "foh_manager" | "chef";
   }>;
 };
+
+async function getPostLoginDestination(
+  session: Awaited<ReturnType<typeof getCloudSession>>
+): Promise<string> {
+  if (session.subscriptionRequired) {
+    return "/subscription-required";
+  }
+
+  if (session.authType === "pin" && session.mustChangePin) {
+    return "/set-pin";
+  }
+
+  if (
+    session.user?.role !== "operations" ||
+    !session.business?.id
+  ) {
+    return "/home";
+  }
+
+  try {
+    const progress = await getSetupProgress(session.business.id);
+
+    return progress.status === "pending"
+      ? "/getting-started"
+      : "/home";
+  } catch (error) {
+    console.warn("Setup progress check deferred:", error);
+    return "/home";
+  }
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -231,13 +263,11 @@ export default function LoginPage() {
           session.user
         ) {
           setCurrentUser(session.user);
-          router.replace(
-            session.subscriptionRequired
-              ? "/subscription-required"
-              : session.authType === "pin" && session.mustChangePin
-                ? "/set-pin"
-                : "/home"
-          );
+          const destination = await getPostLoginDestination(session);
+
+          if (cancelled) return;
+
+          router.replace(destination);
           router.refresh();
         }
       } finally {
@@ -308,7 +338,10 @@ export default function LoginPage() {
       }
 
       setCurrentUser(session.user);
-      router.replace(session.subscriptionRequired ? "/subscription-required" : "/home");
+
+      const destination = await getPostLoginDestination(session);
+
+      router.replace(destination);
       router.refresh();
     } catch (caughtError) {
       setError(

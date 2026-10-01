@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -26,6 +26,7 @@ import {
   getStorageAreasForSite,
 } from "@/lib/storageAreaStore";
 import { useBusinessSites } from "@/lib/useBusinessSites";
+import { getSetupProgress, saveSetupProgress, type SetupStep } from "@/lib/setupProgress";
 
 type WizardStep =
   | "welcome"
@@ -112,17 +113,69 @@ export default function GettingStartedPage() {
         (site) => site.active !== false
       );
 
-      const activeSuppliers = getSuppliers().filter(
-        (supplier) => supplier.active
+      const progress = await getSetupProgress(
+        session.business.id
       );
 
-      if (activeSites.length === 0) {
-        setStep("welcome");
-      } else if (activeSuppliers.length === 0) {
-        setStep("supplier");
-      } else {
-        setStep("products");
+      // Existing businesses remain optional: only start their
+      // setup when they explicitly visit this page.
+      if (
+        progress.status === "complete" ||
+        progress.status === "dismissed"
+      ) {
+        router.replace("/home");
+        return;
       }
+
+      let resumeStep: SetupStep =
+        progress.status === null
+          ? activeSites.length === 0
+            ? "welcome"
+            : "supplier"
+          : progress.step ?? "welcome";
+
+      // Never resume beyond site creation when no site exists.
+      if (activeSites.length === 0) {
+        resumeStep = "welcome";
+      } else if (
+        resumeStep === "welcome" ||
+        resumeStep === "site"
+      ) {
+        resumeStep = "supplier";
+      }
+
+      // Team and Ready must display existing team members,
+      // including when the wizard is resumed on another device.
+      if (
+        resumeStep === "team" ||
+        resumeStep === "ready"
+      ) {
+        const supabase = createClient();
+
+        const { data, error: staffError } = await supabase
+          .from("staff_members")
+          .select("id,name,role,site_id,active")
+          .eq("business_id", session.business.id)
+          .eq("active", true)
+          .order("name");
+
+        if (staffError) throw staffError;
+
+        setTeamMembers(
+          (data ?? []) as SetupTeamMember[]
+        );
+
+        setTeamSiteId(activeSites[0]?.id ?? "");
+
+        if (
+          resumeStep === "ready" &&
+          (data ?? []).length === 0
+        ) {
+          resumeStep = "team";
+        }
+      }
+
+      setStep(resumeStep);
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -134,9 +187,39 @@ export default function GettingStartedPage() {
     }
   }, [sites, sitesLoading]);
 
+  const initialLoadStarted = useRef(false);
+
   useEffect(() => {
+    if (sitesLoading || initialLoadStarted.current) return;
+
+    initialLoadStarted.current = true;
     void load();
-  }, [load]);
+  }, [load, sitesLoading]);
+
+  async function advanceTo(nextStep: SetupStep): Promise<void> {
+    if (!businessId) {
+      setError("Your business could not be loaded.");
+      return;
+    }
+
+    setError("");
+
+    try {
+      await saveSetupProgress(
+        businessId,
+        "pending",
+        nextStep
+      );
+
+      setStep(nextStep);
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Your setup progress could not be saved."
+      );
+    }
+  }
 
   async function createSite(): Promise<void> {
     if (savingSite) return;
@@ -174,7 +257,7 @@ export default function GettingStartedPage() {
       // Supplier and Storage Area setup both depend on this list.
       await refreshSites();
 
-      setStep("supplier");
+      await advanceTo("supplier");
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -385,6 +468,39 @@ export default function GettingStartedPage() {
               <p className="mt-1 text-sm text-gray-500">
                 Step {stepNumber} of 7
               </p>
+
+              {activeSite && step !== "ready" && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!businessId) {
+                      setError("Your business could not be loaded.");
+                      return;
+                    }
+
+                    setError("");
+
+                    try {
+                      await saveSetupProgress(
+                        businessId,
+                        "pending",
+                        step
+                      );
+
+                      router.replace("/home");
+                    } catch (caughtError) {
+                      setError(
+                        caughtError instanceof Error
+                          ? caughtError.message
+                          : "Your setup progress could not be saved."
+                      );
+                    }
+                  }}
+                  className="mt-3 text-sm font-semibold text-violet-800 underline underline-offset-4 hover:text-violet-950"
+                >
+                  Finish setup later
+                </button>
+              )}
             </div>
 
             <div className="flex gap-1.5">
@@ -477,7 +593,7 @@ export default function GettingStartedPage() {
                 <div className="mt-8 flex justify-end">
                   <button
                     type="button"
-                    onClick={() => setStep("site")}
+                    onClick={() => void advanceTo("site")}
                     className="inline-flex items-center gap-2 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900"
                   >
                     Start setup
@@ -637,7 +753,7 @@ export default function GettingStartedPage() {
 
                 <button
                   type="button"
-                  onClick={() => setStep("storage")}
+                  onClick={() => void advanceTo("storage")}
                   className="px-5 py-3 text-sm font-semibold text-gray-500 hover:text-gray-900"
                 >
                   Skip supplier and products for now
@@ -662,8 +778,8 @@ export default function GettingStartedPage() {
 
               <div className="mt-8">
                 <ProductImportWizard
-                  onImported={() => undefined}
-                  onCancel={() => setStep("storage")}
+                  onImported={() => void advanceTo("storage")}
+                  onCancel={() => void advanceTo("storage")}
                   onBack={() => setStep("supplier")}
                 />
               </div>
@@ -831,7 +947,7 @@ export default function GettingStartedPage() {
                     setTeamSiteId(
                       activeSite?.id ?? ""
                     );
-                    setStep("team");
+                    void advanceTo("team");
                     void loadTeamMembers();
                   }}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
@@ -1075,7 +1191,7 @@ export default function GettingStartedPage() {
                     teamMembers.length === 0
                   }
                   onClick={() =>
-                    setStep("ready")
+                    void advanceTo("ready")
                   }
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -1200,9 +1316,30 @@ export default function GettingStartedPage() {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      router.push("/home")
-                    }
+                    onClick={async () => {
+                      if (!businessId) {
+                        setError("Your business could not be loaded.");
+                        return;
+                      }
+
+                      setError("");
+
+                      try {
+                        await saveSetupProgress(
+                          businessId,
+                          "complete",
+                          "ready"
+                        );
+
+                        router.replace("/home");
+                      } catch (caughtError) {
+                        setError(
+                          caughtError instanceof Error
+                            ? caughtError.message
+                            : "Your setup completion could not be saved."
+                        );
+                      }
+                    }}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-800 px-7 py-3 font-semibold text-white hover:bg-violet-900"
                   >
                     Open KitchenOps
@@ -1217,7 +1354,7 @@ export default function GettingStartedPage() {
               onClose={() => setShowSupplier(false)}
               onSaved={() => {
                 setShowSupplier(false);
-                setStep("products");
+                void advanceTo("products");
               }}
             />
           )}

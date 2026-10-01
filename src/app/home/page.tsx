@@ -31,6 +31,8 @@ import ProtectedPage from "@/components/ProtectedPage";
 import type { User } from "@/config/roles";
 import type { ProductionItem } from "@/data/production";
 import { getCurrentUser } from "@/lib/currentUser";
+import { getCloudSession } from "@/lib/cloudSession";
+import { getSetupProgress } from "@/lib/setupProgress";
 import { useBusinessSites } from "@/lib/useBusinessSites";
 import {
   getDefaultDashboardPreferences,
@@ -375,6 +377,36 @@ function QuickAction({
 export default function DashboardPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [setupPending, setSetupPending] = useState(false);
+
+  useEffect(() => {
+    if (currentUser?.role !== "operations") return;
+
+    let cancelled = false;
+
+    async function checkSetup() {
+      try {
+        const session = await getCloudSession();
+
+        if (!session.business?.id) return;
+
+        const progress = await getSetupProgress(session.business.id);
+
+        if (!cancelled) {
+          setSetupPending(progress.status === "pending");
+        }
+      } catch (error) {
+        console.warn("Dashboard setup reminder deferred:", error);
+      }
+    }
+
+    void checkSetup();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentUser]);
+
   const [selectedSite, setSelectedSite] = useState("All Sites");
   const { sites: businessSiteRecords } = useBusinessSites();
   const businessSites = useMemo(
@@ -713,6 +745,19 @@ export default function DashboardPage() {
                 <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold text-violet-50">
                   <Clock3 size={16} /> {getTodayLabel()}
                 </p>
+
+                {currentUser.role === "operations" && setupPending && (
+                  <Link
+                    href="/getting-started"
+                    className="mt-4 flex w-fit flex-wrap items-center gap-2 rounded-xl border border-white/25 bg-white/15 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/25"
+                  >
+                    Finish setting up KitchenOps
+                    <span className="inline-flex items-center gap-1 underline underline-offset-4">
+                      Continue setup
+                      <ArrowRight size={16} />
+                    </span>
+                  </Link>
+                )}
               </div>
               <div className="flex min-w-64 flex-col gap-3">
                 {currentUser.role === "operations" && (
