@@ -46,7 +46,7 @@ type SetupTeamMember = {
 
 export default function GettingStartedPage() {
   const router = useRouter();
-  const { sites, loading: sitesLoading } = useBusinessSites();
+  const { sites, loading: sitesLoading, refresh: refreshSites } = useBusinessSites();
 
   const [businessId, setBusinessId] = useState("");
   const [businessName, setBusinessName] = useState("");
@@ -169,6 +169,10 @@ export default function GettingStartedPage() {
       if (rpcError) {
         throw rpcError;
       }
+
+      // Refresh the shared site list before opening the next step.
+      // Supplier and Storage Area setup both depend on this list.
+      await refreshSites();
 
       setStep("supplier");
     } catch (caughtError) {
@@ -633,10 +637,10 @@ export default function GettingStartedPage() {
 
                 <button
                   type="button"
-                  onClick={() => setStep("products")}
+                  onClick={() => setStep("storage")}
                   className="px-5 py-3 text-sm font-semibold text-gray-500 hover:text-gray-900"
                 >
-                  Skip for now
+                  Skip supplier and products for now
                 </button>
               </div>
             </section>

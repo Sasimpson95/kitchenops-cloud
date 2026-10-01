@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 
@@ -405,7 +405,7 @@ export default function AppShell({
             role="dialog"
             aria-modal="true"
             aria-label="KitchenOps navigation"
-            className="absolute inset-y-0 left-0 flex w-[min(20rem,calc(100vw-3rem))] flex-col overflow-y-auto bg-white p-5 shadow-2xl"
+            className="absolute inset-y-0 left-0 flex w-[min(20rem,calc(100vw-3rem))] flex-col overflow-y-auto bg-white p-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl"
           >
             <div className="flex items-start justify-between gap-4">
               <Brand
@@ -470,7 +470,7 @@ export default function AppShell({
       )}
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 px-3 py-3 backdrop-blur sm:px-6 sm:py-4">
+        <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 px-3 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] backdrop-blur sm:px-6 sm:pb-4 sm:pt-[calc(1rem+env(safe-area-inset-top))]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <button
