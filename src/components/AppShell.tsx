@@ -302,7 +302,7 @@ export default function AppShell({
     );
   }
 
-  function NavigationLinks({
+  function renderNavigationLinks({
     mobile = false,
   }: {
     mobile?: boolean;
@@ -358,7 +358,7 @@ export default function AppShell({
         />
 
         <div className="mt-8 flex-1 pb-6">
-          <NavigationLinks />
+          {renderNavigationLinks({})}
         </div>
 
         <div className="space-y-3">
@@ -430,7 +430,7 @@ export default function AppShell({
             </div>
 
             <div className="mt-7 flex-1">
-              <NavigationLinks mobile />
+              {renderNavigationLinks({ mobile: true })}
             </div>
 
             <div className="mt-6 space-y-3 border-t border-gray-200 pt-5">
