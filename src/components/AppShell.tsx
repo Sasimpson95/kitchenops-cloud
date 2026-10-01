@@ -402,6 +402,7 @@ export default function AppShell({
           />
 
           <aside
+            data-mobile-navigation
             role="dialog"
             aria-modal="true"
             aria-label="KitchenOps navigation"
@@ -470,7 +471,7 @@ export default function AppShell({
       )}
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 px-3 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] backdrop-blur sm:px-6 sm:pb-4 sm:pt-[calc(1rem+env(safe-area-inset-top))]">
+        <header data-app-header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 px-3 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] backdrop-blur sm:px-6 sm:pb-4 sm:pt-[calc(1rem+env(safe-area-inset-top))]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <button

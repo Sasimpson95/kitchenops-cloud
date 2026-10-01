@@ -466,6 +466,7 @@ export default function DashboardPage() {
     const notifications = getNotifications(
       currentUser.role === "operations" ? selectedSite : currentUser.site,
       currentUser.role === "operations" ? undefined : currentUser.siteId,
+      businessSiteRecords,
     );
     const stockAlerts = notifications.reduce(
       (count, notification) =>

@@ -34,7 +34,8 @@ function isToday(value: string): boolean {
 
 export function getNotifications(
   siteName: string | "All Sites",
-  explicitSiteId?: string
+  explicitSiteId?: string,
+  businessSites: Array<{ id: string; name: string }> = []
 ): KitchenNotification[] {
   if (typeof window === "undefined") return [];
 
@@ -65,6 +66,8 @@ export function getNotifications(
   const businessId = getActiveBusinessId();
 
   const knownSites = new Map<string, string>();
+
+  // Prefer canonical business site names over IDs or historical records.
   getOrders().forEach((order) => knownSites.set(order.siteId, order.siteName));
   getWasteRecords().forEach((record) => knownSites.set(record.siteId, record.siteName));
   getStocktakes().forEach((stocktake) => knownSites.set(stocktake.siteId, stocktake.siteName));
@@ -73,6 +76,10 @@ export function getNotifications(
     .forEach((record) => {
       if (!knownSites.has(record.siteId)) knownSites.set(record.siteId, record.siteId);
     });
+
+  businessSites.forEach((site) => {
+    knownSites.set(site.id, site.name);
+  });
 
   const sites = siteId
     ? [{ id: siteId, name: siteName as string }]

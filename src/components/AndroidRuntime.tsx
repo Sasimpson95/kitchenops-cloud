@@ -28,6 +28,8 @@ export default function AndroidRuntime() {
 
     document.documentElement.classList.add("capacitor-native");
 
+    // Keep the native status bar separate from the web content.
+    void StatusBar.setOverlaysWebView({ overlay: false });
     void StatusBar.setStyle({ style: Style.Light });
     void StatusBar.setBackgroundColor({ color: "#ffffff" });
     void SplashScreen.hide();

@@ -793,3 +793,32 @@ html.dark .ko-page [class*="bg-purple-50"] {
     color: black !important;
   }
 }
+
+/* The native status bar already reserves the top safe area. */
+.capacitor-native [data-app-header] {
+  padding-top: 0.75rem;
+}
+
+.capacitor-native [data-mobile-navigation] {
+  padding-top: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .capacitor-native [data-app-header] {
+    padding-top: 1rem;
+  }
+}
+/* The native status bar already reserves the top safe area. */
+.capacitor-native [data-app-header] {
+  padding-top: 0.75rem;
+}
+
+.capacitor-native [data-mobile-navigation] {
+  padding-top: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .capacitor-native [data-app-header] {
+    padding-top: 1rem;
+  }
+}
