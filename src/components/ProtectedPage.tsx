@@ -158,7 +158,7 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
           : 12000;
       stopOperationalPolling = startOperationalPolling(operationalPollMs);
       stopInventoryRetry = startInventorySyncRetry();
-      if (pathname === "/home" || pathname === "/notifications") {
+      if (pathname === "/home" || pathname === "/notifications" || pathname === "/inventory") {
         stopInventoryPolling = startInventoryPolling(3000);
       }
       stopCatalogRetry = startCatalogSyncRetry();

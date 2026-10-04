@@ -7,6 +7,10 @@ import {
 } from "lucide-react";
 
 import InventorySparkline from "@/components/inventory/InventorySparkline";
+import {
+  formatStockQuantity,
+  formatMovementQuantity,
+} from "@/lib/inventoryQuantityDisplay";
 
 import type {
   InventoryProductRecord,
@@ -149,12 +153,12 @@ export default function InventoryCard({
             Current Stock
           </p>
 
-          <p className="mt-1 text-3xl font-bold text-gray-950">
-            {number(stock)}
+          <p className="mt-1 text-2xl font-bold text-gray-950">
+            {formatStockQuantity(stock, product)}
           </p>
 
           <p className="mt-1 text-sm text-gray-500">
-            {product.inventoryUnit}
+            {number(stock)} {product.inventoryUnit} total
           </p>
         </div>
 
@@ -276,13 +280,7 @@ export default function InventoryCard({
             <p className="mt-2 font-bold text-gray-950">
               {lastMovement.movementType}
               {" "}
-              {lastMovement.quantity >= 0
-                ? "+"
-                : ""}
-              {number(
-                lastMovement.quantity
-              )}{" "}
-              {product.inventoryUnit}
+              {formatMovementQuantity(lastMovement.quantity, product)}
             </p>
 
             <p className="mt-1 text-xs text-gray-500">

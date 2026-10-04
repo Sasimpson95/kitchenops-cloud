@@ -10,6 +10,7 @@ import { getProductStock } from "@/lib/inventoryStore";
 import { getActiveBusinessId } from "@/lib/businessWorkspace";
 import { createTransfer, setTransferSites } from "@/lib/transferStore";
 import { useBusinessSites } from "@/lib/useBusinessSites";
+import { formatStockQuantity } from "@/lib/inventoryQuantityDisplay";
 
 type TransferModalProps = {
   currentUser: User;
@@ -39,6 +40,7 @@ export default function TransferModal({
   const [toSiteId, setToSiteId] = useState("");
   const [productId, setProductId] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [quantityUnit, setQuantityUnit] = useState<"purchase" | "inventory">("inventory");
   const [reason, setReason] = useState("");
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
@@ -73,6 +75,23 @@ export default function TransferModal({
     ? getProductStock(getActiveBusinessId(), fromSiteId, selectedProduct.id)
     : 0;
 
+  const canUsePurchaseUnit = Boolean(
+    selectedProduct &&
+    Number.isFinite(selectedProduct.purchaseQuantity) &&
+    selectedProduct.purchaseQuantity > 0 &&
+    selectedProduct.orderUnit.trim()
+  );
+
+  const quantityMultiplier =
+    quantityUnit === "purchase" && canUsePurchaseUnit
+      ? selectedProduct!.purchaseQuantity
+      : 1;
+
+  // Transfers are always stored in the underlying inventory unit.
+  const transferQuantity = Number(
+    (quantity * quantityMultiplier).toFixed(6)
+  );
+
   const destinationSites = TRANSFER_SITES.filter(
     (site) => site.id !== fromSiteId
   );
@@ -104,7 +123,7 @@ export default function TransferModal({
         fromSiteId,
         toSiteId,
         productId,
-        quantity,
+        quantity: transferQuantity,
         reason,
         transferredBy: currentUser.name,
       });
@@ -220,8 +239,20 @@ export default function TransferModal({
           <select
             value={productId}
             onChange={(event) => {
-              setProductId(Number(event.target.value));
+              const nextProductId = Number(event.target.value);
+              const nextProduct = products.find(
+                (product) => product.id === nextProductId
+              );
+              setProductId(nextProductId);
               setQuantity(1);
+              setQuantityUnit(
+                nextProduct &&
+                Number.isFinite(nextProduct.purchaseQuantity) &&
+                nextProduct.purchaseQuantity > 0 &&
+                nextProduct.orderUnit.trim()
+                  ? "purchase"
+                  : "inventory"
+              );
             }}
             className="mt-3 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-violet-800"
           >
@@ -239,7 +270,10 @@ export default function TransferModal({
                 <div>
                   <p className="text-sm text-gray-500">Available at source</p>
                   <p className="mt-1 text-2xl font-bold text-gray-950">
-                    {formatQuantity(availableStock)} {selectedProduct.inventoryUnit}
+                    {formatStockQuantity(availableStock, selectedProduct)}
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {formatQuantity(availableStock)} {selectedProduct.inventoryUnit} total
                   </p>
                 </div>
                 <p className="text-sm font-semibold text-gray-600">
@@ -284,6 +318,41 @@ export default function TransferModal({
                 <Plus size={22} />
               </button>
             </div>
+
+            {selectedProduct && (
+              <div className="mt-3 space-y-2">
+                <select
+                  aria-label="Transfer quantity unit"
+                  value={quantityUnit}
+                  onChange={(event) => {
+                    setQuantityUnit(
+                      event.target.value as "purchase" | "inventory"
+                    );
+                  }}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold outline-none focus:border-violet-800"
+                >
+                  {canUsePurchaseUnit && (
+                    <option value="purchase">
+                      {selectedProduct.orderUnit}
+                    </option>
+                  )}
+                  <option value="inventory">
+                    {selectedProduct.inventoryUnit}
+                  </option>
+                </select>
+
+                <p className="text-sm text-gray-500">
+                  Equivalent: {formatQuantity(transferQuantity)}{" "}
+                  {selectedProduct.inventoryUnit}
+                </p>
+
+                {transferQuantity > availableStock && (
+                  <p className="text-sm font-semibold text-red-600">
+                    Not enough stock available at the source.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
@@ -319,7 +388,7 @@ export default function TransferModal({
           <button
             type="button"
             onClick={handleTransfer}
-            disabled={saving || !toSiteId || !productId || quantity <= 0}
+            disabled={saving || !toSiteId || !productId || !Number.isFinite(transferQuantity) || transferQuantity <= 0 || transferQuantity > availableStock}
             className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saving ? "Creating..." : "Request Transfer"}

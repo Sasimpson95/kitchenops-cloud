@@ -14,6 +14,10 @@ import type {
 import type {
   InventoryMovement,
 } from "@/lib/inventoryStore";
+import {
+  formatStockQuantity,
+  formatMovementQuantity,
+} from "@/lib/inventoryQuantityDisplay";
 
 type InventoryHistoryModalProps = {
   record: InventoryProductRecord;
@@ -21,10 +25,6 @@ type InventoryHistoryModalProps = {
   onClose: () => void;
 };
 
-const number = (value: number) =>
-  new Intl.NumberFormat("en-GB", {
-    maximumFractionDigits: 2,
-  }).format(value);
 
 function formatDateTime(
   value: string
@@ -114,8 +114,7 @@ export default function InventoryHistoryModal({
             </p>
 
             <p className="mt-1 text-2xl font-bold text-gray-950">
-              {number(record.stock)}{" "}
-              {record.product.inventoryUnit}
+              {formatStockQuantity(record.stock, record.product)}
             </p>
           </div>
 
@@ -203,16 +202,10 @@ export default function InventoryHistoryModal({
                           : "text-red-700"
                       }`}
                     >
-                      {movement.quantity >= 0
-                        ? "+"
-                        : ""}
-                      {number(
-                        movement.quantity
-                      )}{" "}
-                      {
+                      {formatMovementQuantity(
+                        movement.quantity,
                         record.product
-                          .inventoryUnit
-                      }
+                      )}
                     </p>
                   </div>
                 )

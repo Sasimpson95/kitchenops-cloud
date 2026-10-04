@@ -99,9 +99,12 @@ export function getInventoryStock(): InventoryStock[] {
   return readSavedStock();
 }
 
+let inventoryStockRevision = 0;
+
 export function saveInventoryStock(stock: InventoryStock[]): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(STOCK_STORAGE_KEY, JSON.stringify(stock));
+  inventoryStockRevision += 1;
   emitInventoryChanged();
 }
 
@@ -354,45 +357,69 @@ export function receiveProductStock(input: {
 }
 
 
+const inventoryHydrationPromises = new Map<string, Promise<void>>();
+
 export async function hydrateCloudInventory(): Promise<void> {
   if (typeof window === "undefined") return;
 
   const activeBusinessId = getActiveBusinessId();
   if (!activeBusinessId) return;
 
-  // Preserve optimistic local movements. Attempt to flush first; if any remain
-  // queued (for example while offline), wait for a later poll rather than
-  // replacing the local stock snapshot with an older cloud value.
-  if (
-    getPendingMovements().some(
-      (movement) => movement.businessId === activeBusinessId
-    )
-  ) {
-    await flushPendingInventoryMovements();
-    if (
+  const existing = inventoryHydrationPromises.get(activeBusinessId);
+  if (existing) return existing;
+
+  const hydration = (async () => {
+    const hasPendingMovements = () =>
       getPendingMovements().some(
         (movement) => movement.businessId === activeBusinessId
+      );
+
+    // Never overwrite optimistic local movements with older cloud stock.
+    if (hasPendingMovements()) {
+      await flushPendingInventoryMovements();
+
+      if (hasPendingMovements()) return;
+    }
+
+    // Record the local stock revision before downloading.
+    // Any newer local stock write makes this response obsolete.
+    const revisionAtRequestStart = inventoryStockRevision;
+
+    const response = await fetch("/api/cloud/inventory/movements", {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("KitchenOps could not refresh inventory stock.");
+    }
+
+    const payload = (await response.json()) as {
+      stock?: InventoryStock[];
+    };
+
+    // A business switch or a new local movement could have happened
+    // while the cloud request was in progress.
+    if (getActiveBusinessId() !== activeBusinessId) return;
+    if (hasPendingMovements()) return;
+    if (inventoryStockRevision !== revisionAtRequestStart) return;
+
+    saveInventoryStock(
+      (payload.stock ?? []).filter(
+        (record) => record.businessId === activeBusinessId
       )
-    ) {
-      return;
+    );
+  })();
+
+  inventoryHydrationPromises.set(activeBusinessId, hydration);
+
+  try {
+    await hydration;
+  } finally {
+    if (inventoryHydrationPromises.get(activeBusinessId) === hydration) {
+      inventoryHydrationPromises.delete(activeBusinessId);
     }
   }
-
-  const response = await fetch("/api/cloud/inventory/movements", {
-    cache: "no-store",
-  });
-  if (!response.ok) {
-    throw new Error("KitchenOps could not refresh inventory stock.");
-  }
-
-  const payload = (await response.json()) as { stock?: InventoryStock[] };
-  saveInventoryStock(
-    (payload.stock ?? []).filter(
-      (record) => record.businessId === activeBusinessId
-    )
-  );
 }
-
 export function startInventoryPolling(intervalMs = 12000): () => void {
   if (typeof window === "undefined") return () => undefined;
 
