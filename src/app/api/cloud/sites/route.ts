@@ -20,7 +20,13 @@ export async function GET(request: NextRequest) {
       .order("name");
 
     if (!includeArchived) query = query.eq("active", true);
-    if (context.role !== "operations" && context.siteId) {
+    const transferSiteLookup =
+      request.nextUrl.searchParams.get("scope") === "transfers" &&
+      (context.role === "operations" ||
+        context.role === "manager" ||
+        context.role === "foh_manager");
+
+    if (context.role !== "operations" && !transferSiteLookup && context.siteId) {
       query = query.eq("id", context.siteId);
     }
 

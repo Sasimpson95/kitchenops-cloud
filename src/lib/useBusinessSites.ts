@@ -18,8 +18,8 @@ const sitesCache = new Map<string, CacheEntry>();
 const pendingLoads = new Map<string, Promise<BusinessSite[]>>();
 const CACHE_TTL_MS = 60_000;
 
-function cacheKey(businessId: string, includeArchived: boolean): string {
-  return `${businessId || "unknown"}::${includeArchived ? "all" : "active"}`;
+function cacheKey(businessId: string, includeArchived: boolean, scope = "default"): string {
+  return `${businessId || "unknown"}::${includeArchived ? "all" : "active"}::${scope}`;
 }
 
 export function seedBusinessSitesCache(
@@ -39,14 +39,14 @@ export function clearBusinessSitesCache(): void {
   pendingLoads.clear();
 }
 
-async function loadSites(includeArchived: boolean): Promise<BusinessSite[]> {
+async function loadSites(includeArchived: boolean, scope = "default"): Promise<BusinessSite[]> {
   const businessId = getActiveBusinessId();
-  const key = cacheKey(businessId, includeArchived);
+  const key = cacheKey(businessId, includeArchived, scope);
   const existing = pendingLoads.get(key);
   if (existing) return existing;
 
   const request = fetch(
-    `/api/cloud/sites?includeArchived=${includeArchived ? "true" : "false"}`,
+    `/api/cloud/sites?includeArchived=${includeArchived ? "true" : "false"}&scope=${scope}`,
     { cache: "no-store" }
   )
     .then(async (response) => {
@@ -58,7 +58,10 @@ async function loadSites(includeArchived: boolean): Promise<BusinessSite[]> {
         throw new Error(result.error ?? "Sites could not be loaded.");
       }
       const sites = result.sites ?? [];
-      seedBusinessSitesCache(businessId, includeArchived, sites);
+      sitesCache.set(key, {
+        sites,
+        updatedAt: Date.now(),
+      });
       return sites;
     })
     .finally(() => {
@@ -77,9 +80,9 @@ export function siteNameToId(siteName: string): string {
     .replace(/^-|-$/g, "");
 }
 
-export function useBusinessSites(includeArchived = false) {
+export function useBusinessSites(includeArchived = false, scope = "default") {
   const businessId = getActiveBusinessId();
-  const key = cacheKey(businessId, includeArchived);
+  const key = cacheKey(businessId, includeArchived, scope);
   const initialCache = sitesCache.get(key);
 
   const [sites, setSites] = useState<BusinessSite[]>(initialCache?.sites ?? []);
@@ -88,7 +91,7 @@ export function useBusinessSites(includeArchived = false) {
 
   const refresh = useCallback(async (options?: { background?: boolean }) => {
     const activeBusinessId = getActiveBusinessId();
-    const activeKey = cacheKey(activeBusinessId, includeArchived);
+    const activeKey = cacheKey(activeBusinessId, includeArchived, scope);
     const cached = sitesCache.get(activeKey);
     const background = options?.background ?? Boolean(cached);
 
@@ -96,7 +99,7 @@ export function useBusinessSites(includeArchived = false) {
     setError("");
 
     try {
-      const nextSites = await loadSites(includeArchived);
+      const nextSites = await loadSites(includeArchived, scope);
       setSites(nextSites);
     } catch (caught) {
       if (!cached) setSites([]);
@@ -104,11 +107,11 @@ export function useBusinessSites(includeArchived = false) {
     } finally {
       setLoading(false);
     }
-  }, [includeArchived]);
+  }, [includeArchived, scope]);
 
   useEffect(() => {
     const activeBusinessId = getActiveBusinessId();
-    const activeKey = cacheKey(activeBusinessId, includeArchived);
+    const activeKey = cacheKey(activeBusinessId, includeArchived, scope);
     const cached = sitesCache.get(activeKey);
 
     if (cached) {
@@ -121,7 +124,7 @@ export function useBusinessSites(includeArchived = false) {
     }
 
     void refresh({ background: false });
-  }, [includeArchived, refresh]);
+  }, [includeArchived, scope, refresh]);
 
   const siteNames = useMemo(() => sites.map((site) => site.name), [sites]);
   const options = useMemo(() => ["All Sites", ...siteNames], [siteNames]);

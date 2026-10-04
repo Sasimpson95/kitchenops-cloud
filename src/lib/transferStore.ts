@@ -159,8 +159,34 @@ export function getTransferById(id: string): StockTransfer | undefined {
   return getTransfers().find((transfer) => transfer.id === id);
 }
 
+function requireTransferSiteAccess(siteId: string): void {
+  const user = getCurrentUser();
+
+  if (!user || user.role === "chef") {
+    throw new Error("You do not have permission to manage stock transfers.");
+  }
+
+  if (user.role === "operations") return;
+
+  if (user.role !== "manager" && user.role !== "foh_manager") {
+    throw new Error("You do not have permission to manage stock transfers.");
+  }
+
+  const assignedSite = TRANSFER_SITES.find(
+    (site) =>
+      site.id === user.siteId ||
+      site.name.trim().toLowerCase() === user.site.trim().toLowerCase()
+  );
+
+  if (!assignedSite || assignedSite.id !== siteId) {
+    throw new Error("You can only manage transfers for your assigned site.");
+  }
+}
+
 export function createTransfer(input: CreateTransferInput): StockTransfer {
   if (typeof window === "undefined") throw new Error("Transfers can only be created in the browser.");
+
+  requireTransferSiteAccess(input.fromSiteId);
 
   const fromSite = getSite(input.fromSiteId);
   const toSite = getSite(input.toSiteId);
@@ -218,6 +244,7 @@ export function dispatchTransfer(id: string, userName?: string): StockTransfer {
   const transfers = getTransfers();
   const transfer = transfers.find((item) => item.id === id);
   if (!transfer) throw new Error("Transfer not found.");
+  requireTransferSiteAccess(transfer.fromSiteId);
   if (transfer.status !== "Requested") throw new Error("Only requested transfers can be dispatched.");
 
   const availableStock = getProductStock(getActiveBusinessId(), transfer.fromSiteId, transfer.productId);
@@ -248,6 +275,7 @@ export function receiveTransfer(id: string, userName?: string): StockTransfer {
   const transfers = getTransfers();
   const transfer = transfers.find((item) => item.id === id);
   if (!transfer) throw new Error("Transfer not found.");
+  requireTransferSiteAccess(transfer.toSiteId);
   if (transfer.status !== "Dispatched") throw new Error("Only dispatched transfers can be received.");
 
   const by = userName?.trim() || getCurrentUser()?.name || "Unknown user";
@@ -273,6 +301,7 @@ export function cancelTransfer(id: string, userName?: string): StockTransfer {
   const transfers = getTransfers();
   const transfer = transfers.find((item) => item.id === id);
   if (!transfer) throw new Error("Transfer not found.");
+  requireTransferSiteAccess(transfer.fromSiteId);
   if (transfer.status !== "Requested") throw new Error("Only requested transfers can be cancelled.");
   const by = userName?.trim() || getCurrentUser()?.name || "Unknown user";
   const updated = { ...transfer, status: "Cancelled" as const, cancelledBy: by, cancelledAt: now() };

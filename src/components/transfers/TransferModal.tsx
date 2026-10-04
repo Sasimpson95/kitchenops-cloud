@@ -31,7 +31,7 @@ export default function TransferModal({
   onClose,
   onCompleted,
 }: TransferModalProps) {
-  const { sites: TRANSFER_SITES } = useBusinessSites();
+  const { sites: TRANSFER_SITES } = useBusinessSites(false, "transfers");
   const isOperations = currentUser.role === "operations";
 
   const [fromSiteId, setFromSiteId] = useState(
