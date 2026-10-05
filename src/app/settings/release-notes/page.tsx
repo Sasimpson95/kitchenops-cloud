@@ -9,6 +9,10 @@ const notes = [
     version: "1.0.6 - October 2026",
     title: "Latest Improvements",
     items: [
+      "Added Internal Suppliers linked directly to KitchenOps sites",
+      "Internal supplier orders now route automatically to the supplying site without supplier email",
+      "Supplying sites can accept or decline internal requests with staff, timestamp and decline reason recorded",
+      "Internal order status updates sync between the ordering and supplying sites",
       "Introduced the FOH Manager role with department-specific access and responsibilities",
       "Improved FOH and BOH handovers to support clearer communication between departments",
       "Added guided business setup for sites, suppliers, products, storage areas and team members",
@@ -87,3 +91,4 @@ export default function ReleaseNotesPage() {
     </ProtectedPage>
   );
 }
+
