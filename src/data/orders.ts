@@ -1,6 +1,8 @@
 export type OrderStatus =
   | "Draft"
   | "Sent"
+  | "Accepted"
+  | "Declined"
   | "Completed"
   | "Cancelled";
 
@@ -8,6 +10,8 @@ export type OrderTimelineEventType =
   | "created"
   | "updated"
   | "sent"
+  | "accepted"
+  | "declined"
   | "completed"
   | "cancelled";
 
@@ -57,6 +61,11 @@ export type PurchaseOrder = {
   supplierId: number;
   supplierName: string;
 
+  /** Snapshot of the linked supplier site at order creation. */
+  orderType?: "external" | "internal";
+  supplyingSiteId?: string;
+  supplyingSiteName?: string;
+
   status: OrderStatus;
   items: PurchaseOrderItem[];
 
@@ -81,6 +90,12 @@ export type PurchaseOrder = {
   createdAt: string;
   updatedAt: string;
   receivedAt?: string;
+
+  acceptedAt?: string;
+  acceptedBy?: string;
+  declinedAt?: string;
+  declinedBy?: string;
+  declineReason?: string;
 
   timeline: OrderTimelineEvent[];
 };

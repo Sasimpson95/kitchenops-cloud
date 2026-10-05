@@ -321,7 +321,9 @@ export default function NewOrderModal({
 
       draftOrderId = draftOrder.id;
 
-      await sendPurchaseOrderEmail(draftOrder);
+      if (draftOrder.orderType !== "internal") {
+        await sendPurchaseOrderEmail(draftOrder);
+      }
 
       sendDraftPurchaseOrder(draftOrder.id);
 
@@ -354,7 +356,7 @@ export default function NewOrderModal({
           <div>
             <h2 className="text-3xl font-bold text-gray-950">New Order</h2>
             <p className="mt-2 text-gray-600">
-              Choose a supplier, add items, then review and send.
+              Choose a supplier, add items, then review and submit.
             </p>
           </div>
 
@@ -418,7 +420,7 @@ export default function NewOrderModal({
                     {supplier.name}
                   </h4>
                   <p className="mt-2 text-sm text-gray-500">
-                    {supplier.leadTime}
+                    {supplier.supplierType === "internal" ? `Internal Kitchen · ${supplier.linkedSiteName}` : supplier.leadTime}
                   </p>
                   <p className="mt-5 font-semibold text-violet-800">
                     Select →
@@ -619,7 +621,9 @@ export default function NewOrderModal({
                 Review Order
               </h3>
               <p className="mt-2 text-gray-600">
-                Check the order before sending.
+                {selectedSupplier.supplierType === "internal"
+                  ? `This request goes directly to ${selectedSupplier.linkedSiteName || selectedSupplier.name}. No supplier email is sent, and no stock changes yet.`
+                  : "Check the order before sending."}
               </p>
 
               <div className="mt-6 rounded-2xl bg-violet-50 p-5">
@@ -684,7 +688,7 @@ export default function NewOrderModal({
                   disabled={saving}
                   className="rounded-xl bg-violet-800 px-6 py-3 font-semibold text-white disabled:opacity-50"
                 >
-                  {saving ? "Sending..." : "Send Order"}
+                  {saving ? "Submitting..." : selectedSupplier.supplierType === "internal" ? "Submit Internal Request" : "Send Order"}
                 </button>
               </div>
             </Card>

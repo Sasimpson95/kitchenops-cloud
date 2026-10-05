@@ -156,6 +156,8 @@ function getSiteKeys(kind: OperationalKind, record: JsonRecord): string[] {
     values = [siteNameToKey(String(record.siteName ?? ""))];
   } else if (kind === "transfers") {
     values = [String(record.fromSiteId ?? ""), String(record.toSiteId ?? "")];
+  } else if (kind === "orders" && record.orderType === "internal" && record.status !== "Draft") {
+    values = [String(record.siteId ?? ""), String(record.supplyingSiteId ?? "")];
   } else {
     values = [String(record.siteId ?? "")];
   }

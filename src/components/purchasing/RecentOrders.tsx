@@ -121,11 +121,15 @@ export default function RecentOrders({
     if (!selectedOrder) return;
 
     try {
-      await sendPurchaseOrderEmail(selectedOrder);
+      if (selectedOrder.orderType !== "internal") {
+        await sendPurchaseOrderEmail(selectedOrder);
+      }
       changeStatus("Sent");
       toast.success(
         "Order sent",
-        `${selectedOrder.orderNumber} was emailed to ${selectedOrder.supplierName}.`
+        selectedOrder.orderType === "internal"
+          ? `${selectedOrder.orderNumber} was submitted to ${selectedOrder.supplyingSiteName}.`
+          : `${selectedOrder.orderNumber} was emailed to ${selectedOrder.supplierName}.`
       );
     } catch (error) {
       toast.error(

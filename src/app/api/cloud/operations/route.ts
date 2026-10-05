@@ -92,6 +92,8 @@ function deriveSiteKeys(
     values = [siteNameToKey(String(data.siteName ?? ""))];
   } else if (kind === "transfers") {
     values = [String(data.fromSiteId ?? ""), String(data.toSiteId ?? "")];
+  } else if (kind === "orders" && data.orderType === "internal" && data.status !== "Draft") {
+    values = [String(data.siteId ?? ""), String(data.supplyingSiteId ?? "")];
   } else {
     values = [String(data.siteId ?? "")];
   }
@@ -339,6 +341,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const revisions: RevisionAck[] = [];
+    const siteIds = new Set((businessSites ?? []).map((site) => String(site.id)));
 
     for (const rawChange of body.changes) {
       const kind = rawChange.kind;
@@ -355,6 +358,14 @@ export async function PUT(request: NextRequest) {
 
         const existing = await canAccessExistingRecord({ context, kind, id });
         if (!existing) continue;
+
+        // A supplying site may read an internal request, but may not delete it.
+        if (kind === "orders" && context.role !== "operations") {
+          const existingOrder = asRecord(existing.data);
+          if (!existingOrder || !getContextSiteAccessKeys(context).includes(String(existingOrder.siteId ?? ""))) {
+            return fail("Only the ordering site can delete its order.", 403);
+          }
+        }
 
         if (kind === "prep") {
           if (!canEditPrepDepartment(context, asRecord(existing.data))) {
@@ -395,6 +406,53 @@ export async function PUT(request: NextRequest) {
       const data = asRecord(rawChange.data);
       if (!data) return fail("Operational record data is required.", 400);
 
+      // All newly created orders must match their authoritative cloud supplier.
+      // This prevents an internal supplier being disguised as external to bypass
+      // linked-site and dispatch rules.
+      if (kind === "orders") {
+        if (String(data.businessId ?? "") !== context.businessId) {
+          return fail("Order business does not match the signed-in workspace.", 403);
+        }
+        const supplierId = Number(data.supplierId);
+        if (!Number.isSafeInteger(supplierId)) return fail("Invalid order supplier.", 400);
+        const { data: supplierRow, error: supplierError } = await admin
+          .from("cloud_suppliers")
+          .select("data")
+          .eq("business_id", context.businessId)
+          .eq("legacy_id", supplierId)
+          .maybeSingle();
+        if (supplierError) throw supplierError;
+        const supplier = asRecord(supplierRow?.data);
+        if (!supplier || String(supplier.name ?? "") !== String(data.supplierName ?? "") ||
+            (supplier.supplierType === "internal" ? data.orderType !== "internal" : data.orderType === "internal")) {
+          return fail("Order supplier type does not match the linked supplier.", 400);
+        }
+      }
+      // Never let the browser choose arbitrary visibility keys for an internal order.
+      if (kind === "orders" && data.orderType === "internal") {
+        const supplierId = Number(data.supplierId);
+        if (!Number.isSafeInteger(supplierId)) return fail("Invalid internal supplier.", 400);
+        const { data: supplierRow, error: supplierError } = await admin
+          .from("cloud_suppliers")
+          .select("data")
+          .eq("business_id", context.businessId)
+          .eq("legacy_id", supplierId)
+          .maybeSingle();
+        if (supplierError) throw supplierError;
+        const supplier = asRecord(supplierRow?.data);
+        const sourceSiteId = String(data.siteId ?? "");
+        const supplyingSiteId = String(data.supplyingSiteId ?? "");
+        if (!supplier || supplier.supplierType !== "internal" || supplier.active !== true ||
+            String(supplier.linkedSiteId ?? "") !== supplyingSiteId ||
+            String(supplier.name ?? "") !== String(data.supplierName ?? "") ||
+            !siteIds.has(sourceSiteId) || !siteIds.has(supplyingSiteId) || sourceSiteId === supplyingSiteId) {
+          return fail("The internal supplier must link to another active business site.", 400);
+        }
+        if (!["Draft", "Sent", "Accepted", "Declined", "Cancelled"].includes(String(data.status ?? ""))) {
+          return fail("Unsupported internal order status.", 400);
+        }
+      }
+
       const siteKeys = deriveSiteKeys(kind, data);
       if (siteKeys.length === 0) return fail("Operational record site is required.", 400);
       if (String(data.id ?? "").trim() !== id) {
@@ -402,6 +460,9 @@ export async function PUT(request: NextRequest) {
       }
       if (siteKeys.some((key) => !validSiteKeys.has(key))) {
         return fail("Operational record references an invalid site.", 400);
+      }
+      if (kind === "orders" && data.orderType === "internal" && data.status !== "Draft" && siteKeys.length !== 2) {
+        return fail("An internal order requires two different business sites.", 400);
       }
       if (kind === "transfers" && siteKeys.length !== 2) {
         return fail("A transfer requires two different KitchenOps sites.", 400);
@@ -413,8 +474,99 @@ export async function PUT(request: NextRequest) {
         if (!belongsToAssignedSite) {
           return fail("This record belongs to another KitchenOps site.", 403);
         }
-        if (kind !== "transfers" && (siteKeys.length !== 1 || !accessKeys.includes(siteKeys[0]))) {
+        if (kind === "orders" && data.orderType !== "internal" && !accessKeys.includes(String(data.siteId ?? ""))) {
+          return fail("Only the ordering site can create or edit this order.", 403);
+        }
+        if (kind !== "transfers" && !(kind === "orders" && data.orderType === "internal") && (siteKeys.length !== 1 || !accessKeys.includes(siteKeys[0]))) {
           return fail("This record belongs to another KitchenOps site.", 403);
+        }
+      }
+
+      if (kind === "orders") {
+        const { data: existingOrderRow, error: existingOrderError } = await admin
+          .from("cloud_operational_records")
+          .select("data")
+          .eq("business_id", context.businessId)
+          .eq("kind", "orders")
+          .eq("record_id", id)
+          .maybeSingle();
+        if (existingOrderError) throw existingOrderError;
+        const previous = asRecord(existingOrderRow?.data);
+
+        if (!previous && data.orderType === "internal" && context.role !== "operations") {
+          const accessKeys = getContextSiteAccessKeys(context);
+          if (!accessKeys.includes(String(data.siteId ?? ""))) {
+            return fail("Only the ordering site can create an internal order.", 403);
+          }
+        }
+
+        if (previous) {
+          // Site, supplier and order identity are fixed at creation.
+          for (const field of ["businessId", "id", "orderNumber", "siteId", "siteName", "supplierId", "supplierName", "orderType", "supplyingSiteId", "supplyingSiteName", "createdAt", "createdBy"]) {
+            if (!samePrimitive(previous[field], data[field])) {
+              return fail("An order's site and supplier cannot be changed after creation.", 403);
+            }
+          }
+
+          if (previous.orderType === "internal") {
+            // Once submitted, request contents are immutable. Review changes may
+            // only add status/audit metadata and a timeline event.
+            if (previous.status !== "Draft" &&
+                (JSON.stringify(previous.items) !== JSON.stringify(data.items) ||
+                 !samePrimitive(previous.notes, data.notes) ||
+                 !samePrimitive(previous.requestedDeliveryDate, data.requestedDeliveryDate) ||
+                 !samePrimitive(previous.subtotal, data.subtotal) ||
+                 !samePrimitive(previous.vat, data.vat) ||
+                 !samePrimitive(previous.total, data.total))) {
+              return fail("Submitted internal requests cannot be edited.", 403);
+            }
+
+            const from = String(previous.status ?? "");
+            const to = String(data.status ?? "");
+            const accessKeys = getContextSiteAccessKeys(context);
+            const isOrderingSite = accessKeys.includes(String(previous.siteId ?? ""));
+            const isSupplyingSite = accessKeys.includes(String(previous.supplyingSiteId ?? ""));
+
+            if (from !== to) {
+              const orderingTransition =
+                (from === "Draft" && (to === "Sent" || to === "Cancelled")) ||
+                (from === "Sent" && to === "Cancelled");
+              const supplyingTransition =
+                from === "Sent" && (to === "Accepted" || to === "Declined");
+
+              if (context.role !== "operations") {
+                if (orderingTransition && !isOrderingSite) {
+                  return fail("Only the ordering site can send or cancel this request.", 403);
+                }
+                if (supplyingTransition && !isSupplyingSite) {
+                  return fail("Only the supplying site can accept or decline this request.", 403);
+                }
+              }
+
+              if (!orderingTransition && !supplyingTransition) {
+                return fail("Invalid internal order transition.", 403);
+              }
+
+              if (supplyingTransition) {
+                const staffName = context.staffName?.trim() || "";
+                const acceptedBy = String(data.acceptedBy ?? "").trim();
+                const declinedBy = String(data.declinedBy ?? "").trim();
+                if (to === "Accepted") {
+                  if (!acceptedBy || !String(data.acceptedAt ?? "").trim() ||
+                      (context.role !== "operations" && acceptedBy !== staffName)) {
+                    return fail("Internal order acceptance audit details are invalid.", 403);
+                  }
+                }
+                if (to === "Declined") {
+                  const reason = String(data.declineReason ?? "").trim();
+                  if (!declinedBy || !String(data.declinedAt ?? "").trim() || !reason || reason.length > 500 ||
+                      (context.role !== "operations" && declinedBy !== staffName)) {
+                    return fail("A valid decline reason and reviewer are required.", 403);
+                  }
+                }
+              }
+            }
+          }
         }
       }
 

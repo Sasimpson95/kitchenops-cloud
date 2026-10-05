@@ -10,6 +10,7 @@ import {
 
 import { receiveProductStock } from "@/lib/inventoryStore";
 import { getCurrentUser } from "@/lib/currentUser";
+import { getSupplierById } from "@/lib/supplierStore";
 import { recordPurchasePrice } from "@/lib/purchasePriceStore";
 import { updateProductPurchasePrice } from "@/lib/productStore";
 
@@ -316,6 +317,16 @@ function buildPurchaseOrder(
 ): PurchaseOrder {
   validateOrderInput(input);
 
+  const supplier = getSupplierById(input.supplierId);
+  if (!supplier || !supplier.active || supplier.name !== input.supplierName) {
+    throw new Error("Choose an active supplier before creating an order.");
+  }
+  if (supplier.supplierType === "internal") {
+    if (!supplier.linkedSiteId || supplier.linkedSiteId === input.siteId) {
+      throw new Error("An internal supplier must link to another KitchenOps site.");
+    }
+  }
+
   const subtotal =
     calculateOrderSubtotal(input.items);
 
@@ -357,6 +368,9 @@ function buildPurchaseOrder(
     supplierId: input.supplierId,
     supplierName:
       input.supplierName,
+    orderType: supplier.supplierType === "internal" ? "internal" : "external",
+    supplyingSiteId: supplier.supplierType === "internal" ? supplier.linkedSiteId : undefined,
+    supplyingSiteName: supplier.supplierType === "internal" ? supplier.linkedSiteName : undefined,
 
     status,
 
@@ -635,6 +649,21 @@ export function updateOrderStatus(
     throw new Error("Order not found.");
   }
 
+  if (existingOrder.orderType === "internal") {
+    if (status === "Completed") {
+      throw new Error("Internal orders must be dispatched and received through the internal delivery workflow.");
+    }
+    if (status === "Accepted" || status === "Declined") {
+      throw new Error("Use the internal order review controls to accept or decline this request.");
+    }
+    if (status === "Cancelled" && existingOrder.status !== "Draft" && existingOrder.status !== "Sent") {
+      throw new Error("Only a draft or requested internal order can be cancelled.");
+    }
+    if (status === "Sent" && existingOrder.status !== "Draft") {
+      throw new Error("Only a draft internal order can be submitted.");
+    }
+  }
+
   const timestamp = now();
 
   let timelineEvent:
@@ -684,6 +713,107 @@ export function updateOrderStatus(
 
   saveOrders(updatedOrders);
 
+  return updatedOrder;
+}
+
+
+function requireSupplyingSiteAccess(order: PurchaseOrder): void {
+  const user = getCurrentUser();
+  if (!user || user.role === "chef") {
+    throw new Error("You do not have permission to review internal orders.");
+  }
+  if (user.role === "operations") return;
+
+  const byId = Boolean(user.siteId && user.siteId === order.supplyingSiteId);
+  const byName = Boolean(
+    user.site?.trim() &&
+    order.supplyingSiteName?.trim() &&
+    user.site.trim().toLowerCase() === order.supplyingSiteName.trim().toLowerCase()
+  );
+  if (!byId && !byName) {
+    throw new Error("Only the supplying site can review this internal order.");
+  }
+}
+
+export function acceptInternalOrder(id: string): PurchaseOrder {
+  const currentOrders = getOrders();
+  const existingOrder = currentOrders.find((order) => order.id === id);
+  if (!existingOrder) throw new Error("Order not found.");
+  if (existingOrder.orderType !== "internal") {
+    throw new Error("Only internal orders can be accepted here.");
+  }
+  if (existingOrder.status !== "Sent") {
+    throw new Error("Only a requested internal order can be accepted.");
+  }
+  requireSupplyingSiteAccess(existingOrder);
+
+  const timestamp = now();
+  const performedBy = currentUserName();
+  const updatedOrder: PurchaseOrder = {
+    ...existingOrder,
+    status: "Accepted",
+    acceptedAt: timestamp,
+    acceptedBy: performedBy,
+    declinedAt: undefined,
+    declinedBy: undefined,
+    declineReason: undefined,
+    updatedAt: timestamp,
+    timeline: [
+      ...existingOrder.timeline,
+      createTimelineEvent({
+        type: "accepted",
+        title: "Internal request accepted",
+        description: `Accepted by ${existingOrder.supplyingSiteName || existingOrder.supplierName}.`,
+        performedBy,
+        createdAt: timestamp,
+      }),
+    ],
+  };
+
+  saveOrders(currentOrders.map((order) => order.id === id ? updatedOrder : order));
+  return updatedOrder;
+}
+
+export function declineInternalOrder(id: string, reason: string): PurchaseOrder {
+  const currentOrders = getOrders();
+  const existingOrder = currentOrders.find((order) => order.id === id);
+  if (!existingOrder) throw new Error("Order not found.");
+  if (existingOrder.orderType !== "internal") {
+    throw new Error("Only internal orders can be declined here.");
+  }
+  if (existingOrder.status !== "Sent") {
+    throw new Error("Only a requested internal order can be declined.");
+  }
+  requireSupplyingSiteAccess(existingOrder);
+
+  const cleanReason = reason.trim();
+  if (!cleanReason) throw new Error("Enter a reason for declining the request.");
+  if (cleanReason.length > 500) throw new Error("Decline reason must be 500 characters or fewer.");
+
+  const timestamp = now();
+  const performedBy = currentUserName();
+  const updatedOrder: PurchaseOrder = {
+    ...existingOrder,
+    status: "Declined",
+    declinedAt: timestamp,
+    declinedBy: performedBy,
+    declineReason: cleanReason,
+    acceptedAt: undefined,
+    acceptedBy: undefined,
+    updatedAt: timestamp,
+    timeline: [
+      ...existingOrder.timeline,
+      createTimelineEvent({
+        type: "declined",
+        title: "Internal request declined",
+        description: cleanReason,
+        performedBy,
+        createdAt: timestamp,
+      }),
+    ],
+  };
+
+  saveOrders(currentOrders.map((order) => order.id === id ? updatedOrder : order));
   return updatedOrder;
 }
 
@@ -740,6 +870,10 @@ export function receivePurchaseOrder(
     throw new Error(
       "This order has already been received."
     );
+  }
+
+  if (order.orderType === "internal") {
+    throw new Error("Internal orders cannot use external supplier delivery receiving.");
   }
 
   const timestamp = now();

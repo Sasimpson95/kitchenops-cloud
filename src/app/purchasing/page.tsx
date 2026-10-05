@@ -26,6 +26,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import Card from "@/components/ui/Card";
 import NewOrderModal from "@/components/purchasing/NewOrderModal";
 import RecentOrders from "@/components/purchasing/RecentOrders";
+import IncomingInternalOrders from "@/components/purchasing/IncomingInternalOrders";
 import ReceiveInvoiceModal from "@/components/purchasing/ReceiveInvoiceModal";
 
 import type { PurchaseOrder } from "@/data/orders";
@@ -190,7 +191,7 @@ export default function PurchasingPage() {
   const deliveriesToday = useMemo(() => {
     return visibleOrders.filter((order) => {
       return (
-        order.status === "Sent" &&
+        order.orderType !== "internal" && order.status === "Sent" &&
         order.requestedDeliveryDate === today
       );
     });
@@ -199,7 +200,7 @@ export default function PurchasingPage() {
   const overdueDeliveries = useMemo(() => {
     return visibleOrders.filter((order) => {
       return (
-        order.status === "Sent" &&
+        order.orderType !== "internal" && order.status === "Sent" &&
         order.requestedDeliveryDate !== "Not set" &&
         order.requestedDeliveryDate < today
       );
@@ -208,7 +209,7 @@ export default function PurchasingPage() {
 
   const awaitingDeliveries = useMemo(() => {
     return visibleOrders
-      .filter((order) => order.status === "Sent")
+      .filter((order) => order.orderType !== "internal" && order.status === "Sent")
       .sort((firstOrder, secondOrder) => {
         const firstDate =
           firstOrder.requestedDeliveryDate ===
@@ -526,6 +527,10 @@ export default function PurchasingPage() {
                 </div>
               </div>
             </Card>
+          </div>
+
+          <div className="mt-8">
+            <IncomingInternalOrders siteId={selectedSiteId} />
           </div>
 
           <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_360px]">

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import Button from "@/components/ui/Button";
+import { getCurrentUser } from "@/lib/currentUser";
 import Card from "@/components/ui/Card";
 import StatusBadge from "@/components/ui/StatusBadge";
 
@@ -163,6 +164,9 @@ export default function OrderDetailsModal({
   onReceive,
   onCancel,
 }: OrderDetailsModalProps) {
+  const currentUser = getCurrentUser();
+  const mayManage = currentUser?.role === "operations" ||
+    Boolean(currentUser?.siteId && currentUser.siteId === order.siteId);
   const timeline = [
     ...(order.timeline ?? []),
   ].sort(
@@ -622,7 +626,7 @@ export default function OrderDetailsModal({
         </Card>
 
         <div className="mt-6 flex flex-wrap justify-end gap-3">
-          {order.status === "Draft" && (
+          {mayManage && order.status === "Draft" && (
             <>
               <Button
                 variant="secondary"
@@ -632,21 +636,38 @@ export default function OrderDetailsModal({
               </Button>
 
               <Button onClick={onSend}>
-                Send Order
+                {order.orderType === "internal" ? "Submit Internal Request" : "Send Order"}
               </Button>
             </>
           )}
 
-          {order.status === "Sent" && (
+          {order.orderType === "internal" && order.status === "Sent" && (
+            <p className="rounded-xl bg-violet-50 px-4 py-3 text-sm font-semibold text-violet-900">
+              Internal request sent to {order.supplyingSiteName}. Awaiting review; no stock movement has occurred.
+            </p>
+          )}
+          {order.orderType === "internal" && order.status === "Accepted" && (
+            <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">
+              Accepted by {order.acceptedBy || order.supplyingSiteName}. Production and dispatch will be enabled in the next build.
+            </p>
+          )}
+          {order.orderType === "internal" && order.status === "Declined" && (
+            <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-900">
+              <p className="font-semibold">Declined by {order.declinedBy || order.supplyingSiteName}.</p>
+              {order.declineReason && <p className="mt-1">Reason: {order.declineReason}</p>}
+            </div>
+          )}
+          {mayManage && order.status === "Sent" && order.orderType !== "internal" && (
             <Button onClick={onReceive}>
               Receive Delivery
             </Button>
           )}
 
-          {order.status !==
+          {mayManage && order.status !==
             "Completed" &&
             order.status !==
-              "Cancelled" && (
+              "Cancelled" &&
+            !(order.orderType === "internal" && (order.status === "Accepted" || order.status === "Declined")) && (
               <Button
                 variant="danger"
                 onClick={onCancel}

@@ -18,6 +18,7 @@ import type { PurchaseOrder } from "@/data/orders";
 import {
   getOrders,
   updateOrderStatus,
+  subscribeToOrderChanges,
 } from "@/lib/orderStore";
 
 export default function OrdersTable() {
@@ -41,6 +42,7 @@ export default function OrdersTable() {
 
   useEffect(() => {
     refreshOrders();
+    return subscribeToOrderChanges(refreshOrders);
   }, []);
 
   const selectedOrder =
@@ -66,11 +68,15 @@ export default function OrdersTable() {
     if (!selectedOrder) return;
 
     try {
-      await sendPurchaseOrderEmail(selectedOrder);
+      if (selectedOrder.orderType !== "internal") {
+        await sendPurchaseOrderEmail(selectedOrder);
+      }
       changeStatus("Sent");
       toast.success(
         "Order sent",
-        `${selectedOrder.orderNumber} was emailed to ${selectedOrder.supplierName}.`
+        selectedOrder.orderType === "internal"
+          ? `${selectedOrder.orderNumber} was submitted to ${selectedOrder.supplyingSiteName}.`
+          : `${selectedOrder.orderNumber} was emailed to ${selectedOrder.supplierName}.`
       );
     } catch (error) {
       toast.error(
